@@ -1,0 +1,880 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>machine_common_sense.controller &#8212; Machine Common Sense  documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Machine Common Sense  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../machine_common_sense.html" accesskey="U">machine_common_sense</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">machine_common_sense.controller</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for machine_common_sense.controller</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">atexit</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">ai2thor.controller</span>
+<span class="kn">import</span> <span class="nn">ai2thor.server</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">PIL</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># How far the player can reach.  I think this value needs to be bigger</span>
+<span class="c1"># than the MAX_MOVE_DISTANCE or else the player may not be able to move</span>
+<span class="c1"># into a position to reach some objects (it may be mathematically impossible).</span>
+<span class="c1"># TODO Reduce this number once the player can crouch down to reach and</span>
+<span class="c1"># pickup small objects on the floor.</span>
+
+<span class="n">DEFAULT_MOVE</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+<span class="kn">from</span> <span class="nn">.action</span> <span class="kn">import</span> <span class="n">Action</span>
+<span class="kn">from</span> <span class="nn">.config_manager</span> <span class="kn">import</span> <span class="n">ConfigManager</span><span class="p">,</span> <span class="n">SceneConfiguration</span>
+<span class="kn">from</span> <span class="nn">.controller_events</span> <span class="kn">import</span> <span class="p">(</span><span class="n">ControllerEventPayload</span><span class="p">,</span> <span class="n">EventType</span><span class="p">,</span>
+                                <span class="n">PredictionPayload</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.controller_output_handler</span> <span class="kn">import</span> <span class="n">ControllerOutputHandler</span>
+<span class="kn">from</span> <span class="nn">.goal_metadata</span> <span class="kn">import</span> <span class="n">GoalMetadata</span>
+<span class="kn">from</span> <span class="nn">.step_metadata</span> <span class="kn">import</span> <span class="n">StepMetadata</span>
+<span class="kn">from</span> <span class="nn">.uploader</span> <span class="kn">import</span> <span class="n">S3Uploader</span>
+<span class="kn">from</span> <span class="nn">.validation</span> <span class="kn">import</span> <span class="n">Validation</span>
+
+
+<span class="k">def</span> <span class="nf">__reset_override</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="p">):</span>
+    <span class="c1"># From https://github.com/allenai/ai2thor/blob/2.5.0/ai2thor/controller.py#L503-L525 # noqa: E501</span>
+    <span class="c1"># Remove the error check: if scene not in self.scenes_in_build</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s1">&#39;Reset&#39;</span><span class="p">,</span> <span class="n">sceneName</span><span class="o">=</span><span class="n">scene</span><span class="p">,</span> <span class="n">sequenceId</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">last_event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">last_event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;Initialize&#39;</span><span class="p">,</span>
+        <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">initialization_parameters</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_event</span>
+
+
+<span class="n">ai2thor</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">Controller</span><span class="o">.</span><span class="n">reset</span> <span class="o">=</span> <span class="n">__reset_override</span>
+
+
+<span class="k">def</span> <span class="nf">__image_depth_override</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_depth_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="c1"># From https://github.com/NextCenturyCorporation/ai2thor/blob/47a9d0802861ba8d7a2a7a6d943a46db28ddbaab/ai2thor/server.py#L232-L240 # noqa: E501</span>
+    <span class="c1"># The MCS depth shader in Unity is completely different now, so override</span>
+    <span class="c1"># the original AI2-THOR depth image code. Just return what Unity sends us.</span>
+    <span class="n">image_depth</span> <span class="o">=</span> <span class="n">ai2thor</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">read_buffer_image</span><span class="p">(</span>
+        <span class="n">image_depth_data</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen_width</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen_height</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">image_depth</span>
+
+
+<span class="n">ai2thor</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">Event</span><span class="o">.</span><span class="n">_image_depth</span> <span class="o">=</span> <span class="n">__image_depth_override</span>
+
+
+<span class="k">class</span> <span class="nc">NumpyAwareEncoderOverride</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
+    <span class="c1"># From https://github.com/allenai/ai2thor/blob/bd35d2cb887faee8b87aa04bd9373b027eb39f17/ai2thor/server.py#L17-L24 # noqa: E501</span>
+    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">generic</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asscalar</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">NumpyAwareEncoderOverride</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+
+<span class="n">ai2thor</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">NumpyAwareEncoder</span> <span class="o">=</span> <span class="n">NumpyAwareEncoderOverride</span>
+
+
+<div class="viewcode-block" id="Controller"><a class="viewcode-back" href="../../api.html#machine_common_sense.Controller">[docs]</a><span class="k">class</span> <span class="nc">Controller</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MCS Controller class implementation for the MCS wrapper of the AI2-THOR</span>
+<span class="sd">    library.</span>
+
+<span class="sd">    https://ai2thor.allenai.org/ithor/documentation/</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_file_path: str, optional</span>
+<span class="sd">        Path to configuration file to read in and set various properties,</span>
+<span class="sd">        such as metadata level and whether or not to save history files</span>
+<span class="sd">        (default None)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># AI2-THOR creates a square grid across the scene that is</span>
+    <span class="c1"># uses for &quot;snap-to-grid&quot; movement. (This value may not</span>
+    <span class="c1"># really matter because we set continuous to True in</span>
+    <span class="c1"># the step input.)</span>
+    <span class="n">GRID_SIZE</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+    <span class="n">MAX_FORCE</span> <span class="o">=</span> <span class="mf">50.0</span>
+
+    <span class="n">DEFAULT_HORIZON</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">DEFAULT_ROTATION</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">DEFAULT_FORCE</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">DEFAULT_AMOUNT</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">DEFAULT_IMG_COORD</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">DEFAULT_OBJECT_MOVE_AMOUNT</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">MAX_FORCE</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">MIN_FORCE</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">MAX_AMOUNT</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">MIN_AMOUNT</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">ROTATION_KEY</span> <span class="o">=</span> <span class="s1">&#39;rotation&#39;</span>
+    <span class="n">HORIZON_KEY</span> <span class="o">=</span> <span class="s1">&#39;horizon&#39;</span>
+    <span class="n">FORCE_KEY</span> <span class="o">=</span> <span class="s1">&#39;force&#39;</span>
+    <span class="n">AMOUNT_KEY</span> <span class="o">=</span> <span class="s1">&#39;amount&#39;</span>
+
+    <span class="n">OBJECT_IMAGE_COORDS_X_KEY</span> <span class="o">=</span> <span class="s1">&#39;objectImageCoordsX&#39;</span>
+    <span class="n">OBJECT_IMAGE_COORDS_Y_KEY</span> <span class="o">=</span> <span class="s1">&#39;objectImageCoordsY&#39;</span>
+    <span class="n">RECEPTACLE_IMAGE_COORDS_X_KEY</span> <span class="o">=</span> <span class="s1">&#39;receptacleObjectImageCoordsX&#39;</span>
+    <span class="n">RECEPTACLE_IMAGE_COORDS_Y_KEY</span> <span class="o">=</span> <span class="s1">&#39;receptacleObjectImageCoordsY&#39;</span>
+
+    <span class="c1"># used for EndHabituation teleport</span>
+    <span class="n">TELEPORT_X_POS</span> <span class="o">=</span> <span class="s1">&#39;xPosition&#39;</span>
+    <span class="n">TELEPORT_Z_POS</span> <span class="o">=</span> <span class="s1">&#39;zPosition&#39;</span>
+    <span class="n">TELEPORT_Y_ROT</span> <span class="o">=</span> <span class="s1">&#39;yRotation&#39;</span>
+
+    <span class="c1"># Hard coding actions that effect MoveMagnitude so the appropriate</span>
+    <span class="c1"># value is set based off of the action</span>
+    <span class="c1"># TODO: Move this to an enum or some place, so that you can determine</span>
+    <span class="c1"># special move interactions that way</span>
+    <span class="n">FORCE_ACTIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ThrowObject&quot;</span><span class="p">,</span> <span class="s2">&quot;PushObject&quot;</span><span class="p">,</span> <span class="s2">&quot;PullObject&quot;</span><span class="p">]</span>
+    <span class="n">OBJECT_MOVE_ACTIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CloseObject&quot;</span><span class="p">,</span> <span class="s2">&quot;OpenObject&quot;</span><span class="p">]</span>
+    <span class="n">MOVE_ACTIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MoveAhead&quot;</span><span class="p">,</span> <span class="s2">&quot;MoveLeft&quot;</span><span class="p">,</span> <span class="s2">&quot;MoveRight&quot;</span><span class="p">,</span> <span class="s2">&quot;MoveBack&quot;</span><span class="p">]</span>
+
+    <span class="n">AWS_CREDENTIALS_FOLDER</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s1">&#39;~&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/.aws/&#39;</span>
+    <span class="n">AWS_CREDENTIALS_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s1">&#39;~&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/.aws/credentials&#39;</span>
+
+    <span class="n">AWS_ACCESS_KEY_ID</span> <span class="o">=</span> <span class="s1">&#39;aws_access_key_id&#39;</span>
+    <span class="n">AWS_SECRET_ACCESS_KEY</span> <span class="o">=</span> <span class="s1">&#39;aws_secret_access_key&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unity_app_file_path</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_subscribers</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end_scene_not_registered</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_handler</span> <span class="o">=</span> <span class="n">ControllerOutputHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_controller</span> <span class="o">=</span> <span class="n">ai2thor</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">Controller</span><span class="p">(</span>
+            <span class="n">quality</span><span class="o">=</span><span class="s1">&#39;Medium&#39;</span><span class="p">,</span>
+            <span class="n">fullscreen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="c1"># The headless flag does not work for me</span>
+            <span class="n">headless</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">local_executable_path</span><span class="o">=</span><span class="n">unity_app_file_path</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get_screen_width</span><span class="p">(),</span>
+            <span class="n">height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get_screen_height</span><span class="p">(),</span>
+            <span class="c1"># Set the name of our Scene in our Unity app</span>
+            <span class="n">scene</span><span class="o">=</span><span class="s1">&#39;MCS&#39;</span><span class="p">,</span>
+            <span class="n">logs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="c1"># This constructor always initializes a scene, so add a scene</span>
+            <span class="c1"># config to ensure it doesn&#39;t error</span>
+            <span class="n">sceneConfig</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;objects&quot;</span><span class="p">:</span> <span class="p">[]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_init</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subscriber</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">subscriber</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subscribers</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_subscribers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subscriber</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_publish_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="n">EventType</span><span class="p">,</span>
+                       <span class="n">payload</span><span class="p">:</span> <span class="n">ControllerEventPayload</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">subscriber</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subscribers</span><span class="p">:</span>
+            <span class="c1"># TODO should we make a deep copy of the payload so subscribers</span>
+            <span class="c1"># cannot change source data?</span>
+            <span class="c1"># seems like performance vs safety</span>
+
+            <span class="c1"># TODO passing the whole controller is clearly a bad idea</span>
+            <span class="c1"># change later</span>
+            <span class="n">subscriber</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+
+    <span class="c1"># TODO this is a huge data dumpster and needs to be thought about</span>
+    <span class="k">def</span> <span class="nf">_create_event_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">ControllerEventPayload</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__output_folder</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__scene_configuration</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__habituation_trial</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">payload</span>
+
+    <span class="c1"># Pixel coordinates are expected to start at the top left, but</span>
+    <span class="c1"># in Unity, (0,0) is the bottom left.</span>
+
+    <span class="k">def</span> <span class="nf">_convert_y_image_coord_for_unity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_coord</span><span class="p">):</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">y_coord</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get_screen_height</span><span class="p">()</span> <span class="o">-</span> <span class="n">y_coord</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">y_coord</span>
+
+    <span class="k">def</span> <span class="nf">_on_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__noise_enabled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">is_noise_enabled</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get_seed</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__seed</span><span class="p">:</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__seed</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span> <span class="o">=</span> <span class="n">GoalMetadata</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__habituation_trial</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1"># Output folder used to save debug image, video, and JSON files.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__output_folder</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__scene_configuration</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Whether or not to show depth maps or object masks is based on</span>
+        <span class="c1"># metadata tier (the default for these if no metadata level is</span>
+        <span class="c1"># set or metadata is set to `none`, is `False`)</span>
+
+        <span class="k">if</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get_aws_access_key_id</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get_aws_secret_access_key</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AWS_CREDENTIALS_FOLDER</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AWS_CREDENTIALS_FOLDER</span><span class="p">)</span>
+            <span class="c1"># From https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html # noqa: E501</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AWS_CREDENTIALS_FILE</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">credentials_file</span><span class="p">:</span>
+                <span class="n">credentials_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                    <span class="s1">&#39;[default]</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWS_ACCESS_KEY_ID</span> <span class="o">+</span>
+                    <span class="s1">&#39; = &#39;</span> <span class="o">+</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get_aws_access_key_id</span><span class="p">()</span> <span class="o">+</span>
+                    <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWS_SECRET_ACCESS_KEY</span> <span class="o">+</span>
+                    <span class="s1">&#39; = &#39;</span> <span class="o">+</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get_aws_secret_access_key</span><span class="p">()</span> <span class="o">+</span>
+                    <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+
+<div class="viewcode-block" id="Controller.end_scene"><a class="viewcode-back" href="../../api.html#machine_common_sense.Controller.end_scene">[docs]</a>    <span class="k">def</span> <span class="nf">end_scene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">,</span> <span class="n">confidence</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Ends the current scene.  Calling end_scene() before calling</span>
+<span class="sd">        start_scene() will do nothing.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        choice : string, optional</span>
+<span class="sd">            The selected choice required for ending scenes with</span>
+<span class="sd">            violation-of-expectation or classification goals.</span>
+<span class="sd">            Is not required for other goals. (default None)</span>
+<span class="sd">        confidence : float, optional</span>
+<span class="sd">            The choice confidence between 0 and 1 required for ending scenes</span>
+<span class="sd">            with violation-of-expectation or classification goals.</span>
+<span class="sd">            Is not required for other goals. (default None)</span>
+
+<span class="sd">            Note: when an issue causes the program to exit prematurely or</span>
+<span class="sd">            end_scene isn&#39;t properly called but history_enabled is true,</span>
+<span class="sd">            this value will be written to file as -1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">uploader</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">is_evaluation</span><span class="p">():</span>
+            <span class="n">uploader</span> <span class="o">=</span> <span class="n">S3Uploader</span><span class="p">(</span>
+                <span class="n">s3_bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get_s3_bucket</span><span class="p">()</span>
+            <span class="p">)</span>
+
+        <span class="c1"># TODO uploader be passed to classes that need</span>
+        <span class="c1"># it on early on via dependency injection?</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_event_payload</span><span class="p">()</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">choice</span> <span class="o">=</span> <span class="n">choice</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">confidence</span> <span class="o">=</span> <span class="n">confidence</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">uploader</span> <span class="o">=</span> <span class="n">uploader</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">uploader_folder_prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get_s3_folder</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_publish_event</span><span class="p">(</span><span class="n">EventType</span><span class="o">.</span><span class="n">ON_END_SCENE</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_scene_not_registered</span><span class="p">):</span>
+            <span class="n">atexit</span><span class="o">.</span><span class="n">unregister</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_scene</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_end_scene_not_registered</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Controller.start_scene"><a class="viewcode-back" href="../../api.html#machine_common_sense.Controller.start_scene">[docs]</a>    <span class="k">def</span> <span class="nf">start_scene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Starts a new scene using the given scene configuration data dict and</span>
+<span class="sd">        returns the scene output data object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config_data : dict</span>
+<span class="sd">            The MCS scene configuration data for the scene to start.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        StepMetadata</span>
+<span class="sd">            The output data object from the start of the scene (the output from</span>
+<span class="sd">            an &quot;Initialize&quot; action).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__scene_configuration</span> <span class="o">=</span> <span class="n">config_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__habituation_trial</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">retrieve_goal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__scene_configuration</span><span class="p">)</span>
+
+        <span class="n">skip_preview_phase</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span> <span class="k">if</span> <span class="s1">&#39;goal&#39;</span> <span class="ow">in</span> <span class="n">config_data</span> <span class="ow">and</span>
+                              <span class="s1">&#39;skip_preview_phase&#39;</span> <span class="ow">in</span> <span class="n">config_data</span><span class="p">[</span><span class="s1">&#39;goal&#39;</span><span class="p">]</span>
+                              <span class="k">else</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">isFileWritingEnabled</span><span class="p">()):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s1">&#39;./&#39;</span> <span class="o">+</span> <span class="n">config_data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__output_folder</span> <span class="o">=</span> <span class="s1">&#39;./&#39;</span> <span class="o">+</span> <span class="n">config_data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
+            <span class="n">file_list</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__output_folder</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+        <span class="n">wrapped_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_step</span><span class="p">(</span>
+            <span class="n">action</span><span class="o">=</span><span class="s1">&#39;Initialize&#39;</span><span class="p">,</span> <span class="n">sceneConfig</span><span class="o">=</span><span class="n">config_data</span><span class="p">)</span>
+        <span class="n">step_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_controller</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">wrapped_step</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_handler</span><span class="o">.</span><span class="n">set_scene_config</span><span class="p">(</span><span class="n">config_data</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">pre_restrict_output</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_handler</span><span class="o">.</span><span class="n">handle_output</span><span class="p">(</span>
+            <span class="n">step_output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__habituation_trial</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_preview_phase</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_goal</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="o">.</span><span class="n">last_preview_phase_step</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">image_list</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">image_list</span>
+                <span class="n">depth_map_list</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">depth_map_list</span>
+                <span class="n">object_mask_list</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">object_mask_list</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;STARTING PREVIEW PHASE...&#39;</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="o">.</span><span class="n">last_preview_phase_step</span><span class="p">):</span>
+                    <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s1">&#39;Pass&#39;</span><span class="p">)</span>
+                    <span class="n">image_list</span> <span class="o">=</span> <span class="n">image_list</span> <span class="o">+</span> <span class="n">output</span><span class="o">.</span><span class="n">image_list</span>
+                    <span class="n">depth_map_list</span> <span class="o">=</span> <span class="n">depth_map_list</span> <span class="o">+</span> <span class="n">output</span><span class="o">.</span><span class="n">depth_map_list</span>
+                    <span class="n">object_mask_list</span> <span class="o">=</span> <span class="p">(</span><span class="n">object_mask_list</span> <span class="o">+</span>
+                                        <span class="n">output</span><span class="o">.</span><span class="n">object_mask_list</span><span class="p">)</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;ENDING PREVIEW PHASE&#39;</span><span class="p">)</span>
+
+                <span class="n">output</span><span class="o">.</span><span class="n">image_list</span> <span class="o">=</span> <span class="n">image_list</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">depth_map_list</span> <span class="o">=</span> <span class="n">depth_map_list</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">object_mask_list</span> <span class="o">=</span> <span class="n">object_mask_list</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;NO PREVIEW PHASE&#39;</span><span class="p">)</span>
+
+            <span class="c1"># TODO Should this be in the if block?  Now that we are using</span>
+            <span class="c1"># subscribers, we may want to always register</span>
+            <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_scene_not_registered</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">is_history_enabled</span><span class="p">()</span> <span class="ow">or</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">is_evaluation</span><span class="p">())):</span>
+                <span class="c1"># make sure history file is written when program exits</span>
+                <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_scene</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">confidence</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_end_scene_not_registered</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_event_payload</span><span class="p">()</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">wrapped_step</span> <span class="o">=</span> <span class="n">wrapped_step</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">step_metadata</span> <span class="o">=</span> <span class="n">step_output</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">step_output</span> <span class="o">=</span> <span class="n">pre_restrict_output</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">restricted_step_output</span> <span class="o">=</span> <span class="n">output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_publish_event</span><span class="p">(</span>
+            <span class="n">EventType</span><span class="o">.</span><span class="n">ON_START_SCENE</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+    <span class="k">def</span> <span class="nf">isFileWritingEnabled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__scene_configuration</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">is_evaluation</span><span class="p">()</span> <span class="ow">or</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">is_save_debug_images</span><span class="p">()</span> <span class="ow">or</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">is_save_debug_json</span><span class="p">()</span> <span class="ow">or</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">is_video_enabled</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="c1"># TODO: may need to reevaluate validation strategy/error handling in the</span>
+    <span class="c1"># future</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Need a validation/conversion step for what ai2thor will accept as input</span>
+<span class="sd">    to keep parameters more simple for the user (in this case, wrapping</span>
+<span class="sd">    rotation degrees into an object)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">validate_and_convert_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">moveMagnitude</span> <span class="o">=</span> <span class="n">DEFAULT_MOVE</span>
+        <span class="n">rotation</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ROTATION_KEY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_ROTATION</span><span class="p">)</span>
+        <span class="n">horizon</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">HORIZON_KEY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_HORIZON</span><span class="p">)</span>
+        <span class="n">amount</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AMOUNT_KEY</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_OBJECT_MOVE_AMOUNT</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">OBJECT_MOVE_ACTIONS</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_AMOUNT</span>
+        <span class="p">)</span>
+        <span class="n">force</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FORCE_KEY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_FORCE</span><span class="p">)</span>
+
+        <span class="n">objectImageCoordsX</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">OBJECT_IMAGE_COORDS_X_KEY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_IMG_COORD</span><span class="p">)</span>
+        <span class="n">objectImageCoordsY</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">OBJECT_IMAGE_COORDS_Y_KEY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_IMG_COORD</span><span class="p">)</span>
+        <span class="n">receptacleObjectImageCoordsX</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">RECEPTACLE_IMAGE_COORDS_X_KEY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_IMG_COORD</span><span class="p">)</span>
+        <span class="n">receptacleObjectImageCoordsY</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">RECEPTACLE_IMAGE_COORDS_Y_KEY</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_IMG_COORD</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Validation</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span><span class="n">amount</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">AMOUNT_KEY</span><span class="p">):</span>
+            <span class="c1"># The default for open/close is 1, the default for &quot;Move&quot; actions</span>
+            <span class="c1"># is 0.5</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">OBJECT_MOVE_ACTIONS</span><span class="p">:</span>
+                <span class="n">amount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_OBJECT_MOVE_AMOUNT</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">amount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_AMOUNT</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Validation</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span><span class="n">force</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">FORCE_KEY</span><span class="p">):</span>
+            <span class="n">force</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_FORCE</span>
+
+        <span class="c1"># Check object directions are numbers</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Validation</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span>
+                <span class="n">objectImageCoordsX</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">OBJECT_IMAGE_COORDS_X_KEY</span><span class="p">):</span>
+            <span class="n">objectImageCoordsX</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_IMG_COORD</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Validation</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span>
+                <span class="n">objectImageCoordsY</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">OBJECT_IMAGE_COORDS_Y_KEY</span><span class="p">):</span>
+            <span class="n">objectImageCoordsY</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_IMG_COORD</span>
+
+        <span class="c1"># Check receptacle directions are numbers</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Validation</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span>
+                <span class="n">receptacleObjectImageCoordsX</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">RECEPTACLE_IMAGE_COORDS_X_KEY</span><span class="p">):</span>
+            <span class="n">receptacleObjectImageCoordsX</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_IMG_COORD</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Validation</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span>
+                <span class="n">receptacleObjectImageCoordsY</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">RECEPTACLE_IMAGE_COORDS_Y_KEY</span><span class="p">):</span>
+            <span class="n">receptacleObjectImageCoordsY</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_IMG_COORD</span>
+
+        <span class="n">amount</span> <span class="o">=</span> <span class="n">Validation</span><span class="o">.</span><span class="n">is_in_range</span><span class="p">(</span>
+            <span class="n">amount</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MIN_AMOUNT</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MAX_AMOUNT</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_AMOUNT</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AMOUNT_KEY</span><span class="p">)</span>
+        <span class="n">force</span> <span class="o">=</span> <span class="n">Validation</span><span class="o">.</span><span class="n">is_in_range</span><span class="p">(</span>
+            <span class="n">force</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MIN_FORCE</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MAX_FORCE</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_FORCE</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">FORCE_KEY</span><span class="p">)</span>
+
+        <span class="c1"># TODO Consider the current &quot;head tilt&quot; value while validating the</span>
+        <span class="c1"># input &quot;horizon&quot; value.</span>
+
+        <span class="c1"># Set the Move Magnitude to the appropriate amount based on the action</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FORCE_ACTIONS</span><span class="p">:</span>
+            <span class="n">moveMagnitude</span> <span class="o">=</span> <span class="n">force</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_FORCE</span>
+
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">OBJECT_MOVE_ACTIONS</span><span class="p">:</span>
+            <span class="n">moveMagnitude</span> <span class="o">=</span> <span class="n">amount</span>
+
+        <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">MOVE_ACTIONS</span><span class="p">:</span>
+            <span class="n">moveMagnitude</span> <span class="o">=</span> <span class="n">DEFAULT_MOVE</span>
+
+        <span class="c1"># Add in noise if noise is enable</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__noise_enabled</span><span class="p">:</span>
+            <span class="n">rotation</span> <span class="o">=</span> <span class="n">rotation</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_noise</span><span class="p">())</span>
+            <span class="n">horizon</span> <span class="o">=</span> <span class="n">horizon</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_noise</span><span class="p">())</span>
+            <span class="n">moveMagnitude</span> <span class="o">=</span> <span class="n">moveMagnitude</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_noise</span><span class="p">())</span>
+
+        <span class="n">rotation_vector</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">rotation_vector</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotation</span>
+
+        <span class="n">object_vector</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">object_vector</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">objectImageCoordsX</span><span class="p">)</span>
+        <span class="n">object_vector</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_y_image_coord_for_unity</span><span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">objectImageCoordsY</span><span class="p">))</span>
+
+        <span class="n">receptacle_vector</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">receptacle_vector</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">receptacleObjectImageCoordsX</span><span class="p">)</span>
+        <span class="n">receptacle_vector</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_y_image_coord_for_unity</span><span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">receptacleObjectImageCoordsY</span><span class="p">))</span>
+
+        <span class="n">teleportRotInput</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TELEPORT_Y_ROT</span><span class="p">)</span>
+        <span class="n">teleportPosXInput</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TELEPORT_X_POS</span><span class="p">)</span>
+        <span class="n">teleportPosZInput</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TELEPORT_Z_POS</span><span class="p">)</span>
+
+        <span class="n">teleportRotation</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">teleportPosition</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">teleportRotInput</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Validation</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span>
+                <span class="n">teleportRotInput</span><span class="p">):</span>
+            <span class="n">teleportRotation</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">teleportRotation</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TELEPORT_Y_ROT</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">teleportPosXInput</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
+                <span class="n">Validation</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span><span class="n">teleportPosXInput</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="n">teleportPosZInput</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
+                <span class="n">Validation</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span><span class="n">teleportPosZInput</span><span class="p">)):</span>
+            <span class="n">teleportPosition</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">teleportPosition</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">teleportPosXInput</span>
+            <span class="n">teleportPosition</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">teleportPosZInput</span>
+
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">objectId</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;objectId&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">receptacleObjectId</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;receptacleObjectId&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">rotation</span><span class="o">=</span><span class="n">rotation_vector</span><span class="p">,</span>
+            <span class="n">horizon</span><span class="o">=</span><span class="n">horizon</span><span class="p">,</span>
+            <span class="n">teleportRotation</span><span class="o">=</span><span class="n">teleportRotation</span><span class="p">,</span>
+            <span class="n">teleportPosition</span><span class="o">=</span><span class="n">teleportPosition</span><span class="p">,</span>
+            <span class="n">moveMagnitude</span><span class="o">=</span><span class="n">moveMagnitude</span><span class="p">,</span>
+            <span class="n">objectImageCoords</span><span class="o">=</span><span class="n">object_vector</span><span class="p">,</span>
+            <span class="n">receptacleObjectImageCoords</span><span class="o">=</span><span class="n">receptacle_vector</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Override</span>
+<div class="viewcode-block" id="Controller.step"><a class="viewcode-back" href="../../api.html#machine_common_sense.Controller.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StepMetadata</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Runs the given action within the current scene.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        action : string</span>
+<span class="sd">            A selected action string from the list of available actions.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Zero or more key-and-value parameters for the action.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        StepMetadata</span>
+<span class="sd">            The MCS output data object from after the selected action and the</span>
+<span class="sd">            physics simulation were run. Returns None if you have passed the</span>
+<span class="sd">            &quot;last_step&quot; of this scene.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="o">.</span><span class="n">last_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="o">.</span><span class="n">last_step</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;You have passed the last step for this scene. &quot;</span>
+                <span class="s2">&quot;Ignoring your action. Please call controller.end_scene() &quot;</span>
+                <span class="s2">&quot;now.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="s1">&#39;,&#39;</span> <span class="ow">in</span> <span class="n">action</span><span class="p">:</span>
+            <span class="n">action</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">Action</span><span class="o">.</span><span class="n">input_to_action_and_params</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+        <span class="n">action_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="o">.</span><span class="n">retrieve_action_list_at_step</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span><span class="p">)</span>
+        <span class="c1"># Only continue with this action step if the given action and</span>
+        <span class="c1"># parameters are in the restricted action list.</span>
+        <span class="n">continue_with_step</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">restricted_action</span><span class="p">,</span> <span class="n">restricted_params</span> <span class="ow">in</span> <span class="n">action_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="n">restricted_action</span><span class="p">:</span>
+                <span class="c1"># If this action doesn&#39;t have restricted parameters, or each</span>
+                <span class="c1"># input parameter is in the restricted parameters, it&#39;s OK.</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">restricted_params</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">([</span>
+                    <span class="n">restricted_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="n">value</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="p">]):</span>
+                    <span class="n">continue_with_step</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">continue_with_step</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The given action &#39;</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">&#39; with parameters &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&#39; isn&#39;t in the action_list. Ignoring your action. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Please call controller.step() with an action in the &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;action_list. Possible actions at step </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span><span class="si">}</span><span class="s2">:&quot;</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">action_data</span> <span class="ow">in</span> <span class="n">action_list</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    </span><span class="si">{</span><span class="n">action_data</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_event_payload</span><span class="p">()</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">action_args</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_publish_event</span><span class="p">(</span>
+            <span class="n">EventType</span><span class="o">.</span><span class="n">ON_BEFORE_STEP</span><span class="p">,</span>
+            <span class="n">payload</span><span class="p">)</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_and_convert_params</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Only call mcs_action_to_ai2thor_action AFTER calling</span>
+        <span class="c1"># validate_and_convert_params</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mcs_action_to_ai2thor_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;EndHabituation&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__habituation_trial</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="o">.</span><span class="n">last_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="o">.</span><span class="n">last_step</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;This is your last step for this scene. All &quot;</span>
+                <span class="s2">&quot;your future actions will be skipped. Please call &quot;</span>
+                <span class="s2">&quot;controller.end_scene() now.&quot;</span><span class="p">)</span>
+
+        <span class="n">step_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_step</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">step_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_controller</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">step_action</span><span class="p">)</span>
+
+        <span class="p">(</span><span class="n">pre_restrict_output</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_handler</span><span class="o">.</span><span class="n">handle_output</span><span class="p">(</span>
+            <span class="n">step_output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__habituation_trial</span><span class="p">)</span>
+
+        <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_event_payload</span><span class="p">()</span>
+        <span class="c1"># do we need both outputs?</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">ai2thor_action</span> <span class="o">=</span> <span class="n">action</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">step_params</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">wrapped_step</span> <span class="o">=</span> <span class="n">step_action</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">step_metadata</span> <span class="o">=</span> <span class="n">step_output</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">step_output</span> <span class="o">=</span> <span class="n">pre_restrict_output</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">restricted_step_output</span> <span class="o">=</span> <span class="n">output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_publish_event</span><span class="p">(</span>
+            <span class="n">EventType</span><span class="o">.</span><span class="n">ON_AFTER_STEP</span><span class="p">,</span>
+            <span class="n">payload</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="Controller.make_step_prediction"><a class="viewcode-back" href="../../api.html#machine_common_sense.Controller.make_step_prediction">[docs]</a>    <span class="k">def</span> <span class="nf">make_step_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                             <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                             <span class="n">violations_xy_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                             <span class="n">heatmap_img</span><span class="p">:</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">Image</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                             <span class="n">internal_state</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Make a prediction on the previously taken step/action.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        choice : string, optional</span>
+<span class="sd">            The selected choice for per frame prediction with</span>
+<span class="sd">            violation-of-expectation or classification goals.</span>
+<span class="sd">            Is not required for other goals. (default None)</span>
+<span class="sd">        confidence : float, optional</span>
+<span class="sd">            The choice confidence between 0 and 1 required by the end of</span>
+<span class="sd">            scenes with violation-of-expectation or classification goals.</span>
+<span class="sd">            Is not required for other goals. (default None)</span>
+<span class="sd">        violations_xy_list : List[Dict[str, float]], optional</span>
+<span class="sd">            A list of one or more (x, y) locations (ex: [{&quot;x&quot;: 1, &quot;y&quot;: 3.4}]),</span>
+<span class="sd">            each representing a potential violation-of-expectation. Required</span>
+<span class="sd">            on each step for passive tasks. (default None)</span>
+<span class="sd">        heatmap_img : PIL.Image.Image, optional</span>
+<span class="sd">            An image representing scene plausiblility at a particular</span>
+<span class="sd">            moment. During evaluation, this image will be recorded as a frame</span>
+<span class="sd">            of a heatmap video for review but is ignored otherwise.</span>
+<span class="sd">            (default None)</span>
+<span class="sd">        internal_state : object, optional</span>
+<span class="sd">            A properly formatted json object representing various kinds of</span>
+<span class="sd">            internal states at a particular moment. Examples include the</span>
+<span class="sd">            estimated position of the agent, current map of the world, etc.</span>
+<span class="sd">            (default None)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">PredictionPayload</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span>
+            <span class="n">choice</span><span class="p">,</span>
+            <span class="n">confidence</span><span class="p">,</span>
+            <span class="n">violations_xy_list</span><span class="p">,</span>
+            <span class="n">heatmap_img</span><span class="p">,</span>
+            <span class="n">internal_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_publish_event</span><span class="p">(</span><span class="n">EventType</span><span class="o">.</span><span class="n">ON_PREDICTION</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">mcs_action_to_ai2thor_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Action</span><span class="o">.</span><span class="n">CLOSE_OBJECT</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="c1"># The AI2-THOR Python library has buggy error checking</span>
+            <span class="c1"># specifically for the CloseObject action,</span>
+            <span class="c1"># so just use our own custom action here.</span>
+            <span class="k">return</span> <span class="s2">&quot;MCSCloseObject&quot;</span>
+
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Action</span><span class="o">.</span><span class="n">DROP_OBJECT</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;DropHandObject&quot;</span>
+
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Action</span><span class="o">.</span><span class="n">OPEN_OBJECT</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="c1"># The AI2-THOR Python library has buggy error checking</span>
+            <span class="c1"># specifically for the OpenObject action,</span>
+            <span class="c1"># so just use our own custom action here.</span>
+            <span class="k">return</span> <span class="s2">&quot;MCSOpenObject&quot;</span>
+
+        <span class="c1"># if action == Action.ROTATE_OBJECT_IN_HAND.value:</span>
+        <span class="c1">#     return &quot;RotateHand&quot;</span>
+
+        <span class="k">return</span> <span class="n">action</span>
+
+    <span class="k">def</span> <span class="nf">update_goal_target_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">goal_output</span><span class="p">):</span>
+        <span class="n">target_name_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;target_1&#39;</span><span class="p">,</span> <span class="s1">&#39;target_2&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">target_name</span> <span class="ow">in</span> <span class="n">target_name_list</span><span class="p">:</span>
+            <span class="c1"># need to convert goal image data from string to array</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">target_name</span> <span class="ow">in</span> <span class="n">goal_output</span><span class="o">.</span><span class="n">metadata</span> <span class="ow">and</span>
+                <span class="s1">&#39;image&#39;</span> <span class="ow">in</span> <span class="n">goal_output</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span> <span class="ow">and</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">goal_output</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">target_name</span><span class="p">][</span><span class="s1">&#39;image&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="n">image_list_string</span> <span class="o">=</span> <span class="n">goal_output</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">target_name</span><span class="p">][</span><span class="s1">&#39;image&#39;</span><span class="p">]</span>
+                <span class="n">goal_output</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">target_name</span><span class="p">][</span><span class="s1">&#39;image&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                    <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">image_list_string</span><span class="p">))</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">goal_output</span>
+
+    <span class="k">def</span> <span class="nf">retrieve_action_list_at_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="n">step_number</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">goal</span><span class="o">.</span><span class="n">retrieve_action_list_at_step</span><span class="p">(</span><span class="n">step_number</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Controller.retrieve_object_states"><a class="viewcode-back" href="../../api.html#machine_common_sense.Controller.retrieve_object_states">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve_object_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the state list at the current step for the object with the</span>
+<span class="sd">        given ID from the scene configuration data, if any.&quot;&quot;&quot;</span>
+        <span class="n">SceneConfiguration</span><span class="o">.</span><span class="n">retrieve_object_states</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__scene_configuration</span><span class="p">,</span>
+            <span class="n">object_id</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span><span class="p">)</span></div>
+
+    <span class="c1"># move to SceneConfiguration class (in config_manager)</span>
+    <span class="k">def</span> <span class="nf">retrieve_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene_configuration</span><span class="p">):</span>
+        <span class="n">goal_config</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">scene_configuration</span><span class="p">[</span><span class="s1">&#39;goal&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;goal&#39;</span> <span class="ow">in</span> <span class="n">scene_configuration</span>
+            <span class="k">else</span> <span class="p">{}</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Transform action list data from strings to tuples.</span>
+        <span class="n">action_list</span> <span class="o">=</span> <span class="n">goal_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;action_list&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">action_list_at_step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">action_list</span><span class="p">):</span>
+            <span class="n">action_list</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">Action</span><span class="o">.</span><span class="n">input_to_action_and_params</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">action</span>
+                <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">action_list_at_step</span>
+            <span class="p">]</span>
+
+        <span class="k">if</span> <span class="s1">&#39;category&#39;</span> <span class="ow">in</span> <span class="n">goal_config</span><span class="p">:</span>
+            <span class="c1"># Backwards compatibility</span>
+            <span class="n">goal_config</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;category&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">goal_config</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_goal_target_image</span><span class="p">(</span><span class="n">GoalMetadata</span><span class="p">(</span>
+            <span class="n">action_list</span><span class="o">=</span><span class="p">(</span><span class="n">action_list</span> <span class="k">if</span> <span class="n">action_list</span> <span class="k">else</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">category</span><span class="o">=</span><span class="n">goal_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">goal_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+            <span class="n">habituation_total</span><span class="o">=</span><span class="n">goal_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;habituation_total&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">last_preview_phase_step</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">goal_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;last_preview_phase_step&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">last_step</span><span class="o">=</span><span class="n">goal_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;last_step&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="n">goal_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;metadata&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="p">))</span>
+
+<div class="viewcode-block" id="Controller.stop_simulation"><a class="viewcode-back" href="../../api.html#machine_common_sense.Controller.stop_simulation">[docs]</a>    <span class="k">def</span> <span class="nf">stop_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stop the 3D simulation environment. This controller won&#39;t work any</span>
+<span class="sd">        more.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_controller</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">wrap_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># whether or not to randomize segmentation mask colors</span>
+        <span class="n">consistentColors</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">metadata_tier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get_metadata_tier</span><span class="p">()</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">metadata_tier</span> <span class="o">==</span> <span class="n">ConfigManager</span><span class="o">.</span><span class="n">CONFIG_METADATA_TIER_ORACLE</span><span class="p">):</span>
+            <span class="n">consistentColors</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Create the step data dict for the AI2-THOR step function.</span>
+        <span class="n">step_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">continuous</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">gridSize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">GRID_SIZE</span><span class="p">,</span>
+            <span class="n">logs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">renderDepthImage</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">is_depth_maps_enabled</span><span class="p">(),</span>
+            <span class="n">renderObjectImage</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">is_object_masks_enabled</span><span class="p">(),</span>
+            <span class="n">snapToGrid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">consistentColors</span><span class="o">=</span><span class="n">consistentColors</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">step_data</span>
+
+<div class="viewcode-block" id="Controller.generate_noise"><a class="viewcode-back" href="../../api.html#machine_common_sense.Controller.generate_noise">[docs]</a>    <span class="k">def</span> <span class="nf">generate_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a random value between -0.05 and 0.05 used to add noise to all</span>
+<span class="sd">        numerical action parameters noise_enabled is True.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            A value between -0.05 and 0.05 (using random.uniform).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Controller.get_metadata_level"><a class="viewcode-back" href="../../api.html#machine_common_sense.Controller.get_metadata_level">[docs]</a>    <span class="k">def</span> <span class="nf">get_metadata_level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the current metadata level set in the config. If none</span>
+<span class="sd">        specified, returns &#39;default&#39;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        string</span>
+<span class="sd">            A string containing the current metadata level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get_metadata_tier</span><span class="p">()</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Machine Common Sense  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../machine_common_sense.html" >machine_common_sense</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">machine_common_sense.controller</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, CACI.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,361 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>machine_common_sense.goal_metadata &#8212; Machine Common Sense  documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Machine Common Sense  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../machine_common_sense.html" accesskey="U">machine_common_sense</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">machine_common_sense.goal_metadata</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for machine_common_sense.goal_metadata</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
+
+<span class="kn">from</span> <span class="nn">.config_manager</span> <span class="kn">import</span> <span class="n">ConfigManager</span>
+<span class="kn">from</span> <span class="nn">.stringifier</span> <span class="kn">import</span> <span class="n">Stringifier</span>
+
+
+<div class="viewcode-block" id="GoalMetadata"><a class="viewcode-back" href="../../api.html#machine_common_sense.GoalMetadata">[docs]</a><span class="k">class</span> <span class="nc">GoalMetadata</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Defines metadata for a goal in the MCS 3D environment.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    action_list : list of lists of (string, dict) tuples, or None</span>
+<span class="sd">        The list of all actions that are available for the scene at each step</span>
+<span class="sd">        (outer list). Each inner list is the list of all actions that are</span>
+<span class="sd">        available for the single step corresponding to the inner list&#39;s index</span>
+<span class="sd">        within the outer list. Each action is returned as a tuple containing</span>
+<span class="sd">        the action string and the action&#39;s restricted paramters, if any.</span>
+<span class="sd">        For example: (&quot;Pass&quot;, {}) forces a Pass action; (&quot;PickupObject&quot;, {})</span>
+<span class="sd">        forces a PickupObject action with any parameters; and</span>
+<span class="sd">        (&quot;PickupObject&quot;, {&quot;objectId&quot;: &quot;a&quot;}) forces a PickupObject action with</span>
+<span class="sd">        the specific parameters objectId=a.</span>
+<span class="sd">        An action_list of None means that all actions are always available.</span>
+<span class="sd">        An empty inner list means that all actions will be available on that</span>
+<span class="sd">        specific step.</span>
+<span class="sd">        See StepMetadata.action_list for the available actions of the current</span>
+<span class="sd">        step.</span>
+<span class="sd">        May be a subset of all possible actions. See</span>
+<span class="sd">        :mod:`Action &lt;machine_common_sense.Action&gt;`.</span>
+<span class="sd">    category : string</span>
+<span class="sd">        The category that describes this goal and the properties in its</span>
+<span class="sd">        metadata. See :mod:`Goal &lt;machine_common_sense.GoalCategory&gt;`.</span>
+<span class="sd">    description : string</span>
+<span class="sd">        A human-readable sentence describing this goal and containing</span>
+<span class="sd">        the target task(s) and object(s).</span>
+
+<span class="sd">        Sizes:</span>
+<span class="sd">        - tiny: near the size of a baseball</span>
+<span class="sd">        - small: near the size of a baby</span>
+<span class="sd">        - medium: near the size of a child</span>
+<span class="sd">        - large: near the size of an adult</span>
+<span class="sd">        - huge: near the size of a sofa</span>
+
+<span class="sd">        Weights:</span>
+<span class="sd">        - light: can be held by a baby</span>
+<span class="sd">        - heavy: cannot be held by a baby, but can be pushed or pulled</span>
+<span class="sd">        - massive: cannot be moved by a baby</span>
+
+<span class="sd">        Colors:</span>
+<span class="sd">        black, blue, brown, green, grey, orange, purple, red, white, yellow</span>
+
+<span class="sd">        Materials:</span>
+<span class="sd">        See :mod:`Material &lt;machine_common_sense.Material&gt;`.</span>
+<span class="sd">    habituation_total : int</span>
+<span class="sd">        The total count of habituation trials that will be in this scene.</span>
+<span class="sd">    last_preview_phase_step : integer</span>
+<span class="sd">        The last step of the Preview Phase of this scene, if a Preview Phase is</span>
+<span class="sd">        scripted in the scene configuration. Each step of a Preview Phase</span>
+<span class="sd">        normally has a single specific action defined in this goal&#39;s</span>
+<span class="sd">        action_list property for the performer to choose, like [&#39;Pass&#39;].</span>
+<span class="sd">        Default: 0 (no Preview Phase)</span>
+<span class="sd">    last_step : integer</span>
+<span class="sd">        The last step of this scene. This scene will automatically end</span>
+<span class="sd">        following this step.</span>
+<span class="sd">    metadata : dict</span>
+<span class="sd">        The metadata specific to this goal. See</span>
+<span class="sd">        :mod:`Goal &lt;machine_common_sense.GoalCategory&gt;`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">action_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">category</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">habituation_total</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">last_preview_phase_step</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">last_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="c1"># The action_list must be None by default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span> <span class="o">=</span> <span class="n">action_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">category</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">habituation_total</span> <span class="o">=</span> <span class="n">habituation_total</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_preview_phase_step</span> <span class="o">=</span> <span class="n">last_preview_phase_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_step</span> <span class="o">=</span> <span class="n">last_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">metadata</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Stringifier</span><span class="o">.</span><span class="n">class_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="c1"># Allows converting the class to a dictionary, along with allowing</span>
+    <span class="c1">#   certain fields to be left out of output file</span>
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="s1">&#39;action_list&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span>
+        <span class="k">yield</span> <span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">category</span>
+        <span class="k">yield</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
+        <span class="c1"># yield &#39;domain_list&#39;, self.domain_list</span>
+        <span class="c1"># yield &#39;info_list&#39;, self.info_list</span>
+        <span class="k">yield</span> <span class="s1">&#39;last_preview_phase_step&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_preview_phase_step</span>
+        <span class="k">yield</span> <span class="s1">&#39;last_step&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_step</span>
+        <span class="c1"># yield &#39;type_list&#39;, self.type_list</span>
+        <span class="k">yield</span> <span class="s1">&#39;metadata&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span>
+
+<div class="viewcode-block" id="GoalMetadata.retrieve_action_list_at_step"><a class="viewcode-back" href="../../api.html#machine_common_sense.GoalMetadata.retrieve_action_list_at_step">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve_action_list_at_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the action list from the given goal at the given step as a</span>
+<span class="sd">        a list of actions tuples by default.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">step_number</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_preview_phase_step</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;Pass&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">step_number</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_step</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[]</span>
+            <span class="n">adjusted_step</span> <span class="o">=</span> <span class="n">step_number</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_preview_phase_step</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">adjusted_step</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">[</span><span class="n">adjusted_step</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">[</span><span class="n">adjusted_step</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">ConfigManager</span><span class="o">.</span><span class="n">ACTION_LIST</span></div></div>
+
+
+<div class="viewcode-block" id="GoalCategory"><a class="viewcode-back" href="../../api.html#machine_common_sense.GoalCategory">[docs]</a><span class="nd">@unique</span>
+<span class="k">class</span> <span class="nc">GoalCategory</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Each goal will have a &quot;category&quot; string and a &quot;metadata&quot; dict with one or</span>
+<span class="sd">    more properties depending on the &quot;category&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">AGENTS</span> <span class="o">=</span> <span class="s2">&quot;agents&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    In a trial that has an Agents goal, you must sit and observe a scene as one</span>
+<span class="sd">    or more simulation-controlled agents act in predefined ways within your</span>
+<span class="sd">    camera&#39;s viewport, and then decide whether the scene is &quot;expected&quot; or</span>
+<span class="sd">    &quot;unexpected&quot;. The camera will always be positioned at an isometric</span>
+<span class="sd">    perspective, like you&#39;re standing on an elevated platform looking down at</span>
+<span class="sd">    the scene. Each scene will consist of eight sequential habituation trials,</span>
+<span class="sd">    depicting expected agent behaviors and separated by EndHabituation actions</span>
+<span class="sd">    (each of which generates a black frame image when called), immediately</span>
+<span class="sd">    followed by the test trial, depicting either an expected or unexpected</span>
+<span class="sd">    agent behavior. All nine of these trials happen within the same &quot;scene&quot;.</span>
+<span class="sd">    These trials will demand a &quot;common sense&quot; understanding of agents, their</span>
+<span class="sd">    behaviors, and their interactions with objects in the environment.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    choose : list of strings</span>
+<span class="sd">        The list of choices, one of which must be given in your call to</span>
+<span class="sd">        end_scene. For Agents goals, this value will always be</span>
+<span class="sd">        [&quot;expected&quot;, &quot;unexpected&quot;].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">INTUITIVE_PHYSICS</span> <span class="o">=</span> <span class="s2">&quot;intuitive physics&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    In a trial that has an Intuitive Physics goal, you must sit and observe a</span>
+<span class="sd">    scene as objects move across your camera&#39;s viewport, and then decide</span>
+<span class="sd">    whether the scene is &quot;plausible&quot; or &quot;implausible&quot;. These trials will demand</span>
+<span class="sd">    a &quot;common sense&quot; understanding of basic (&quot;intuitive&quot;) physics, like object</span>
+<span class="sd">    permanence or shape constancy. Inspired by Emmanuel Dupoux&#39;s &quot;IntPhys: A</span>
+<span class="sd">    Benchmark for Visual Intuitive Physics Reasoning&quot; (http://intphys.com).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    choose : list of strings</span>
+<span class="sd">        The list of choices, one of which must be given in your call to</span>
+<span class="sd">        end_scene. For Intuitive Physics goals, this value will always be</span>
+<span class="sd">        [&quot;plausible&quot;, &quot;implausible&quot;].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">RETRIEVAL</span> <span class="o">=</span> <span class="s2">&quot;retrieval&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    In a trial that has a retrieval goal, you must find and pickup a target</span>
+<span class="sd">    object. This may involve exploring the scene, avoiding obstacles,</span>
+<span class="sd">    interacting with objects (like closed containers), and (future evaluations)</span>
+<span class="sd">    tracking moving objects. These trials will demand a &quot;common sense&quot;</span>
+<span class="sd">    understanding of self navigation (how to move and rotate yourself within a</span>
+<span class="sd">    scene and around obstacles), object interaction (how objects work,</span>
+<span class="sd">    including opening containers), and (future evaluations) the basic physics</span>
+<span class="sd">    of movement (kinematics, gravity, friction, etc.).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target.id : string</span>
+<span class="sd">        The objectId of the target object to retrieve.</span>
+<span class="sd">        Will only be available at `oracle` metadata level.</span>
+
+<span class="sd">    target.info : list of strings</span>
+<span class="sd">        Human-readable information describing the target object needed for the</span>
+<span class="sd">        visualization interface.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">TRANSFERRAL</span> <span class="o">=</span> <span class="s2">&quot;transferral&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    In a trial that has a transferral goal, you must find and pickup the</span>
+<span class="sd">    first target object and put it down either next to or on top of the second</span>
+<span class="sd">    target object. This may involve exploring the scene, avoiding obstacles,</span>
+<span class="sd">    interacting with objects (like closed receptacles), and (future</span>
+<span class="sd">    evaluations) tracking moving objects. These trials will demand a &quot;common</span>
+<span class="sd">    sense&quot; understanding of self navigation (how to move and rotate yourself</span>
+<span class="sd">    within a scene and around obstacles), object interaction (how objects work,</span>
+<span class="sd">    including opening containers), and (future evaluations) the basic physics</span>
+<span class="sd">    of movement (kinematics, gravity, friction, etc.).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    relationship : list of strings</span>
+<span class="sd">        The required final position of the two target objects in relation to</span>
+<span class="sd">        one another. For transferral goals, this value will always be either</span>
+<span class="sd">        [&quot;target_1&quot;, &quot;next_to&quot;, &quot;target_2&quot;] or [&quot;target_1&quot;, &quot;on_top_of&quot;,</span>
+<span class="sd">        &quot;target_2&quot;].</span>
+
+<span class="sd">    target_1.id : string</span>
+<span class="sd">        The objectId of the first target object to pickup and transfer to the</span>
+<span class="sd">        second target object.</span>
+
+<span class="sd">    target_1.image : list of numpy arrays</span>
+<span class="sd">        An image of the first target object to pickup and transfer to the</span>
+<span class="sd">        second target object, given as a 3D RGB pixel array.</span>
+
+<span class="sd">    target_1.info : list of strings</span>
+<span class="sd">        Human-readable information describing the target object needed for the</span>
+<span class="sd">        visualization interface.</span>
+
+<span class="sd">    target_1.match_image : string</span>
+<span class="sd">        Whether the image of the first target object (target_1.image) exactly</span>
+<span class="sd">        matches the actual object in the scene. If false, then the actual first</span>
+<span class="sd">        target object will be different in one way (for example, the image may</span>
+<span class="sd">        depict a blue ball, but the actual object is a yellow ball, or a blue</span>
+<span class="sd">        cube).</span>
+
+<span class="sd">    target_2.id : string</span>
+<span class="sd">        The objectId of the second target object to which the first target</span>
+<span class="sd">        object must be transferred.</span>
+
+<span class="sd">    target_2.image : list of numpy arrays</span>
+<span class="sd">        An image of the second target object to which the first target object</span>
+<span class="sd">        must be transferred, given as a 3D RGB pixel array.</span>
+
+<span class="sd">    target_2.info : list of strings</span>
+<span class="sd">        Human-readable information describing the target object needed for the</span>
+<span class="sd">        visualization interface.</span>
+
+<span class="sd">    target_2.match_image : string</span>
+<span class="sd">        Whether the image of the second target object (target_2.image) exactly</span>
+<span class="sd">        matches the actual object in the scene. If false, then the actual</span>
+<span class="sd">        second target object will be different in one way (for example, the</span>
+<span class="sd">        image may depict a blue ball, but the actual object is a yellow ball,</span>
+<span class="sd">        or a blue cube).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">TRAVERSAL</span> <span class="o">=</span> <span class="s2">&quot;traversal&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    In a trial that has a traversal goal, you must find and move next to a</span>
+<span class="sd">    target object. This may involve exploring the scene, and avoiding</span>
+<span class="sd">    obstacles. These trials will demand a &quot;common sense&quot; understanding of</span>
+<span class="sd">    self navigation (how to move and rotate yourself within a scene and around</span>
+<span class="sd">    obstacles).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target.id : string</span>
+<span class="sd">        The objectId of the target object to find and move next to.</span>
+
+<span class="sd">    target.image : list of numpy arrays</span>
+<span class="sd">        An image of the target object to find and move next to, given as a 3D</span>
+<span class="sd">        RGB pixel array.</span>
+
+<span class="sd">    target.info : list of strings</span>
+<span class="sd">        Human-readable information describing the target object needed for the</span>
+<span class="sd">        visualization interface.</span>
+
+<span class="sd">    target.match_image : string</span>
+<span class="sd">        Whether the image of the target object (target.image) exactly matches</span>
+<span class="sd">        the actual target object in the scene. If false, then the actual object</span>
+<span class="sd">        will be different in one way (for example, the image may depict a blue</span>
+<span class="sd">        ball, but the actual object is a yellow ball, or a blue cube).</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Machine Common Sense  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../machine_common_sense.html" >machine_common_sense</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">machine_common_sense.goal_metadata</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, CACI.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

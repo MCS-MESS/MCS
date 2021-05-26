@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scene File Schema &#8212; Machine Common Sense  documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -26,6 +26,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="models.html" title="Adding 3D Models"
              accesskey="N">next</a> |</li>
@@ -42,13 +45,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="scene-file-schema">
+  <div class="section" id="scene-file-schema">
 <h1>Scene File Schema<a class="headerlink" href="#scene-file-schema" title="Permalink to this headline">¶</a></h1>
-<section id="scenes">
+<div class="section" id="scenes">
 <h2>Scenes<a class="headerlink" href="#scenes" title="Permalink to this headline">¶</a></h2>
 <p>A <strong>scene</strong> is a JSON object (called a <a class="reference internal" href="#scene-config"><span class="std std-ref">scene config</span></a>) that, when passed to the MCS Unity application via the MCS Python Library, describes the objects, materials (colors and textures), and scripted actions that will happen in that specific instance of the MCS 3D simulation environment.</p>
 <p>Please note that all scenes are currently in a room that is 5-by-5 (X/Z) and 3 high (Y) using Unity’s global coordinate system, where we consider 1 unit to be approximately 2 feet.</p>
-<section id="scene-config">
+<div class="section" id="scene-config">
 <h3>Scene Config<a class="headerlink" href="#scene-config" title="Permalink to this headline">¶</a></h3>
 <p>Example:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -132,8 +135,8 @@
 <li><p><cite>roomMaterials</cite> (<a class="reference internal" href="#room-material-config"><span class="std std-ref">room material config</span></a>, optional): The materials for each individual wall.  For any individual wall not provided, or all outer walls if object is not provided, they will use ‘wallMaterial’ property.</p></li>
 <li><p><cite>wallProperties</cite> (<a class="reference internal" href="#physics-config"><span class="std std-ref">physics config</span></a>, optional): Enable custom friction, bounciness, and/or drag on the walls. Default: see <a class="reference internal" href="#physics-config"><span class="std std-ref">physics config</span></a>.</p></li>
 </ul>
-</section>
-<section id="object-config">
+</div>
+<div class="section" id="object-config">
 <h3>Object Config<a class="headerlink" href="#object-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>object config</strong> has the following properties:</p>
 <ul class="simple">
@@ -166,8 +169,8 @@
 <li><p><cite>togglePhysics</cite> (<a class="reference internal" href="#single-step-config"><span class="std std-ref">single step config</span></a> array, optional): The steps on which to toggle physics on the object. Useful if you want to have scripted movement in specific parts of the scene. Can work with the <cite>kinematic</cite> property. Default: <cite>[]</cite></p></li>
 <li><p><cite>torques</cite> (<a class="reference internal" href="#move-config"><span class="std std-ref">move config</span></a> array, optional): The steps on which to apply <a class="reference external" href="https://docs.unity3d.com/ScriptReference/Rigidbody.AddTorque.html">torque</a> to the object. The config <cite>vector</cite> describes the amount of torque (in Newtons) to apply in each direction using the global coordinate system. Resets all existing torques on the object to 0 before applying the new torque. Default: <cite>[]</cite></p></li>
 </ul>
-</section>
-<section id="goal-config">
+</div>
+<div class="section" id="goal-config">
 <h3>Goal Config<a class="headerlink" href="#goal-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>goal config</strong> has the following properties:</p>
 <ul class="simple">
@@ -179,26 +182,26 @@
 <li><p><cite>task_list</cite> (string array, optional): A list of types for the visualization interface associated with this goal, including the relevant MCS core domains. Default: none</p></li>
 <li><p><cite>type_list</cite> (string array, optional) A list of tasks for the visualization interface associated with this goal (secondary to its types).</p></li>
 </ul>
-</section>
-<section id="goal-metadata-config">
+</div>
+<div class="section" id="goal-metadata-config">
 <h3>Goal Metadata Config<a class="headerlink" href="#goal-metadata-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>goal metadata config</strong> has the following properties:</p>
 <p>(Coming soon!)</p>
-</section>
-<section id="answer-config">
+</div>
+<div class="section" id="answer-config">
 <h3>Answer Config<a class="headerlink" href="#answer-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>answer config</strong> has the following properties:</p>
 <p>(Coming soon!)</p>
-</section>
-<section id="change-materials-config">
+</div>
+<div class="section" id="change-materials-config">
 <h3>Change Materials Config<a class="headerlink" href="#change-materials-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>change materials config</strong> has the following properties:</p>
 <ul class="simple">
 <li><p><cite>stepBegin</cite> (integer, required): The step on which the action should occur.  Must be non-negative.  A value of <cite>0</cite> means the action will occur during scene initialization.</p></li>
 <li><p><cite>materials</cite> (string array, required): The new materials for the object.</p></li>
 </ul>
-</section>
-<section id="force-config">
+</div>
+<div class="section" id="force-config">
 <h3>Force Config<a class="headerlink" href="#force-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>force config</strong> has the following properties:</p>
 <ul class="simple">
@@ -207,8 +210,8 @@
 <li><p><cite>vector</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, required): The coordinates to describe the movement. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
 <li><p><cite>relative</cite> (bool, optional): Whether to apply the force using the object’s relative coordinate system, rather than the environment’s absolute coordinate system. Default: <cite>false</cite></p></li>
 </ul>
-</section>
-<section id="move-config">
+</div>
+<div class="section" id="move-config">
 <h3>Move Config<a class="headerlink" href="#move-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>move config</strong> has the following properties:</p>
 <ul class="simple">
@@ -216,8 +219,8 @@
 <li><p><cite>stepEnd</cite> (integer, required): The step on which the action should end.  Must be equal to or greater than the <cite>stepBegin</cite>.</p></li>
 <li><p><cite>vector</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, required): The coordinates to describe the movement. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
 </ul>
-</section>
-<section id="physics-config">
+</div>
+<div class="section" id="physics-config">
 <h3>Physics Config<a class="headerlink" href="#physics-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>physics config</strong> has the following properties:</p>
 <ul class="simple">
@@ -236,8 +239,8 @@
 <li><p>Dynamic Friction: <cite>0.6</cite></p></li>
 <li><p>Static Friction: <cite>0.6</cite></p></li>
 </ul>
-</section>
-<section id="show-config">
+</div>
+<div class="section" id="show-config">
 <h3>Show Config<a class="headerlink" href="#show-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>show config</strong> has the following properties:</p>
 <ul class="simple">
@@ -246,8 +249,8 @@
 <li><p><cite>rotation</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, optional): The object’s rotation (in degrees) within the environment using the global coordinate system. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
 <li><p><cite>scale</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, optional): The object’s scale, which is multiplied by its base scale. Default: <cite>{ “x”: 1, “y”: 1, “z”: 1 }</cite></p></li>
 </ul>
-</section>
-<section id="size-config">
+</div>
+<div class="section" id="size-config">
 <h3>Size Config<a class="headerlink" href="#size-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>size config</strong> has the following properties:</p>
 <ul class="simple">
@@ -255,31 +258,31 @@
 <li><p><cite>stepEnd</cite> (integer, required): The step on which the action should end.  Must be equal to or greater than the <cite>stepBegin</cite>.</p></li>
 <li><p><cite>size</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, required): The coordinates to describe the size, which is multiplied by the object’s current size. Default: <cite>{ “x”: 1, “y”: 1, “z”: 1 }</cite></p></li>
 </ul>
-</section>
-<section id="single-step-config">
+</div>
+<div class="section" id="single-step-config">
 <h3>Single Step Config<a class="headerlink" href="#single-step-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>single step config</strong> has the following properties:</p>
 <ul class="simple">
 <li><p><cite>stepBegin</cite> (integer, required): The step on which the action should occur.  Must be non-negative.  A value of <cite>0</cite> means the action will occur during scene initialization.</p></li>
 </ul>
-</section>
-<section id="step-begin-and-end-config">
+</div>
+<div class="section" id="step-begin-and-end-config">
 <h3>Step Begin and End Config<a class="headerlink" href="#step-begin-and-end-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>step begin and end config</strong> has the following properties:</p>
 <ul class="simple">
 <li><p><cite>stepBegin</cite> (integer, required): The step on which the action should occur.  Must be non-negative.  A value of <cite>0</cite> means the action will occur during scene initialization.</p></li>
 <li><p><cite>stepEnd</cite> (integer, required): The step on which the action should end.  Must be equal to or greater than the <cite>stepBegin</cite>.</p></li>
 </ul>
-</section>
-<section id="teleport-config">
+</div>
+<div class="section" id="teleport-config">
 <h3>Teleport Config<a class="headerlink" href="#teleport-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>teleport config</strong> has the following properties:</p>
 <ul class="simple">
 <li><p><cite>stepBegin</cite> (integer, required): The step on which the action should begin.  Must be non-negative.  A value of <cite>0</cite> means the action will begin during scene initialization.</p></li>
 <li><p><cite>position</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, required): The global coordinates to describe the end position. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
 </ul>
-</section>
-<section id="transform-config">
+</div>
+<div class="section" id="transform-config">
 <h3>Transform Config<a class="headerlink" href="#transform-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>transform config</strong> has the following properties:</p>
 <ul class="simple">
@@ -287,8 +290,8 @@
 <li><p><cite>rotation</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, optional): The object’s rotation (in degrees) within the environment using the global coordinate system. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
 <li><p><cite>scale</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, optional): The object’s scale, which is multiplied by its base scale.  Default: <cite>{ “x”: 1, “y”: 1, “z”: 1 }</cite></p></li>
 </ul>
-</section>
-<section id="vector-config">
+</div>
+<div class="section" id="vector-config">
 <h3>Vector Config<a class="headerlink" href="#vector-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>vector config</strong> has the following properties:</p>
 <ul class="simple">
@@ -296,8 +299,8 @@
 <li><p><cite>y</cite> (float, optional)</p></li>
 <li><p><cite>z</cite> (float, optional)</p></li>
 </ul>
-</section>
-<section id="room-material-config">
+</div>
+<div class="section" id="room-material-config">
 <h3>Room Material Config<a class="headerlink" href="#room-material-config" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><cite>left</cite> (string, optional): The material (color/texture) for the room’s left outer wall. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options.  If not provided, walls will use ‘wallMaterial’ property.  Default: none</p></li>
@@ -305,11 +308,11 @@
 <li><p><cite>front</cite> (string, optional): The material (color/texture) for the room’s front outer wall. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options.  If not provided, walls will use ‘wallMaterial’ property.  Default: none</p></li>
 <li><p><cite>back</cite> (string, optional): The material (color/texture) for the room’s back outer wall. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options.  If not provided, walls will use ‘wallMaterial’ property.  Default: none</p></li>
 </ul>
-</section>
-</section>
-<section id="object-list">
+</div>
+</div>
+<div class="section" id="object-list">
 <h2>Object List<a class="headerlink" href="#object-list" title="Permalink to this headline">¶</a></h2>
-<section id="attributes">
+<div class="section" id="attributes">
 <h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Moveable: Can be pushed, pulled, and knocked over. Can be added to object types that are not <cite>moveable</cite> by default.</p></li>
@@ -318,8 +321,8 @@
 <li><p>Openable: Can be opened with the <cite>OpenObject</cite> action.</p></li>
 </ul>
 <p>You can use any of these strings with an object’s <cite>type</cite> property.</p>
-</section>
-<section id="block-objects-blank">
+</div>
+<div class="section" id="block-objects-blank">
 <h3>Block Objects (Blank)<a class="headerlink" href="#block-objects-blank" title="Permalink to this headline">¶</a></h3>
 <p>Blocks have the <cite>pickupable</cite> and <cite>receptacle</cite> attributes by default. Use the <a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block materials (blank)</span></a>.</p>
 <table class="docutils align-default">
@@ -369,8 +372,8 @@
 </tr>
 </tbody>
 </table>
-</section>
-<section id="block-objects-letter-number">
+</div>
+<div class="section" id="block-objects-letter-number">
 <h3>Block Objects (Letter/Number)<a class="headerlink" href="#block-objects-letter-number" title="Permalink to this headline">¶</a></h3>
 <p>Blocks have the <cite>pickupable</cite> and <cite>receptacle</cite> attributes by default. Use the <a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block materials (letter/number)</span></a>.</p>
 <table class="docutils align-default">
@@ -436,8 +439,8 @@
 </tr>
 </tbody>
 </table>
-</section>
-<section id="pickupable-objects">
+</div>
+<div class="section" id="pickupable-objects">
 <h3>Pickupable Objects<a class="headerlink" href="#pickupable-objects" title="Permalink to this headline">¶</a></h3>
 <p>The following object types have the <cite>pickupable</cite> attribute by default.</p>
 <table class="docutils align-default">
@@ -727,8 +730,8 @@
 </tr>
 </tbody>
 </table>
-</section>
-<section id="furniture-objects">
+</div>
+<div class="section" id="furniture-objects">
 <h3>Furniture Objects<a class="headerlink" href="#furniture-objects" title="Permalink to this headline">¶</a></h3>
 <table class="docutils align-default">
 <colgroup>
@@ -1097,8 +1100,8 @@
 </tr>
 </tbody>
 </table>
-</section>
-<section id="primitive-objects">
+</div>
+<div class="section" id="primitive-objects">
 <h3>Primitive Objects<a class="headerlink" href="#primitive-objects" title="Permalink to this headline">¶</a></h3>
 <p>The following primitive shapes have the <cite>physics</cite> attribute by default, a default mass of 1, default dimensions of (x=1, y=1, z=1), and no material restrictions. Please note these are NOT the internal Unity primitive 3D GameObjects.</p>
 <ul class="simple">
@@ -1113,8 +1116,8 @@
 <li><p><cite>“tube_narrow”</cite></p></li>
 <li><p><cite>“tube_wide”</cite></p></li>
 </ul>
-</section>
-<section id="other-objects">
+</div>
+<div class="section" id="other-objects">
 <h3>Other Objects<a class="headerlink" href="#other-objects" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><cite>“cube_hollow_narrow”</cite></p></li>
@@ -1124,8 +1127,8 @@
 <li><p><cite>“letter_l_wide”</cite></p></li>
 <li><p><cite>“letter_x”</cite></p></li>
 </ul>
-</section>
-<section id="deprecated-objects">
+</div>
+<div class="section" id="deprecated-objects">
 <h3>Deprecated Objects<a class="headerlink" href="#deprecated-objects" title="Permalink to this headline">¶</a></h3>
 <p>The following object types are not currently used:</p>
 <table class="docutils align-default">
@@ -1254,8 +1257,8 @@
 </tr>
 </tbody>
 </table>
-</section>
-<section id="child-components">
+</div>
+<div class="section" id="child-components">
 <h3>Child Components<a class="headerlink" href="#child-components" title="Permalink to this headline">¶</a></h3>
 <p>Some objects have child components representing cabinets, drawers, or shelves. Child components are not found in the scene configuration file but are automatically generated by the MCS environment. Child components have their own object IDs so the player may use actions like OpenObject or PutObject with specific cabinets/drawers/shelves.</p>
 <p>The following objects have the following child components:</p>
@@ -1267,14 +1270,14 @@
 - <cite>“&lt;id&gt;_shelf_middle”</cite>
 - <cite>“&lt;id&gt;_shelf_bottom”</cite></p></li>
 </ul>
-</section>
-</section>
-<section id="material-list">
+</div>
+</div>
+<div class="section" id="material-list">
 <h2>Material List<a class="headerlink" href="#material-list" title="Permalink to this headline">¶</a></h2>
 <p>In Unity, “Materials” are the colors and textures applied to objects in the 3D simulation environment. Some objects may have default materials. Some objects may have multiple materials. Some materials may have patterns intended for objects of a specific size, and may look odd if applied to objects that are too big or small.</p>
 <p>For our training and evaluation datasets, we normally use the materials under “Walls”, “Ceramics”, “Fabrics”, and “Woods” for the ceiling and the walls, and the materials under “Ceramics”, “Fabrics”, and “Woods” for the floors.</p>
 <p>The following materials are currently available:</p>
-<section id="block-materials-blank">
+<div class="section" id="block-materials-blank">
 <h3>Block Materials (Blank)<a class="headerlink" href="#block-materials-blank" title="Permalink to this headline">¶</a></h3>
 <p>Colors that look good on the blank blocks, as well as some of the baby toys.</p>
 <ul class="simple">
@@ -1285,8 +1288,8 @@
 <li><p><cite>“UnityAssetStore/Wooden_Toys_Bundle/ToyBlocks/meshes/Materials/wood_1x1”</cite></p></li>
 <li><p><cite>“UnityAssetStore/Wooden_Toys_Bundle/ToyBlocks/meshes/Materials/yellow_1x1”</cite></p></li>
 </ul>
-</section>
-<section id="block-materials-letter-number">
+</div>
+<div class="section" id="block-materials-letter-number">
 <h3>Block Materials (Letter/Number)<a class="headerlink" href="#block-materials-letter-number" title="Permalink to this headline">¶</a></h3>
 <p>Designs for the letter/number blocks.</p>
 <ul class="simple">
@@ -1303,16 +1306,16 @@
 <li><p><cite>“UnityAssetStore/KD_AlphabetBlocks/Assets/Textures/Blue/TOYBlocks_AlphabetBlock_M_Blue_1K/ToyBlockBlueM”</cite></p></li>
 <li><p><cite>“UnityAssetStore/KD_AlphabetBlocks/Assets/Textures/Blue/TOYBlocks_AlphabetBlock_S_Blue_1K/ToyBlockBlueS”</cite></p></li>
 </ul>
-</section>
-<section id="cardboard-materials">
+</div>
+<div class="section" id="cardboard-materials">
 <h3>Cardboard Materials<a class="headerlink" href="#cardboard-materials" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><cite>“AI2-THOR/Materials/Misc/Cardboard_Brown”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Misc/Cardboard_Grey”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Misc/Cardboard_Tan”</cite></p></li>
 </ul>
-</section>
-<section id="ceramic-materials">
+</div>
+<div class="section" id="ceramic-materials">
 <h3>Ceramic Materials<a class="headerlink" href="#ceramic-materials" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><cite>“AI2-THOR/Materials/Ceramics/BrownMarbleFake 1”</cite></p></li>
@@ -1323,8 +1326,8 @@
 <li><p><cite>“AI2-THOR/Materials/Ceramics/TexturesCom_BrickRound0044_1_seamless_S”</cite> (rough stone)</p></li>
 <li><p><cite>“AI2-THOR/Materials/Ceramics/WhiteCountertop”</cite></p></li>
 </ul>
-</section>
-<section id="fabric-materials">
+</div>
+<div class="section" id="fabric-materials">
 <h3>Fabric Materials<a class="headerlink" href="#fabric-materials" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><cite>“AI2-THOR/Materials/Fabrics/Carpet2”</cite></p></li>
@@ -1335,8 +1338,8 @@
 <li><p><cite>“AI2-THOR/Materials/Fabrics/HotelCarpet3”</cite> (red pattern)</p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/RugPattern224”</cite> (brown, green, and white pattern)</p></li>
 </ul>
-</section>
-<section id="metal-materials">
+</div>
+<div class="section" id="metal-materials">
 <h3>Metal Materials<a class="headerlink" href="#metal-materials" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><cite>“AI2-THOR/Materials/Metals/BlackFoil”</cite></p></li>
@@ -1351,8 +1354,8 @@
 <li><p><cite>“AI2-THOR/Materials/Metals/WhiteMetal”</cite></p></li>
 <li><p><cite>“UnityAssetStore/Baby_Room/Models/Materials/cabinet metal”</cite></p></li>
 </ul>
-</section>
-<section id="plastic-materials">
+</div>
+<div class="section" id="plastic-materials">
 <h3>Plastic Materials<a class="headerlink" href="#plastic-materials" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><cite>“AI2-THOR/Materials/Plastics/BlackPlastic”</cite></p></li>
@@ -1363,39 +1366,39 @@
 <li><p><cite>“UnityAssetStore/Kindergarten_Interior/Models/Materials/color 3”</cite> (flat green)</p></li>
 <li><p><cite>“UnityAssetStore/Kindergarten_Interior/Models/Materials/color 4”</cite> (flat yellow)</p></li>
 </ul>
-</section>
-<section id="rubber-materials">
+</div>
+<div class="section" id="rubber-materials">
 <h3>Rubber Materials<a class="headerlink" href="#rubber-materials" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><cite>“AI2-THOR/Materials/Plastics/BlueRubber”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Plastics/LightBlueRubber”</cite></p></li>
 </ul>
-</section>
-<section id="sofa-1-materials">
+</div>
+<div class="section" id="sofa-1-materials">
 <h3>Sofa 1 Materials<a class="headerlink" href="#sofa-1-materials" title="Permalink to this headline">¶</a></h3>
 <p>Specific textures for <cite>sofa_1</cite> only.</p>
 <ul class="simple">
 <li><p><cite>“AI2-THOR/Materials/Fabrics/Sofa1_Brown”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/Sofa1_Red”</cite></p></li>
 </ul>
-</section>
-<section id="sofa-chair-1-materials">
+</div>
+<div class="section" id="sofa-chair-1-materials">
 <h3>Sofa Chair 1 Materials<a class="headerlink" href="#sofa-chair-1-materials" title="Permalink to this headline">¶</a></h3>
 <p>Specific textures for <cite>sofa_chair_1</cite> only.</p>
 <ul class="simple">
 <li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair1_Black”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair1_Brown”</cite></p></li>
 </ul>
-</section>
-<section id="sofa-2-materials">
+</div>
+<div class="section" id="sofa-2-materials">
 <h3>Sofa 2 Materials<a class="headerlink" href="#sofa-2-materials" title="Permalink to this headline">¶</a></h3>
 <p>Specific textures for <cite>sofa_2</cite> AND <cite>sofa_chair_2</cite> only.</p>
 <ul class="simple">
 <li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair2_Grey”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair2_White”</cite></p></li>
 </ul>
-</section>
-<section id="wall-materials">
+</div>
+<div class="section" id="wall-materials">
 <h3>Wall Materials<a class="headerlink" href="#wall-materials" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><cite>“AI2-THOR/Materials/Walls/Drywall”</cite></p></li>
@@ -1408,8 +1411,8 @@
 <li><p><cite>“AI2-THOR/Materials/Walls/WallDrywallGrey”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Walls/YellowDrywall”</cite></p></li>
 </ul>
-</section>
-<section id="wood-materials">
+</div>
+<div class="section" id="wood-materials">
 <h3>Wood Materials<a class="headerlink" href="#wood-materials" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><cite>“AI2-THOR/Materials/Wood/BlackWood”</cite></p></li>
@@ -1431,9 +1434,9 @@
 <li><p><cite>“UnityAssetStore/Kindergarten_Interior/Models/Materials/color wood 3”</cite> (green)</p></li>
 <li><p><cite>“UnityAssetStore/Kindergarten_Interior/Models/Materials/color wood 4”</cite> (yellow)</p></li>
 </ul>
-</section>
-</section>
-</section>
+</div>
+</div>
+</div>
 
 
             <div class="clearer"></div>
@@ -1531,6 +1534,9 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="models.html" title="Adding 3D Models"
              >next</a> |</li>
         <li class="right" >
@@ -1542,7 +1548,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, CACI.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
     </div>
   </body>
 </html>

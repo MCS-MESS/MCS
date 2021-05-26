@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Adding 3D Models &#8212; Machine Common Sense  documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -26,6 +26,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="containerize.html" title="Containerization"
              accesskey="N">next</a> |</li>
@@ -42,7 +45,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="adding-3d-models">
+  <div class="section" id="adding-3d-models">
 <h1>Adding 3D Models<a class="headerlink" href="#adding-3d-models" title="Permalink to this headline">¶</a></h1>
 <p>Here are the steps to add your own 3D models into the MCS simulation environment. Each step is described in more detail below.</p>
 <ol class="arabic simple">
@@ -55,7 +58,7 @@
 <li><p>Update the Scene Generator with properties for your new objects</p></li>
 <li><p>Optionally, submit a Pull Request to contribute your new objects to our public project</p></li>
 </ol>
-<section id="limitations">
+<div class="section" id="limitations">
 <h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Currently, our simulation environment does not support soft-body physics objects like blankets or stuffed animals.</p></li>
@@ -63,20 +66,20 @@
 <li><p>Successfully integrating existing objects that are part of the original AI2-THOR project but not yet available in the MCS simulation environment may necessitate making MCS-specific adjustments to those objects.</p></li>
 <li><p>This is a manually-intensive procedure that requires using the Unity Editor. Since human perception is needed for indentifying the correct pixels to position bounding boxes around and/or inside specific parts of the 3D model, we’re not currently planning on making this procedure automated or dynamic. This is exactly how the MCS Core Team adds models into the simulation environment – we have no secret shortcuts here.</p></li>
 </ul>
-</section>
-<section id="download-and-open-mcs-in-the-unity-editor">
+</div>
+<div class="section" id="download-and-open-mcs-in-the-unity-editor">
 <h2>1. Download and Open MCS in the Unity Editor<a class="headerlink" href="#download-and-open-mcs-in-the-unity-editor" title="Permalink to this headline">¶</a></h2>
 <p>Clone the <a class="reference external" href="https://github.com/NextCenturyCorporation/ai2thor">MCS fork of AI2-THOR</a> and follow the project’s <a class="reference external" href="https://github.com/NextCenturyCorporation/ai2thor#setup">setup instructions</a> to download and install the correct version of the Unity Editor and use it to load the MCS Unity project.</p>
 <img alt="_images/screenshot_unity_editor.png" src="_images/screenshot_unity_editor.png" />
-</section>
-<section id="import-your-models-into-unity-and-save-them-as-prefabs">
+</div>
+<div class="section" id="import-your-models-into-unity-and-save-them-as-prefabs">
 <h2>2. Import Your Models into Unity and Save Them as Prefabs<a class="headerlink" href="#import-your-models-into-unity-and-save-them-as-prefabs" title="Permalink to this headline">¶</a></h2>
 <p>2A. Copy your 3D model into the <cite>/unity/Assets/Resources/MCS/</cite> folder (you can make a new subfolder for your models if you prefer).</p>
 <p>2B. Navigate to the folder containing your model using the Project window of the Unity Editor. You should see your model there as a thumbnail.</p>
 <p>2C. Click and drag your model’s thumbnail into the Scene window. Your model should appear in the empty scene, and the name of your model’s name should appear in the list in the Hierarchy window.</p>
 <p>2D. Click and drag your model’s name from the list in the Hierarchy window into your folder in the Project window. You should see a “Create Prefab” popup appear. Click the “Original Prefab” button to create a Unity Prefab file (“.prefab”) for your model. Please see the Unity Manual for more information about Prefabs.</p>
-</section>
-<section id="update-your-prefabs-in-unity">
+</div>
+<div class="section" id="update-your-prefabs-in-unity">
 <h2>3. Update Your Prefabs in Unity<a class="headerlink" href="#update-your-prefabs-in-unity" title="Permalink to this headline">¶</a></h2>
 <img alt="_images/screenshot_sample_prefab.png" src="_images/screenshot_sample_prefab.png" />
 <p>3A. In the Hierarchy window, your model’s name in the list is an instantiation of the Prefab, called a Game Object. Next to the Game Object, click the right arrow (<cite>&gt;</cite>) on the right side of the list to edit the Prefab. This will change the Scene window to show a Prefab editing view. The Hierarchy window will now show just the Game Object. Depending on how your model was made, it may have one or more child Game Objects, shown as a nested view. Objects with multiple interactable parts (like, cabinet doors, drawers, and shelves) should have a child for each part. We’ll call the parent Game Object the Target. In the Hierarchy window, click on the Target and look at the Inspector window to verify that it has a MeshFilter, MeshRenderer, and material(s); if it doesn’t, then one of its children should have them (click on each child in turn).</p>
@@ -148,8 +151,8 @@
 <li><p>Repeat steps 3C-3J (EXCEPT 3F) on the Sub-Target.</p></li>
 </ul>
 <p>3K. In the Hierarchy window, click the left arrow (<cite>&lt;</cite>) in the top-left corner to save your Prefab and exit the editing view.</p>
-</section>
-<section id="update-the-object-registry-file">
+</div>
+<div class="section" id="update-the-object-registry-file">
 <h2>4. Update the Object Registry File<a class="headerlink" href="#update-the-object-registry-file" title="Permalink to this headline">¶</a></h2>
 <p>In the MCS fork of AI2-THOR, in <cite>/unity/Assets/Resources/MCS/mcs_object_registry.json</cite>, add a new entry for your object that contains the following properties:</p>
 <ul class="simple">
@@ -172,8 +175,8 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-</section>
-<section id="manually-test-and-verify-your-objects">
+</div>
+<div class="section" id="manually-test-and-verify-your-objects">
 <h2>5. Manually Test and Verify Your Objects<a class="headerlink" href="#manually-test-and-verify-your-objects" title="Permalink to this headline">¶</a></h2>
 <p>Create one or more MCS JSON scene files in the <cite>/unity/Assets/Resources/MCS/Scenes/</cite> folder containing your new object(s). Follow the <a class="reference external" href="https://github.com/NextCenturyCorporation/ai2thor#run">run instructions</a> to run your scenes in the Unity Editor and verify your new objects work as expected. Good behavior to test (and remember to test your actions using both the object IDs and the image pixel coordinates!):</p>
 <ul class="simple">
@@ -188,12 +191,12 @@
 <li><p>Adding Unity Materials (colors/textures) to your object</p></li>
 <li><p>Interacting with your object from the side, rear, and other angles/viewpoints</p></li>
 </ul>
-</section>
-<section id="build-unity">
+</div>
+<div class="section" id="build-unity">
 <h2>6. Build Unity<a class="headerlink" href="#build-unity" title="Permalink to this headline">¶</a></h2>
 <p>Inside the Unity Editor, go to <cite>File-&gt;Build Settings</cite> to open the Build Settings popup window, then build the project by selecting your Target Platform and clicking the Build button.</p>
-</section>
-<section id="update-the-scene-generator">
+</div>
+<div class="section" id="update-the-scene-generator">
 <h2>7. Update the Scene Generator<a class="headerlink" href="#update-the-scene-generator" title="Permalink to this headline">¶</a></h2>
 <p>If you want to have your new objects appear in the random scenes made by our <a class="reference external" href="https://github.com/NextCenturyCorporation/mcs-scene-generator">Scene Generator</a>, you must add some information about each object (which we call an “object definition”) into the Scene Generator’s source code.</p>
 <p>For adding new objects into passive agent scenes, please skip to step 7D.</p>
@@ -215,7 +218,7 @@
 <li><p><cite>positionY</cite> (float): The starting Y position that should always be assigned to your object (unless it’s on/in a receptacle). This will depend on how your model is positioned on the Y axis in its Prefab as noted in step 3B. If a position of Y=0 lets the object sit on the ground without clipping it, then your positionY should be 0. Otherwise, adjust your postionY to a positive number that lets the object sit on the ground without clipping it.</p></li>
 <li><p><cite>scale</cite> (dict with <cite>x</cite>, <cite>y</cite>, and <cite>z</cite> float properties): The scale you want applied to your object. The default scale of your object’s Prefab is multiplied by these values. If you want to have multiple scale options, please nest them in separate dicts within a <cite>chooseSize</cite> array property.</p></li>
 <li><p><cite>shape</cite> (string or string array): The shape of your object, as a human-readable string.</p></li>
-<li><p><cite>size</cite> (string): The size of your object, as a human-readable string. See the <code class="xref py py-mod docutils literal notranslate"><span class="pre">GoalMetadata</span></code> entry in our API doc for the sizes that our team uses.</p></li>
+<li><p><cite>size</cite> (string): The size of your object, as a human-readable string. See the <a class="reference internal" href="api.html#machine_common_sense.GoalMetadata" title="machine_common_sense.GoalMetadata"><code class="xref py py-mod docutils literal notranslate"><span class="pre">GoalMetadata</span></code></a> entry in our API doc for the sizes that our team uses.</p></li>
 </ul>
 <p>Example Object Definition:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -246,17 +249,17 @@
 <li><p>For other passive scenes, in <cite>objects.py</cite>, see the <cite>_MOVE_ACROSS_COMPLEX</cite> and <cite>_FALL_DOWN_COMPLEX</cite> variables, which are each arrays of object definitions. Add your object definition to either one or both of these arrays.</p></li>
 </ul>
 <p>7D. To add new objects into passive agent scenes, in <a class="reference external" href="https://github.com/NextCenturyCorporation/mcs-scene-generator/blob/master/agent_scene_pair_json_converter.py">agent_scene_pair_json_converter.py</a>, see the <cite>AGENT_OBJECT_CONFIG_LIST</cite> and <cite>GOAL_OBJECT_CONFIG_LIST</cite> variables. Add a new ObjectConfig to either one or both of the two arrays, as needed.</p>
-</section>
-<section id="submit-a-pull-request">
+</div>
+<div class="section" id="submit-a-pull-request">
 <h2>8. Submit a Pull Request<a class="headerlink" href="#submit-a-pull-request" title="Permalink to this headline">¶</a></h2>
 <p>Optionally, if you would like to contribute your objects to the public MCS simulation environment (in our GitHub source code repository) for other teams to use, and have legal permission to share your models, then you may submit a Pull Request to the MCS fork of AI2-THOR containing your new Prefabs and updates to the object registry file.</p>
-</section>
-<section id="troubleshooting">
+</div>
+<div class="section" id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
 <p>If you have any questions about the procedure, please contact the MCS Core Team by opening a new GitHub Issue on this repository, posting on the #ta2-api MCS Slack channel, or emailing: <a class="reference external" href="mailto:mcs-ta2&#37;&#52;&#48;machinecommonsense&#46;com">mcs-ta2<span>&#64;</span>machinecommonsense<span>&#46;</span>com</a></p>
 <p>We’re happy to provide clarification on these instructions, but we can’t guarantee that we’ll always have time to help you in executing these instructions.</p>
-</section>
-</section>
+</div>
+</div>
 
 
             <div class="clearer"></div>
@@ -316,6 +319,9 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="containerize.html" title="Containerization"
              >next</a> |</li>
         <li class="right" >
@@ -327,7 +333,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, CACI.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
     </div>
   </body>
 </html>

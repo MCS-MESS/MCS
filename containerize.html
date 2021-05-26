@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Containerization &#8212; Machine Common Sense  documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -26,6 +26,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="remotely.html" title="Running Remotely"
              accesskey="N">next</a> |</li>
@@ -42,9 +45,9 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="containerization">
+  <div class="section" id="containerization">
 <h1>Containerization<a class="headerlink" href="#containerization" title="Permalink to this headline">¶</a></h1>
-<section id="gpu-image">
+<div class="section" id="gpu-image">
 <h2>GPU Image<a class="headerlink" href="#gpu-image" title="Permalink to this headline">¶</a></h2>
 <p>Please note that the GPU image requires an Nvidia GPU and Nvidia Docker to be installed.</p>
 <p>You can run the GPU image with:</p>
@@ -59,7 +62,7 @@
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python3 /scripts/run_human_input.py /mcs/MCS-AI2-THOR-Unity-App-v0.4.0.x86_64 --config_file_path /scripts/config_oracle.ini /input/hinged_container_example.json</span>
 </pre></div>
 </div>
-<section id="missing-x-authorization-error">
+<div class="section" id="missing-x-authorization-error">
 <h3>Missing X Authorization Error<a class="headerlink" href="#missing-x-authorization-error" title="Permalink to this headline">¶</a></h3>
 <p>If you encounter an error like the following:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">config_file_path $MCS_CONFIG_FILE_PATH /input/agents_preference_expected.json</span>
@@ -74,25 +77,25 @@
 <span class="go">xauth nlist $DISPLAY | sed -e &#39;s/^..../ffff/&#39; | xauth -f /tmp/.docker.xauth nmerge -</span>
 </pre></div>
 </div>
-</section>
-</section>
-<section id="cpu-image">
+</div>
+</div>
+<div class="section" id="cpu-image">
 <h2>CPU Image<a class="headerlink" href="#cpu-image" title="Permalink to this headline">¶</a></h2>
 <p>There is an image to run CPU-only without requiring an Nvidia GPU. Please only use it if your system does not meet the
 prerequisites for the GPU image, since GPU acceleration will yield significantly better performance.</p>
-<section id="build-image">
+<div class="section" id="build-image">
 <h3>Build Image<a class="headerlink" href="#build-image" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker build -f CPU_Container.dockerfile -t mcs-playroom-cpu .</span>
 </pre></div>
 </div>
-</section>
-<section id="run-image-bash">
+</div>
+<div class="section" id="run-image-bash">
 <h3>Run Image (bash)<a class="headerlink" href="#run-image-bash" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run -it -p 5900:5900 -v ${PWD}/machine_common_sense/scenes:/input -v ${PWD}/scripts:/scripts mcs-playroom-cpu bash</span>
 </pre></div>
 </div>
-</section>
-<section id="run-with-vnc">
+</div>
+<div class="section" id="run-with-vnc">
 <h3>Run with VNC<a class="headerlink" href="#run-with-vnc" title="Permalink to this headline">¶</a></h3>
 <p>Unless stated otherwise, the following commands are intended to be run inside the container.
 Run tmux with <cite>tmux</cite> and open two panes via <cite>C-b %</cite>.</p>
@@ -108,8 +111,8 @@ Run tmux with <cite>tmux</cite> and open two panes via <cite>C-b %</cite>.</p>
 </div>
 <p>Afterwards, you should be able to connect to the VNC server from the host by running <cite>vncviewer</cite> and connecting to
 <cite>localhost:5900</cite>.</p>
-</section>
-<section id="run-fully-headless">
+</div>
+<div class="section" id="run-fully-headless">
 <h3>Run Fully Headless<a class="headerlink" href="#run-fully-headless" title="Permalink to this headline">¶</a></h3>
 <p>As an alternative for batch runs you can also run MCS against X virtual framebuffers. In this case you do not get visual
 output, but can run the images on headless servers without X server. To do so, execute the following command
@@ -117,9 +120,9 @@ from inside the container:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">xvfb-run -s &quot;-screen 0 1440x900x24&quot; python3 /scripts/run_human_input.py ${MCS_EXECUTABLE_PATH} --config_file_path ${MCS_CONFIG_FILE_PATH} /input/agents_preference_expected.json</span>
 </pre></div>
 </div>
-</section>
-</section>
-</section>
+</div>
+</div>
+</div>
 
 
             <div class="clearer"></div>
@@ -180,6 +183,9 @@ from inside the container:</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="remotely.html" title="Running Remotely"
              >next</a> |</li>
         <li class="right" >
@@ -191,7 +197,7 @@ from inside the container:</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, CACI.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
     </div>
   </body>
 </html>

@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Running Remotely &#8212; Machine Common Sense  documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -26,6 +26,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="dev.html" title="Package Developer Notes"
              accesskey="N">next</a> |</li>
@@ -42,22 +45,22 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="running-remotely">
+  <div class="section" id="running-remotely">
 <h1>Running Remotely<a class="headerlink" href="#running-remotely" title="Permalink to this headline">¶</a></h1>
 <p>To run MCS on a remote GPU server, use the following steps to launch an X11 server.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">#</span> query the gpu bus ID
-<span class="gp">$</span> nvidia-xconfig --query-gpu-info
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>query the gpu bus ID
+<span class="gp">$ </span>nvidia-xconfig --query-gpu-info
 
 <span class="go">GPU #0:</span>
 <span class="go">Name      : Tesla K80</span>
 <span class="go">UUID      : GPU-d03a3d49-0641-40c9-30f2-5c3e4bdad498</span>
 <span class="go">PCI BusID : PCI:0:23:0</span>
-<span class="gp">#</span> create the xserver configuration
-<span class="gp">$</span> sudo nvidia-xconfig --user-display-device<span class="o">=</span>None --virtual<span class="o">=</span>600x400 --output-xconfig<span class="o">=</span>/etx/X11/xorg.conf --busid<span class="o">=</span>PCI:0:23:0
-<span class="gp">#</span> launch Xserver
-<span class="gp">$</span> sudo /usr/bin/Xorg :0 <span class="p">&amp;</span>
-<span class="gp">#</span> <span class="nb">test</span> using glxinfo
-<span class="gp">$</span> <span class="nv">DISPLAY</span><span class="o">=</span>:0 glxinfo
+<span class="gp"># </span>create the xserver configuration
+<span class="gp">$ </span>sudo nvidia-xconfig --user-display-device<span class="o">=</span>None --virtual<span class="o">=</span>600x400 --output-xconfig<span class="o">=</span>/etx/X11/xorg.conf --busid<span class="o">=</span>PCI:0:23:0
+<span class="gp"># </span>launch Xserver
+<span class="gp">$ </span>sudo /usr/bin/Xorg :0 <span class="p">&amp;</span>
+<span class="gp"># </span><span class="nb">test</span> using glxinfo
+<span class="gp">$ </span><span class="nv">DISPLAY</span><span class="o">=</span>:0 glxinfo
 <span class="go">name of display: :0</span>
 <span class="go">display: :0  screen: 0</span>
 <span class="go">direct rendering: Yes</span>
@@ -65,11 +68,11 @@
 <span class="go">server glx version string: 1.4</span>
 </pre></div>
 </div>
-<section id="remote-run-test-script">
+<div class="section" id="remote-run-test-script">
 <h2>Remote Run Test Script<a class="headerlink" href="#remote-run-test-script" title="Permalink to this headline">¶</a></h2>
 <p>Run the following script to test MCS with the X11 server created above.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># test.py</span>
-<span class="kn">import</span> <span class="nn">machine_common_sense</span> <span class="kn">as</span> <span class="nn">mcs</span>
+<span class="kn">import</span> <span class="nn">machine_common_sense</span> <span class="k">as</span> <span class="nn">mcs</span>
 <span class="c1"># use your path to the MCS Unity executable</span>
 <span class="n">controller</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">create_controller</span><span class="p">()</span>
 <span class="c1"># find a test scene</span>
@@ -82,15 +85,15 @@
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">):</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s1">&#39;RotateLook&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">image_list</span><span class="p">)):</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">image_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;{i}-{j}.jpg&#39;</span><span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">image_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s1">.jpg&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>From your python environment, run test.py and check the output images for proper rendering.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">DISPLAY=:0 python test.py</span>
 </pre></div>
 </div>
-</section>
-</section>
+</div>
+</div>
 
 
             <div class="clearer"></div>
@@ -141,6 +144,9 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="dev.html" title="Package Developer Notes"
              >next</a> |</li>
         <li class="right" >
@@ -152,7 +158,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, CACI.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
     </div>
   </body>
 </html>
