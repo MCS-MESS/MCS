@@ -1,0 +1,44 @@
+# Environments
+.env
+.venv
+env
+venv
+ENV/
+env.bak/
+venv.bak/
+
+# Editors
+.idea/
+*.swp
+
+# Mac OS
+.DS_Store
+
+# Byte-compiled
+**/__pycache__/
+
+# Packaging and distribution
+*.egg-info/
+*.egg
+eggs/
+.eggs/
+dist/
+sdist/
+wheels/
+
+docs/_build
+**/*.gif
+**/*.mp4
+**/mcs_config.ini
+
+# Debug output
+**/SCENE_HISTORY
+scripts/**/*.gif
+scripts/**/*.json
+scripts/**/*.mp4
+scripts/**/*.png
+scripts/**/*.zip
+
+# Logging output and user config
+logs/*.log
+scripts/log.config.user.py

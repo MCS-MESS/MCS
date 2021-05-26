@@ -1,0 +1,1548 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Scene File Schema &#8212; Machine Common Sense  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Adding 3D Models" href="models.html" />
+    <link rel="prev" title="Example Scenes" href="scenes.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="models.html" title="Adding 3D Models"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="scenes.html" title="Example Scenes"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Machine Common Sense  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Scene File Schema</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="scene-file-schema">
+<h1>Scene File Schema<a class="headerlink" href="#scene-file-schema" title="Permalink to this headline">¶</a></h1>
+<section id="scenes">
+<h2>Scenes<a class="headerlink" href="#scenes" title="Permalink to this headline">¶</a></h2>
+<p>A <strong>scene</strong> is a JSON object (called a <a class="reference internal" href="#scene-config"><span class="std std-ref">scene config</span></a>) that, when passed to the MCS Unity application via the MCS Python Library, describes the objects, materials (colors and textures), and scripted actions that will happen in that specific instance of the MCS 3D simulation environment.</p>
+<p>Please note that all scenes are currently in a room that is 5-by-5 (X/Z) and 3 high (Y) using Unity’s global coordinate system, where we consider 1 unit to be approximately 2 feet.</p>
+<section id="scene-config">
+<h3>Scene Config<a class="headerlink" href="#scene-config" title="Permalink to this headline">¶</a></h3>
+<p>Example:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Example MCS Scene Configuration&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;verison&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="nt">&quot;ceilingMaterial&quot;</span><span class="p">:</span> <span class="s2">&quot;AI2-THOR/Materials/Walls/Drywall&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;floorMaterial&quot;</span><span class="p">:</span> <span class="s2">&quot;AI2-THOR/Materials/Fabrics/CarpetWhite 3&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;wallMaterial&quot;</span><span class="p">:</span> <span class="s2">&quot;AI2-THOR/Materials/Walls/DrywallBeige&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;roomDimensions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;x&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="nt">&quot;y&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="nt">&quot;z&quot;</span><span class="p">:</span> <span class="mi">10</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;roomMaterials&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;left&quot;</span><span class="p">:</span><span class="s2">&quot;AI2-THOR/Materials/Walls/DrywallGreen&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;front&quot;</span><span class="p">:</span><span class="s2">&quot;AI2-THOR/Materials/Walls/Drywall4Tiled&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;right&quot;</span><span class="p">:</span> <span class="s2">&quot;AI2-THOR/Materials/Walls/Drywall4Tiled&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;back&quot;</span><span class="p">:</span> <span class="s2">&quot;AI2-THOR/Materials/Walls/Drywall4Tiled&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;performerStart&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;position&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;x&quot;</span><span class="p">:</span> <span class="mi">-1</span><span class="p">,</span>
+            <span class="nt">&quot;z&quot;</span><span class="p">:</span> <span class="mi">-1</span>
+        <span class="p">},</span>
+        <span class="nt">&quot;rotation&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="nt">&quot;y&quot;</span><span class="p">:</span> <span class="mi">90</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;objects&quot;</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;sofa&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;sofa_1&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;mass&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="nt">&quot;shows&quot;</span><span class="p">:</span> <span class="p">[{</span>
+            <span class="nt">&quot;stepBegin&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="nt">&quot;position&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;x&quot;</span><span class="p">:</span> <span class="mi">-2</span><span class="p">,</span>
+                <span class="nt">&quot;y&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="nt">&quot;z&quot;</span><span class="p">:</span> <span class="mf">-4.25</span>
+            <span class="p">}</span>
+        <span class="p">}]</span>
+    <span class="p">},</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;ball_a&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;sphere&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;mass&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+        <span class="nt">&quot;materials&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;AI2-THOR/Materials/Plastics/BlueRubber&quot;</span><span class="p">],</span>
+        <span class="nt">&quot;pickupable&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">&quot;salientMaterials&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;plastic&quot;</span><span class="p">],</span>
+        <span class="nt">&quot;shows&quot;</span><span class="p">:</span> <span class="p">[{</span>
+            <span class="nt">&quot;stepBegin&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="nt">&quot;position&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="nt">&quot;y&quot;</span><span class="p">:</span> <span class="mf">0.025</span><span class="p">,</span>
+                <span class="nt">&quot;z&quot;</span><span class="p">:</span> <span class="mi">1</span>
+            <span class="p">},</span>
+            <span class="nt">&quot;scale&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;x&quot;</span><span class="p">:</span> <span class="mf">0.025</span><span class="p">,</span>
+                <span class="nt">&quot;y&quot;</span><span class="p">:</span> <span class="mf">0.025</span><span class="p">,</span>
+                <span class="nt">&quot;z&quot;</span><span class="p">:</span> <span class="mf">0.025</span>
+            <span class="p">}</span>
+        <span class="p">}]</span>
+    <span class="p">}]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Each <strong>scene config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>answer</cite> (<a class="reference internal" href="#answer-config"><span class="std std-ref">answer config</span></a>, optional): The best answer to the goal for the scene. Default: none</p></li>
+<li><p><cite>ceilingMaterial</cite> (string, optional): The material (color/texture) for the room’s ceiling. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options. Default (v0.0.3+): <cite>“AI2-THOR/Materials/Walls/Drywall”</cite></p></li>
+<li><p><cite>floorMaterial</cite> (string, optional): The material (color/texture) for the room’s floor. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options. Default (v0.0.3+): <cite>“AI2-THOR/Materials/Fabrics/CarpetWhite 3”</cite></p></li>
+<li><p><cite>floorProperties</cite> (<a class="reference internal" href="#physics-config"><span class="std std-ref">physics config</span></a>, optional): Enable custom friction, bounciness, and/or drag on the floor. Default: see <a class="reference internal" href="#physics-config"><span class="std std-ref">physics config</span></a>.</p></li>
+<li><p><cite>roomDimensions</cite> (Vector3, optional): Specify the size of the room, not including the thickness of walls, floor, and ceiling.  If omitted or set to 0, 0, 0, the default will be used.  Note: There is a maximum visibility which for objects and structures beyond will not be rendered.  Use caution when creating rooms where the maximum distance exceeds this maximum visibility.  The maximum visibility is 15 meters. Default: 10, 3, 10.</p></li>
+<li><p><cite>goal</cite> (<a class="reference internal" href="#goal-config"><span class="std std-ref">goal config</span></a>, optional): The goal for the scene. Default: none</p></li>
+<li><p><cite>intuitivePhysics</cite> (bool, optional): Specific performer and room setup for intuitive physics scenes.</p></li>
+<li><p><cite>isometric</cite> (bool, optional): Specific performer and room setup for agent scenes.</p></li>
+<li><p><cite>name</cite> (string, required): A unique name for the scene used for our logs. Default: the filename</p></li>
+<li><p><cite>objects</cite> (<a class="reference internal" href="#object-config"><span class="std std-ref">object config</span></a> array, optional): The objects for the scene. Default: <cite>[]</cite></p></li>
+<li><p><cite>performerStart</cite> (<a class="reference internal" href="#transform-config"><span class="std std-ref">transform config</span></a>, optional): The starting position and rotation of the performer (the “player”). Only the <cite>position.x</cite>, <cite>position.z</cite>, <cite>rotation.x</cite> (head tilt), and <cite>rotation.y</cite> properties are used. Default: <cite>{ “position”: { “x”: 0, “z”: 0 }, “rotation”: { “y”: 0 } }</cite></p></li>
+<li><p><cite>version</cite> (int, optional): The version of this scene configuration. Default: the latest version</p></li>
+<li><p><cite>wallMaterial</cite> (string, optional): The material (color/texture) for the room’s four outer walls. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options. Default (v0.0.3+): <cite>“AI2-THOR/Materials/Walls/DrywallBeige”</cite></p></li>
+<li><p><cite>roomMaterials</cite> (<a class="reference internal" href="#room-material-config"><span class="std std-ref">room material config</span></a>, optional): The materials for each individual wall.  For any individual wall not provided, or all outer walls if object is not provided, they will use ‘wallMaterial’ property.</p></li>
+<li><p><cite>wallProperties</cite> (<a class="reference internal" href="#physics-config"><span class="std std-ref">physics config</span></a>, optional): Enable custom friction, bounciness, and/or drag on the walls. Default: see <a class="reference internal" href="#physics-config"><span class="std std-ref">physics config</span></a>.</p></li>
+</ul>
+</section>
+<section id="object-config">
+<h3>Object Config<a class="headerlink" href="#object-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>object config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>id</cite> (string, required): The object’s unique ID.</p></li>
+<li><p><cite>type</cite> (string, required): The object’s type from the <a class="reference internal" href="#object-list"><span class="std std-ref">object list</span></a>.</p></li>
+<li><p><cite>changeMaterials</cite> (<a class="reference internal" href="#change-materials-config"><span class="std std-ref">change_materials config</span></a> array, optional): The steps on which to change the material(s) (colors/textures) used on the object, and the new materials to use. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options. Default: <cite>[]</cite></p></li>
+<li><p><cite>forces</cite> (<a class="reference internal" href="#force-config"><span class="std std-ref">force config</span></a> array, optional): The steps on which to apply <a class="reference external" href="https://docs.unity3d.com/ScriptReference/Rigidbody.AddForce.html">force</a> to the object. The config <cite>vector</cite> describes the amount of force (in Newtons) to apply in each direction using the global coordinate system. Resets all existing forces on the object to 0 before applying the new force. Default: <cite>[]</cite></p></li>
+<li><p><cite>hides</cite> (<a class="reference internal" href="#single-step-config"><span class="std std-ref">single step config</span></a> array, optional): The steps on which to hide the object, completely removing its existence from the scene until it is shown again (see the <cite>shows</cite> property). Useful if you want to have impossible events (spontaneous disappearance). Default: <cite>[]</cite></p></li>
+<li><p><cite>kinematic</cite> (boolean, optional): If true, the object will ignore all forces including gravity. See Unity’s <a class="reference external" href="https://docs.unity3d.com/ScriptReference/Rigidbody-isKinematic.html">isKinematic property</a>. Usually paired with <cite>structure</cite>. Default: <cite>false</cite></p></li>
+<li><p><cite>locationParent</cite> (string, optional): The <cite>id</cite> of another object in the scene. If given, this object’s <cite>shows.position</cite> and <cite>shows.rotation</cite> will both start from the position and rotation of the <cite>locationParent</cite> object rather than from <cite>0</cite>. Default: none</p></li>
+<li><p><cite>mass</cite> (float, optional): The mass of the object, which affects the physics simulation. Default: <cite>1</cite></p></li>
+<li><p><cite>materials</cite> (string array, optional): The material(s) (colors/textures) of the object. An object <cite>type</cite> may use multiple individual materials; if so, they must be listed in a specific order. Please note that most non-primitive objects already have specific material(s). See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options. Default: none</p></li>
+<li><p><cite>materialFile</cite> (string, optional): Deprecated (please use <cite>materials</cite> now). The material (color/texture) of the object. Please note that most non-primitive objects already have specific material(s). See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options. Default: none</p></li>
+<li><p><cite>moveable</cite> (boolean, optional): Whether the object should be moveable, if it is not already moveable based on its <cite>type</cite>. Default: depends on <cite>type</cite></p></li>
+<li><p><cite>moves</cite> (<a class="reference internal" href="#move-config"><span class="std std-ref">move config</span></a> array, optional): The steps on which to move the object, moving it from one position in the scene to another. The config <cite>vector</cite> describes the amount of position to change, added to the object’s current position. Useful if you want to move objects that are <cite>kinematic</cite>. A fifth of each move is made over each of the five substeps (five screenshots) during the step. Default: <cite>[]</cite></p></li>
+<li><p><cite>nullParent</cite> (<a class="reference internal" href="#transform-config"><span class="std std-ref">transform config</span></a>, optional): Whether to wrap the object in a null parent object. Useful if you want to rotate an object by a point other than its center point. Default: none</p></li>
+<li><p><cite>openable</cite> (boolean, optional): Whether the object should be openable, if it is not already openable based on its <cite>type</cite>. Default: depends on <cite>type</cite></p></li>
+<li><p><cite>opened</cite> (boolean, optional): Whether the object should begin opened. Must also be <cite>openable</cite>. Default: <cite>false</cite></p></li>
+<li><p><cite>physics</cite> (boolean, optional): Whether to enable physics simulation on the object. Automatically <cite>true</cite> if <cite>moveable</cite>, <cite>openable</cite>, <cite>pickupable</cite>, or <cite>receptacle</cite> is <cite>true</cite>. Use <cite>physics</cite> if you want to enable physics but don’t want to use any of those other properties. Default: <cite>false</cite></p></li>
+<li><p><cite>physicsProperties</cite> (<a class="reference internal" href="#physics-config"><span class="std std-ref">physics config</span></a>, optional): Enable custom friction, bounciness, and/or drag on the object. Default: see <a class="reference internal" href="#physics-config"><span class="std std-ref">physics config</span></a>.</p></li>
+<li><p><cite>pickupable</cite> (boolean, optional): Whether the object should be pickupable, if it is not already openable based on its <cite>type</cite>. Pickupable objects are also automatically <cite>moveable</cite>. Default: depends on <cite>type</cite></p></li>
+<li><p><cite>resizes</cite> (<a class="reference internal" href="#size-config"><span class="std std-ref">size config</span></a> array, optional): The steps on which to resize the object. The config <cite>size</cite> is multiplied by the object’s current size. Useful if you want to have impossible events (spontaneous resizing). Default: <cite>[]</cite></p></li>
+<li><p><cite>rotates</cite> (<a class="reference internal" href="#move-config"><span class="std std-ref">move config</span></a> array, optional): The steps on which to rotate the object. The config <cite>vector</cite> describes the amount of rotation (in degrees) to change, added to the object’s current rotation. Useful if you want to rotate objects that are <cite>kinematic</cite>. A fifth of each move is made over each of the five substeps (five screenshots) during the step. Default: <cite>[]</cite></p></li>
+<li><p><cite>salientMaterials</cite> (string array, optional)</p></li>
+<li><p><cite>shows</cite> (<a class="reference internal" href="#show-config"><span class="std std-ref">show config</span></a> array, optional): The steps on which to show the object, adding its existence to the scene. Please note that each object begins hidden within the scene, so each object should have at least one element in its <cite>shows</cite> array to be useful. Default: <cite>[]</cite></p></li>
+<li><p><cite>shrouds</cite> (<a class="reference internal" href="#step-begin-and-end-config"><span class="std std-ref">step begin and end config config</span></a> array, optional): The steps on which to shroud the object, temporarily making it invisible, but moving with its existing intertia and able to collide with objects. Useful if you want to have impossible events. Default: <cite>[]</cite></p></li>
+<li><p><cite>states</cite> (string array array, optional): An array of string arrays containing the state label(s) of the object at each step in the scene, returned by the simulation environment in the object’s output metadata. Default: <cite>[]</cite></p></li>
+<li><p><cite>structure</cite> (boolean, optional): Whether the object is a structural part of the environment. Usually paired with <cite>kinematic</cite>. Default: <cite>false</cite></p></li>
+<li><p><cite>teleports</cite> (<a class="reference internal" href="#teleport-config"><span class="std std-ref">teleport config</span></a> array, optional): The steps on which to teleport the object, teleporting it from one position in the scene to another. The config <cite>position</cite> describes the object’s end position in global coordinates and is not affected by the object’s current position. Useful if you want to have impossible events (spontaneous teleportation). Default: <cite>[]</cite></p></li>
+<li><p><cite>togglePhysics</cite> (<a class="reference internal" href="#single-step-config"><span class="std std-ref">single step config</span></a> array, optional): The steps on which to toggle physics on the object. Useful if you want to have scripted movement in specific parts of the scene. Can work with the <cite>kinematic</cite> property. Default: <cite>[]</cite></p></li>
+<li><p><cite>torques</cite> (<a class="reference internal" href="#move-config"><span class="std std-ref">move config</span></a> array, optional): The steps on which to apply <a class="reference external" href="https://docs.unity3d.com/ScriptReference/Rigidbody.AddTorque.html">torque</a> to the object. The config <cite>vector</cite> describes the amount of torque (in Newtons) to apply in each direction using the global coordinate system. Resets all existing torques on the object to 0 before applying the new torque. Default: <cite>[]</cite></p></li>
+</ul>
+</section>
+<section id="goal-config">
+<h3>Goal Config<a class="headerlink" href="#goal-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>goal config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>action_list</cite> (string array array, optional): The list of actions that are available for the scene at each step (outer list index).  Each inner list item is a list of action strings. For example, <cite>[‘MoveAhead’,’RotateLook,rotation=180’]</cite> restricts the actions to either <cite>‘MoveAhead’</cite> or <cite>‘RotateLook’</cite> with the <cite>‘rotation’</cite> parameter set to <cite>180</cite>. An empty outer <cite>action_list</cite> means that all actions are always available. An empty inner list means that all actions are available for that specific step. Default: none</p></li>
+<li><p><cite>info_list</cite> (array, optional): A list of information for the visualization interface associated with this goal. Default: none</p></li>
+<li><p><cite>last_preview_phase_step</cite> (integer, optional): The last step of the preview phase of this scene, if any. Default: -1</p></li>
+<li><p><cite>last_step</cite> (integer, optional): The last step of this scene. This scene will automatically end following this step.</p></li>
+<li><p><cite>metadata</cite> (<a class="reference internal" href="#goal-metadata-config"><span class="std std-ref">goal metadata config</span></a>, optional): The metadata specific to this goal. Default: none</p></li>
+<li><p><cite>task_list</cite> (string array, optional): A list of types for the visualization interface associated with this goal, including the relevant MCS core domains. Default: none</p></li>
+<li><p><cite>type_list</cite> (string array, optional) A list of tasks for the visualization interface associated with this goal (secondary to its types).</p></li>
+</ul>
+</section>
+<section id="goal-metadata-config">
+<h3>Goal Metadata Config<a class="headerlink" href="#goal-metadata-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>goal metadata config</strong> has the following properties:</p>
+<p>(Coming soon!)</p>
+</section>
+<section id="answer-config">
+<h3>Answer Config<a class="headerlink" href="#answer-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>answer config</strong> has the following properties:</p>
+<p>(Coming soon!)</p>
+</section>
+<section id="change-materials-config">
+<h3>Change Materials Config<a class="headerlink" href="#change-materials-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>change materials config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>stepBegin</cite> (integer, required): The step on which the action should occur.  Must be non-negative.  A value of <cite>0</cite> means the action will occur during scene initialization.</p></li>
+<li><p><cite>materials</cite> (string array, required): The new materials for the object.</p></li>
+</ul>
+</section>
+<section id="force-config">
+<h3>Force Config<a class="headerlink" href="#force-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>force config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>stepBegin</cite> (integer, required): The step on which the action should begin.  Must be non-negative.  A value of <cite>0</cite> means the action will begin during scene initialization.</p></li>
+<li><p><cite>stepEnd</cite> (integer, required): The step on which the action should end.  Must be equal to or greater than the <cite>stepBegin</cite>.</p></li>
+<li><p><cite>vector</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, required): The coordinates to describe the movement. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
+<li><p><cite>relative</cite> (bool, optional): Whether to apply the force using the object’s relative coordinate system, rather than the environment’s absolute coordinate system. Default: <cite>false</cite></p></li>
+</ul>
+</section>
+<section id="move-config">
+<h3>Move Config<a class="headerlink" href="#move-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>move config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>stepBegin</cite> (integer, required): The step on which the action should begin.  Must be non-negative.  A value of <cite>0</cite> means the action will begin during scene initialization.</p></li>
+<li><p><cite>stepEnd</cite> (integer, required): The step on which the action should end.  Must be equal to or greater than the <cite>stepBegin</cite>.</p></li>
+<li><p><cite>vector</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, required): The coordinates to describe the movement. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
+</ul>
+</section>
+<section id="physics-config">
+<h3>Physics Config<a class="headerlink" href="#physics-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>physics config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>enable</cite> (bool, optional): Whether to enable customizing ALL physics properties on the object. You must either customize no properties or all of them. Any unset property in this config will automatically be set to <cite>0</cite>, NOT its Unity default (see below). Default: <cite>false</cite></p></li>
+<li><p><cite>angularDrag</cite> (float, optional): The object’s <a class="reference external" href="https://docs.unity3d.com/ScriptReference/Rigidbody-angularDrag.html">angular drag</a>, between 0 and 1. Default: <cite>0</cite></p></li>
+<li><p><cite>bounciness</cite> (float, optional): The object’s <a class="reference external" href="https://docs.unity3d.com/ScriptReference/PhysicMaterial-bounciness.html">bounciness</a>, between 0 and 1. Default: <cite>0</cite></p></li>
+<li><p><cite>drag</cite> (float, optional): The object’s <a class="reference external" href="https://docs.unity3d.com/ScriptReference/Rigidbody-drag.html">drag</a>. Default: <cite>0</cite></p></li>
+<li><p><cite>dynamicFriction</cite> (float, optional): The object’s <a class="reference external" href="https://docs.unity3d.com/ScriptReference/PhysicMaterial-dynamicFriction.html">dynamic friction</a>, between 0 and 1. Default: <cite>0</cite></p></li>
+<li><p><cite>staticFriction</cite> (float, optional): The object’s <a class="reference external" href="https://docs.unity3d.com/ScriptReference/PhysicMaterial-staticFriction.html">static friction</a>, between 0 and 1. Default: <cite>0</cite></p></li>
+</ul>
+<p>If no physics config is set, or if the physics config is not enabled, the object will have the following Unity defaults:</p>
+<ul class="simple">
+<li><p>Angular Drag: <cite>0.5</cite></p></li>
+<li><p>Bounciness: <cite>0</cite></p></li>
+<li><p>Drag: <cite>0</cite></p></li>
+<li><p>Dynamic Friction: <cite>0.6</cite></p></li>
+<li><p>Static Friction: <cite>0.6</cite></p></li>
+</ul>
+</section>
+<section id="show-config">
+<h3>Show Config<a class="headerlink" href="#show-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>show config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>stepBegin</cite> (integer, required): The step on which to show the object.  Must be non-negative.  A value of <cite>0</cite> means the object will be shown during scene initialization.</p></li>
+<li><p><cite>position</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, optional): The object’s position within the environment using the global coordinate system. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
+<li><p><cite>rotation</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, optional): The object’s rotation (in degrees) within the environment using the global coordinate system. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
+<li><p><cite>scale</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, optional): The object’s scale, which is multiplied by its base scale. Default: <cite>{ “x”: 1, “y”: 1, “z”: 1 }</cite></p></li>
+</ul>
+</section>
+<section id="size-config">
+<h3>Size Config<a class="headerlink" href="#size-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>size config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>stepBegin</cite> (integer, required): The step on which the action should begin.  Must be non-negative.  A value of <cite>0</cite> means the action will begin during scene initialization.</p></li>
+<li><p><cite>stepEnd</cite> (integer, required): The step on which the action should end.  Must be equal to or greater than the <cite>stepBegin</cite>.</p></li>
+<li><p><cite>size</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, required): The coordinates to describe the size, which is multiplied by the object’s current size. Default: <cite>{ “x”: 1, “y”: 1, “z”: 1 }</cite></p></li>
+</ul>
+</section>
+<section id="single-step-config">
+<h3>Single Step Config<a class="headerlink" href="#single-step-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>single step config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>stepBegin</cite> (integer, required): The step on which the action should occur.  Must be non-negative.  A value of <cite>0</cite> means the action will occur during scene initialization.</p></li>
+</ul>
+</section>
+<section id="step-begin-and-end-config">
+<h3>Step Begin and End Config<a class="headerlink" href="#step-begin-and-end-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>step begin and end config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>stepBegin</cite> (integer, required): The step on which the action should occur.  Must be non-negative.  A value of <cite>0</cite> means the action will occur during scene initialization.</p></li>
+<li><p><cite>stepEnd</cite> (integer, required): The step on which the action should end.  Must be equal to or greater than the <cite>stepBegin</cite>.</p></li>
+</ul>
+</section>
+<section id="teleport-config">
+<h3>Teleport Config<a class="headerlink" href="#teleport-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>teleport config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>stepBegin</cite> (integer, required): The step on which the action should begin.  Must be non-negative.  A value of <cite>0</cite> means the action will begin during scene initialization.</p></li>
+<li><p><cite>position</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, required): The global coordinates to describe the end position. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
+</ul>
+</section>
+<section id="transform-config">
+<h3>Transform Config<a class="headerlink" href="#transform-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>transform config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>position</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, optional): The object’s position within the environment using the global coordinate system. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
+<li><p><cite>rotation</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, optional): The object’s rotation (in degrees) within the environment using the global coordinate system. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
+<li><p><cite>scale</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, optional): The object’s scale, which is multiplied by its base scale.  Default: <cite>{ “x”: 1, “y”: 1, “z”: 1 }</cite></p></li>
+</ul>
+</section>
+<section id="vector-config">
+<h3>Vector Config<a class="headerlink" href="#vector-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>vector config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>x</cite> (float, optional)</p></li>
+<li><p><cite>y</cite> (float, optional)</p></li>
+<li><p><cite>z</cite> (float, optional)</p></li>
+</ul>
+</section>
+<section id="room-material-config">
+<h3>Room Material Config<a class="headerlink" href="#room-material-config" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><cite>left</cite> (string, optional): The material (color/texture) for the room’s left outer wall. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options.  If not provided, walls will use ‘wallMaterial’ property.  Default: none</p></li>
+<li><p><cite>right</cite> (string, optional): The material (color/texture) for the room’s right outer wall. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options.  If not provided, walls will use ‘wallMaterial’ property.  Default: none</p></li>
+<li><p><cite>front</cite> (string, optional): The material (color/texture) for the room’s front outer wall. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options.  If not provided, walls will use ‘wallMaterial’ property.  Default: none</p></li>
+<li><p><cite>back</cite> (string, optional): The material (color/texture) for the room’s back outer wall. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options.  If not provided, walls will use ‘wallMaterial’ property.  Default: none</p></li>
+</ul>
+</section>
+</section>
+<section id="object-list">
+<h2>Object List<a class="headerlink" href="#object-list" title="Permalink to this headline">¶</a></h2>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Moveable: Can be pushed, pulled, and knocked over. Can be added to object types that are not <cite>moveable</cite> by default.</p></li>
+<li><p>Pickupable: Can be picked up with the <cite>PickupObject</cite> action (all pickupable objects are also moveable). Can be added to object types that are not <cite>pickupable</cite> by default.</p></li>
+<li><p>Receptacle: Can hold objects with the <cite>PutObject</cite> action.</p></li>
+<li><p>Openable: Can be opened with the <cite>OpenObject</cite> action.</p></li>
+</ul>
+<p>You can use any of these strings with an object’s <cite>type</cite> property.</p>
+</section>
+<section id="block-objects-blank">
+<h3>Block Objects (Blank)<a class="headerlink" href="#block-objects-blank" title="Permalink to this headline">¶</a></h3>
+<p>Blocks have the <cite>pickupable</cite> and <cite>receptacle</cite> attributes by default. Use the <a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block materials (blank)</span></a>.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Object Type</p></th>
+<th class="head"><p>Shape</p></th>
+<th class="head"><p>Default Mass</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><cite>“block_blank_blue_cube”</cite></p></td>
+<td><p>blank block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_blank_blue_cylinder”</cite></p></td>
+<td><p>blank block cylinder</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_blank_red_cube”</cite></p></td>
+<td><p>blank block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_blank_red_cylinder”</cite></p></td>
+<td><p>blank block cylinder</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_blank_wood_cube”</cite></p></td>
+<td><p>blank block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_blank_wood_cylinder”</cite></p></td>
+<td><p>blank block cylinder</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_blank_yellow_cube”</cite></p></td>
+<td><p>blank block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_blank_yellow_cylinder”</cite></p></td>
+<td><p>blank block cylinder</p></td>
+<td><p>0.66</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="block-objects-letter-number">
+<h3>Block Objects (Letter/Number)<a class="headerlink" href="#block-objects-letter-number" title="Permalink to this headline">¶</a></h3>
+<p>Blocks have the <cite>pickupable</cite> and <cite>receptacle</cite> attributes by default. Use the <a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block materials (letter/number)</span></a>.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Object Type</p></th>
+<th class="head"><p>Shape</p></th>
+<th class="head"><p>Default Mass</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><cite>“block_blue_letter_a”</cite></p></td>
+<td><p>letter block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_blue_letter_b”</cite></p></td>
+<td><p>letter block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_blue_letter_c”</cite></p></td>
+<td><p>letter block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_blue_letter_d”</cite></p></td>
+<td><p>letter block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_blue_letter_m”</cite></p></td>
+<td><p>letter block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_blue_letter_s”</cite></p></td>
+<td><p>letter block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_yellow_number_1”</cite></p></td>
+<td><p>number block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_yellow_number_2”</cite></p></td>
+<td><p>number block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_yellow_number_3”</cite></p></td>
+<td><p>number block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_yellow_number_4”</cite></p></td>
+<td><p>number block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_yellow_number_5”</cite></p></td>
+<td><p>number block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_yellow_number_6”</cite></p></td>
+<td><p>number block cube</p></td>
+<td><p>0.66</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="pickupable-objects">
+<h3>Pickupable Objects<a class="headerlink" href="#pickupable-objects" title="Permalink to this headline">¶</a></h3>
+<p>The following object types have the <cite>pickupable</cite> attribute by default.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Object Type</p></th>
+<th class="head"><p>Shape</p></th>
+<th class="head"><p>Default Mass</p></th>
+<th class="head"><p>Receptacle</p></th>
+<th class="head"><p>Openable</p></th>
+<th class="head"><p>Materials</p></th>
+<th class="head"><p>Details</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><cite>“apple_1”</cite></p></td>
+<td><p>apple</p></td>
+<td><p>0.25</p></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“apple_2”</cite></p></td>
+<td><p>apple</p></td>
+<td><p>0.25</p></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“ball”</cite></p></td>
+<td><p>ball</p></td>
+<td><p>1</p></td>
+<td></td>
+<td></td>
+<td><p>block (blank), metal, plastic, rubber, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“cake”</cite></p></td>
+<td><p>cake</p></td>
+<td><p>0.5</p></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“car_1”</cite></p></td>
+<td><p>car</p></td>
+<td><p>0.5</p></td>
+<td></td>
+<td></td>
+<td><p>block (blank), wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“case_1”</cite></p></td>
+<td><p>box</p></td>
+<td><p>5</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>metal, plastic</p></td>
+<td><p>same as suitcase_1</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“crayon_black”</cite></p></td>
+<td><p>crayon</p></td>
+<td><p>0.125</p></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“crayon_blue”</cite></p></td>
+<td><p>crayon</p></td>
+<td><p>0.125</p></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“crayon_green”</cite></p></td>
+<td><p>crayon</p></td>
+<td><p>0.125</p></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“crayon_pink”</cite></p></td>
+<td><p>crayon</p></td>
+<td><p>0.125</p></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“crayon_red”</cite></p></td>
+<td><p>crayon</p></td>
+<td><p>0.125</p></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“crayon_yellow”</cite></p></td>
+<td><p>crayon</p></td>
+<td><p>0.125</p></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“dog_on_wheels”</cite></p></td>
+<td><p>dog</p></td>
+<td><p>0.5</p></td>
+<td></td>
+<td></td>
+<td><p>block (blank), wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“duck_on_wheels”</cite></p></td>
+<td><p>duck</p></td>
+<td><p>0.5</p></td>
+<td></td>
+<td></td>
+<td><p>block (blank), wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“bowl_3”</cite></p></td>
+<td><p>bowl</p></td>
+<td><p>0.25</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“bowl_4”</cite></p></td>
+<td><p>bowl</p></td>
+<td><p>0.25</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“bowl_6”</cite></p></td>
+<td><p>bowl</p></td>
+<td><p>0.25</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“cup_2”</cite></p></td>
+<td><p>cup</p></td>
+<td><p>0.25</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“cup_3”</cite></p></td>
+<td><p>cup</p></td>
+<td><p>0.25</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“cup_6”</cite></p></td>
+<td><p>cup</p></td>
+<td><p>0.25</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“gift_box_1”</cite></p></td>
+<td><p>box</p></td>
+<td><p>0.5</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>cardboard</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“pacifier”</cite></p></td>
+<td><p>pacifier</p></td>
+<td></td>
+<td><p>0.5</p></td>
+<td></td>
+<td><p>none</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“plate_1”</cite></p></td>
+<td><p>plate</p></td>
+<td><p>0.25</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“plate_3”</cite></p></td>
+<td><p>plate</p></td>
+<td><p>0.25</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“plate_4”</cite></p></td>
+<td><p>plate</p></td>
+<td><p>0.25</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“racecar_red”</cite></p></td>
+<td><p>car</p></td>
+<td><p>0.5</p></td>
+<td></td>
+<td></td>
+<td><p>block (blank), wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“soccer_ball”</cite></p></td>
+<td><p>ball</p></td>
+<td><p>0.5</p></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“suitcase_1”</cite></p></td>
+<td><p>box</p></td>
+<td><p>5</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>metal, plastic</p></td>
+<td><p>same as case_1</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“train_1”</cite></p></td>
+<td><p>train</p></td>
+<td><p>0.5</p></td>
+<td></td>
+<td></td>
+<td><p>block (blank), wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“trolley_1”</cite></p></td>
+<td><p>trolley</p></td>
+<td><p>0.5</p></td>
+<td></td>
+<td></td>
+<td><p>block (blank), wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“trophy”</cite></p></td>
+<td><p>trophy</p></td>
+<td><p>0.5</p></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“truck_1”</cite></p></td>
+<td><p>truck</p></td>
+<td><p>0.5</p></td>
+<td></td>
+<td></td>
+<td><p>block (blank), wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“turtle_on_wheels”</cite></p></td>
+<td><p>turtle</p></td>
+<td></td>
+<td></td>
+<td><p>0.5</p></td>
+<td><p>block (blank), wood</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="furniture-objects">
+<h3>Furniture Objects<a class="headerlink" href="#furniture-objects" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Object Type</p></th>
+<th class="head"><p>Shape</p></th>
+<th class="head"><p>Default Mass</p></th>
+<th class="head"><p>Moveable</p></th>
+<th class="head"><p>Receptacle</p></th>
+<th class="head"><p>Openable</p></th>
+<th class="head"><p>Materials</p></th>
+<th class="head"><p>Details</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><cite>“bookcase_1_shelf”</cite></p></td>
+<td><p>bookcase</p></td>
+<td><p>10</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“bookcase_2_shelf”</cite></p></td>
+<td><p>bookcase</p></td>
+<td><p>15</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“bookcase_3_shelf”</cite></p></td>
+<td><p>bookcase</p></td>
+<td><p>20</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“bookcase_4_shelf”</cite></p></td>
+<td><p>bookcase</p></td>
+<td><p>25</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“bookcase_1_shelf_sideless”</cite></p></td>
+<td><p>bookcase</p></td>
+<td><p>10</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“bookcase_2_shelf_sideless”</cite></p></td>
+<td><p>bookcase</p></td>
+<td><p>15</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“bookcase_3_shelf_sideless”</cite></p></td>
+<td><p>bookcase</p></td>
+<td><p>20</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“bookcase_4_shelf_sideless”</cite></p></td>
+<td><p>bookcase</p></td>
+<td><p>25</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“cart_1”</cite></p></td>
+<td><p>cart</p></td>
+<td><p>4</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“chest_1”</cite></p></td>
+<td><p>box</p></td>
+<td><p>15</p></td>
+<td></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>metal, plastic, wood</p></td>
+<td><p>Rectangular box</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“chest_2”</cite></p></td>
+<td><p>box</p></td>
+<td><p>15</p></td>
+<td></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>metal, plastic, wood</p></td>
+<td><p>Domed chest</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“chest_3”</cite></p></td>
+<td><p>box</p></td>
+<td><p>15</p></td>
+<td></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>metal, plastic, wood</p></td>
+<td><p>Rectangular box</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“chest_8”</cite></p></td>
+<td><p>box</p></td>
+<td><p>15</p></td>
+<td></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>metal, plastic, wood</p></td>
+<td><p>Domed chest</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“chair_1”</cite></p></td>
+<td><p>chair</p></td>
+<td><p>5</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“chair_2”</cite></p></td>
+<td><p>stool</p></td>
+<td><p>2.5</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“chair_3”</cite></p></td>
+<td><p>stool</p></td>
+<td><p>5</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“chair_4”</cite></p></td>
+<td><p>chair</p></td>
+<td><p>5</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“changing_table”</cite></p></td>
+<td><p>changing table</p></td>
+<td><p>100</p></td>
+<td></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>wood</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“crib”</cite></p></td>
+<td><p>crib</p></td>
+<td><p>25</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>wood</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“foam_floor_tiles”</cite></p></td>
+<td><p>foam floor tiles</p></td>
+<td><p>1</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“shelf_1”</cite></p></td>
+<td><p>shelf</p></td>
+<td><p>10</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td><p>Object with four cubbies</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“shelf_2”</cite></p></td>
+<td><p>shelf</p></td>
+<td><p>20</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td><p>Object with three shelves</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“sofa_1”</cite></p></td>
+<td><p>sofa</p></td>
+<td><p>100</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>sofa 1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“sofa_2”</cite></p></td>
+<td><p>sofa</p></td>
+<td><p>100</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>sofa 2</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“sofa_3”</cite></p></td>
+<td><p>sofa</p></td>
+<td><p>100</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>sofa 3</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“sofa_chair_1”</cite></p></td>
+<td><p>sofa chair</p></td>
+<td><p>50</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>sofa chair 1</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“sofa_chair_2”</cite></p></td>
+<td><p>sofa chair</p></td>
+<td><p>50</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>sofa 2</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“sofa_chair_3”</cite></p></td>
+<td><p>sofa chair</p></td>
+<td><p>50</p></td>
+<td></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>sofa 3</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“table_1”</cite></p></td>
+<td><p>table</p></td>
+<td><p>10</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td><p>Rectangular table with legs</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“table_2”</cite></p></td>
+<td><p>table</p></td>
+<td><p>5</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td><p>Circular table</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“table_3”</cite></p></td>
+<td><p>table</p></td>
+<td><p>2.5</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td><p>Circular table</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“table_4”</cite></p></td>
+<td><p>table</p></td>
+<td><p>5</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td><p>Semi-circular table</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“table_5”</cite></p></td>
+<td><p>table</p></td>
+<td><p>20</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, wood</p></td>
+<td><p>Rectangular table with sides</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“table_7”</cite></p></td>
+<td><p>table</p></td>
+<td><p>10</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, wood</p></td>
+<td><p>Rectangular table with legs</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“table_11”</cite></p></td>
+<td><p>table</p></td>
+<td><p>15</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td><p>Rectangular table with T legs</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“table_12”</cite></p></td>
+<td><p>table</p></td>
+<td><p>15</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p>metal, plastic, wood</p></td>
+<td><p>Rectangular table with X legs</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“tv_2”</cite></p></td>
+<td><p>television</p></td>
+<td><p>5</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“wardrobe”</cite></p></td>
+<td><p>wardrobe</p></td>
+<td><p>100</p></td>
+<td></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>wood</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="primitive-objects">
+<h3>Primitive Objects<a class="headerlink" href="#primitive-objects" title="Permalink to this headline">¶</a></h3>
+<p>The following primitive shapes have the <cite>physics</cite> attribute by default, a default mass of 1, default dimensions of (x=1, y=1, z=1), and no material restrictions. Please note these are NOT the internal Unity primitive 3D GameObjects.</p>
+<ul class="simple">
+<li><p><cite>“circle_frustum”</cite></p></li>
+<li><p><cite>“cone”</cite></p></li>
+<li><p><cite>“cube”</cite></p></li>
+<li><p><cite>“cylinder”</cite></p></li>
+<li><p><cite>“pyramid”</cite></p></li>
+<li><p><cite>“sphere”</cite></p></li>
+<li><p><cite>“square_frustum”</cite></p></li>
+<li><p><cite>“triangle”</cite></p></li>
+<li><p><cite>“tube_narrow”</cite></p></li>
+<li><p><cite>“tube_wide”</cite></p></li>
+</ul>
+</section>
+<section id="other-objects">
+<h3>Other Objects<a class="headerlink" href="#other-objects" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><cite>“cube_hollow_narrow”</cite></p></li>
+<li><p><cite>“cube_hollow_wide”</cite></p></li>
+<li><p><cite>“hash”</cite></p></li>
+<li><p><cite>“letter_l_narrow”</cite></p></li>
+<li><p><cite>“letter_l_wide”</cite></p></li>
+<li><p><cite>“letter_x”</cite></p></li>
+</ul>
+</section>
+<section id="deprecated-objects">
+<h3>Deprecated Objects<a class="headerlink" href="#deprecated-objects" title="Permalink to this headline">¶</a></h3>
+<p>The following object types are not currently used:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Object Type</p></th>
+<th class="head"><p>Moveable</p></th>
+<th class="head"><p>Pickupable</p></th>
+<th class="head"><p>Receptacle</p></th>
+<th class="head"><p>Openable</p></th>
+<th class="head"><p>Materials</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><cite>“box_2”</cite></p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>cardboard</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“box_3”</cite></p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>cardboard</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“box_4”</cite></p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p>cardboard</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“painting_2”</cite></p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“painting_4”</cite></p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“painting_5”</cite></p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“painting_9”</cite></p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“painting_10”</cite></p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“painting_16”</cite></p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“plant_1”</cite></p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“plant_5”</cite></p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“plant_7”</cite></p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“plant_9”</cite></p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“plant_12”</cite></p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“plant_16”</cite></p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="child-components">
+<h3>Child Components<a class="headerlink" href="#child-components" title="Permalink to this headline">¶</a></h3>
+<p>Some objects have child components representing cabinets, drawers, or shelves. Child components are not found in the scene configuration file but are automatically generated by the MCS environment. Child components have their own object IDs so the player may use actions like OpenObject or PutObject with specific cabinets/drawers/shelves.</p>
+<p>The following objects have the following child components:</p>
+<ul class="simple">
+<li><p><cite>“changing_table”</cite>:
+- <cite>“&lt;id&gt;_drawer_top”</cite>
+- <cite>“&lt;id&gt;_drawer_bottom”</cite>
+- <cite>“&lt;id&gt;_shelf_top”</cite>
+- <cite>“&lt;id&gt;_shelf_middle”</cite>
+- <cite>“&lt;id&gt;_shelf_bottom”</cite></p></li>
+</ul>
+</section>
+</section>
+<section id="material-list">
+<h2>Material List<a class="headerlink" href="#material-list" title="Permalink to this headline">¶</a></h2>
+<p>In Unity, “Materials” are the colors and textures applied to objects in the 3D simulation environment. Some objects may have default materials. Some objects may have multiple materials. Some materials may have patterns intended for objects of a specific size, and may look odd if applied to objects that are too big or small.</p>
+<p>For our training and evaluation datasets, we normally use the materials under “Walls”, “Ceramics”, “Fabrics”, and “Woods” for the ceiling and the walls, and the materials under “Ceramics”, “Fabrics”, and “Woods” for the floors.</p>
+<p>The following materials are currently available:</p>
+<section id="block-materials-blank">
+<h3>Block Materials (Blank)<a class="headerlink" href="#block-materials-blank" title="Permalink to this headline">¶</a></h3>
+<p>Colors that look good on the blank blocks, as well as some of the baby toys.</p>
+<ul class="simple">
+<li><p><cite>“UnityAssetStore/Wooden_Toys_Bundle/ToyBlocks/meshes/Materials/blue_1x1”</cite></p></li>
+<li><p><cite>“UnityAssetStore/Wooden_Toys_Bundle/ToyBlocks/meshes/Materials/gray_1x1”</cite></p></li>
+<li><p><cite>“UnityAssetStore/Wooden_Toys_Bundle/ToyBlocks/meshes/Materials/green_1x1”</cite></p></li>
+<li><p><cite>“UnityAssetStore/Wooden_Toys_Bundle/ToyBlocks/meshes/Materials/red_1x1”</cite></p></li>
+<li><p><cite>“UnityAssetStore/Wooden_Toys_Bundle/ToyBlocks/meshes/Materials/wood_1x1”</cite></p></li>
+<li><p><cite>“UnityAssetStore/Wooden_Toys_Bundle/ToyBlocks/meshes/Materials/yellow_1x1”</cite></p></li>
+</ul>
+</section>
+<section id="block-materials-letter-number">
+<h3>Block Materials (Letter/Number)<a class="headerlink" href="#block-materials-letter-number" title="Permalink to this headline">¶</a></h3>
+<p>Designs for the letter/number blocks.</p>
+<ul class="simple">
+<li><p><cite>“UnityAssetStore/KD_NumberBlocks/Assets/Textures/Yellow/TOYBlocks_NumberBlock_1_Yellow_1K/NumberBlockYellow_1”</cite></p></li>
+<li><p><cite>“UnityAssetStore/KD_NumberBlocks/Assets/Textures/Yellow/TOYBlocks_NumberBlock_2_Yellow_1K/NumberBlockYellow_2”</cite></p></li>
+<li><p><cite>“UnityAssetStore/KD_NumberBlocks/Assets/Textures/Yellow/TOYBlocks_NumberBlock_3_Yellow_1K/NumberBlockYellow_3”</cite></p></li>
+<li><p><cite>“UnityAssetStore/KD_NumberBlocks/Assets/Textures/Yellow/TOYBlocks_NumberBlock_4_Yellow_1K/NumberBlockYellow_4”</cite></p></li>
+<li><p><cite>“UnityAssetStore/KD_NumberBlocks/Assets/Textures/Yellow/TOYBlocks_NumberBlock_5_Yellow_1K/NumberBlockYellow_5”</cite></p></li>
+<li><p><cite>“UnityAssetStore/KD_NumberBlocks/Assets/Textures/Yellow/TOYBlocks_NumberBlock_6_Yellow_1K/NumberBlockYellow_6”</cite></p></li>
+<li><p><cite>“UnityAssetStore/KD_AlphabetBlocks/Assets/Textures/Blue/TOYBlocks_AlphabetBlock_A_Blue_1K/ToyBlockBlueA”</cite></p></li>
+<li><p><cite>“UnityAssetStore/KD_AlphabetBlocks/Assets/Textures/Blue/TOYBlocks_AlphabetBlock_B_Blue_1K/ToyBlockBlueB”</cite></p></li>
+<li><p><cite>“UnityAssetStore/KD_AlphabetBlocks/Assets/Textures/Blue/TOYBlocks_AlphabetBlock_C_Blue_1K/ToyBlockBlueC”</cite></p></li>
+<li><p><cite>“UnityAssetStore/KD_AlphabetBlocks/Assets/Textures/Blue/TOYBlocks_AlphabetBlock_D_Blue_1K/ToyBlockBlueD”</cite></p></li>
+<li><p><cite>“UnityAssetStore/KD_AlphabetBlocks/Assets/Textures/Blue/TOYBlocks_AlphabetBlock_M_Blue_1K/ToyBlockBlueM”</cite></p></li>
+<li><p><cite>“UnityAssetStore/KD_AlphabetBlocks/Assets/Textures/Blue/TOYBlocks_AlphabetBlock_S_Blue_1K/ToyBlockBlueS”</cite></p></li>
+</ul>
+</section>
+<section id="cardboard-materials">
+<h3>Cardboard Materials<a class="headerlink" href="#cardboard-materials" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Misc/Cardboard_Brown”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Misc/Cardboard_Grey”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Misc/Cardboard_Tan”</cite></p></li>
+</ul>
+</section>
+<section id="ceramic-materials">
+<h3>Ceramic Materials<a class="headerlink" href="#ceramic-materials" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Ceramics/BrownMarbleFake 1”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Ceramics/ConcreteBoards1”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Ceramics/GREYGRANITE”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Ceramics/PinkConcrete_Bedroom1”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Ceramics/RedBrick”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Ceramics/TexturesCom_BrickRound0044_1_seamless_S”</cite> (rough stone)</p></li>
+<li><p><cite>“AI2-THOR/Materials/Ceramics/WhiteCountertop”</cite></p></li>
+</ul>
+</section>
+<section id="fabric-materials">
+<h3>Fabric Materials<a class="headerlink" href="#fabric-materials" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Carpet2”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Carpet4”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/CarpetDark”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/CarpetGreen”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/CarpetWhite 3”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/HotelCarpet3”</cite> (red pattern)</p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/RugPattern224”</cite> (brown, green, and white pattern)</p></li>
+</ul>
+</section>
+<section id="metal-materials">
+<h3>Metal Materials<a class="headerlink" href="#metal-materials" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Metals/BlackFoil”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Metals/BlackSmoothMeta”</cite> (yes, it is misspelled)</p></li>
+<li><p><cite>“AI2-THOR/Materials/Metals/Brass 1”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Metals/Brass_Mat”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Metals/BrownMetal 1”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Metals/BrushedIron_AlbedoTransparency”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Metals/GenericStainlessSteel”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Metals/HammeredMetal_AlbedoTransparency 1”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Metals/Metal”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Metals/WhiteMetal”</cite></p></li>
+<li><p><cite>“UnityAssetStore/Baby_Room/Models/Materials/cabinet metal”</cite></p></li>
+</ul>
+</section>
+<section id="plastic-materials">
+<h3>Plastic Materials<a class="headerlink" href="#plastic-materials" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Plastics/BlackPlastic”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Plastics/OrangePlastic”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Plastics/WhitePlastic”</cite></p></li>
+<li><p><cite>“UnityAssetStore/Kindergarten_Interior/Models/Materials/color 1”</cite> (flat red)</p></li>
+<li><p><cite>“UnityAssetStore/Kindergarten_Interior/Models/Materials/color 2”</cite> (flat blue)</p></li>
+<li><p><cite>“UnityAssetStore/Kindergarten_Interior/Models/Materials/color 3”</cite> (flat green)</p></li>
+<li><p><cite>“UnityAssetStore/Kindergarten_Interior/Models/Materials/color 4”</cite> (flat yellow)</p></li>
+</ul>
+</section>
+<section id="rubber-materials">
+<h3>Rubber Materials<a class="headerlink" href="#rubber-materials" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Plastics/BlueRubber”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Plastics/LightBlueRubber”</cite></p></li>
+</ul>
+</section>
+<section id="sofa-1-materials">
+<h3>Sofa 1 Materials<a class="headerlink" href="#sofa-1-materials" title="Permalink to this headline">¶</a></h3>
+<p>Specific textures for <cite>sofa_1</cite> only.</p>
+<ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Sofa1_Brown”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Sofa1_Red”</cite></p></li>
+</ul>
+</section>
+<section id="sofa-chair-1-materials">
+<h3>Sofa Chair 1 Materials<a class="headerlink" href="#sofa-chair-1-materials" title="Permalink to this headline">¶</a></h3>
+<p>Specific textures for <cite>sofa_chair_1</cite> only.</p>
+<ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair1_Black”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair1_Brown”</cite></p></li>
+</ul>
+</section>
+<section id="sofa-2-materials">
+<h3>Sofa 2 Materials<a class="headerlink" href="#sofa-2-materials" title="Permalink to this headline">¶</a></h3>
+<p>Specific textures for <cite>sofa_2</cite> AND <cite>sofa_chair_2</cite> only.</p>
+<ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair2_Grey”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair2_White”</cite></p></li>
+</ul>
+</section>
+<section id="wall-materials">
+<h3>Wall Materials<a class="headerlink" href="#wall-materials" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Walls/Drywall”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Walls/DrywallBeige”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Walls/DrywallGreen”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Walls/DrywallOrange”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Walls/Drywall4Tiled”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Walls/EggshellDrywall”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Walls/RedDrywall”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Walls/WallDrywallGrey”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Walls/YellowDrywall”</cite></p></li>
+</ul>
+</section>
+<section id="wood-materials">
+<h3>Wood Materials<a class="headerlink" href="#wood-materials" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Wood/BlackWood”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Wood/BedroomFloor1”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Wood/DarkWood2”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Wood/DarkWoodSmooth2”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Wood/LightWoodCounters 1”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Wood/LightWoodCounters3”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Wood/LightWoodCounters4”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Wood/TexturesCom_WoodFine0050_1_seamless_S”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Wood/WhiteWood”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Wood/WoodFloorsCross”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Wood/WoodGrain_Brown”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Wood/WoodGrain_Tan”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Wood/WornWood”</cite></p></li>
+<li><p><cite>“UnityAssetStore/Baby_Room/Models/Materials/wood 1”</cite></p></li>
+<li><p><cite>“UnityAssetStore/Kindergarten_Interior/Models/Materials/color wood 1”</cite> (blue)</p></li>
+<li><p><cite>“UnityAssetStore/Kindergarten_Interior/Models/Materials/color wood 2”</cite> (red)</p></li>
+<li><p><cite>“UnityAssetStore/Kindergarten_Interior/Models/Materials/color wood 3”</cite> (green)</p></li>
+<li><p><cite>“UnityAssetStore/Kindergarten_Interior/Models/Materials/color wood 4”</cite> (yellow)</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Scene File Schema</a><ul>
+<li><a class="reference internal" href="#scenes">Scenes</a><ul>
+<li><a class="reference internal" href="#scene-config">Scene Config</a></li>
+<li><a class="reference internal" href="#object-config">Object Config</a></li>
+<li><a class="reference internal" href="#goal-config">Goal Config</a></li>
+<li><a class="reference internal" href="#goal-metadata-config">Goal Metadata Config</a></li>
+<li><a class="reference internal" href="#answer-config">Answer Config</a></li>
+<li><a class="reference internal" href="#change-materials-config">Change Materials Config</a></li>
+<li><a class="reference internal" href="#force-config">Force Config</a></li>
+<li><a class="reference internal" href="#move-config">Move Config</a></li>
+<li><a class="reference internal" href="#physics-config">Physics Config</a></li>
+<li><a class="reference internal" href="#show-config">Show Config</a></li>
+<li><a class="reference internal" href="#size-config">Size Config</a></li>
+<li><a class="reference internal" href="#single-step-config">Single Step Config</a></li>
+<li><a class="reference internal" href="#step-begin-and-end-config">Step Begin and End Config</a></li>
+<li><a class="reference internal" href="#teleport-config">Teleport Config</a></li>
+<li><a class="reference internal" href="#transform-config">Transform Config</a></li>
+<li><a class="reference internal" href="#vector-config">Vector Config</a></li>
+<li><a class="reference internal" href="#room-material-config">Room Material Config</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#object-list">Object List</a><ul>
+<li><a class="reference internal" href="#attributes">Attributes</a></li>
+<li><a class="reference internal" href="#block-objects-blank">Block Objects (Blank)</a></li>
+<li><a class="reference internal" href="#block-objects-letter-number">Block Objects (Letter/Number)</a></li>
+<li><a class="reference internal" href="#pickupable-objects">Pickupable Objects</a></li>
+<li><a class="reference internal" href="#furniture-objects">Furniture Objects</a></li>
+<li><a class="reference internal" href="#primitive-objects">Primitive Objects</a></li>
+<li><a class="reference internal" href="#other-objects">Other Objects</a></li>
+<li><a class="reference internal" href="#deprecated-objects">Deprecated Objects</a></li>
+<li><a class="reference internal" href="#child-components">Child Components</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#material-list">Material List</a><ul>
+<li><a class="reference internal" href="#block-materials-blank">Block Materials (Blank)</a></li>
+<li><a class="reference internal" href="#block-materials-letter-number">Block Materials (Letter/Number)</a></li>
+<li><a class="reference internal" href="#cardboard-materials">Cardboard Materials</a></li>
+<li><a class="reference internal" href="#ceramic-materials">Ceramic Materials</a></li>
+<li><a class="reference internal" href="#fabric-materials">Fabric Materials</a></li>
+<li><a class="reference internal" href="#metal-materials">Metal Materials</a></li>
+<li><a class="reference internal" href="#plastic-materials">Plastic Materials</a></li>
+<li><a class="reference internal" href="#rubber-materials">Rubber Materials</a></li>
+<li><a class="reference internal" href="#sofa-1-materials">Sofa 1 Materials</a></li>
+<li><a class="reference internal" href="#sofa-chair-1-materials">Sofa Chair 1 Materials</a></li>
+<li><a class="reference internal" href="#sofa-2-materials">Sofa 2 Materials</a></li>
+<li><a class="reference internal" href="#wall-materials">Wall Materials</a></li>
+<li><a class="reference internal" href="#wood-materials">Wood Materials</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="scenes.html"
+                        title="previous chapter">Example Scenes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="models.html"
+                        title="next chapter">Adding 3D Models</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/schema.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="models.html" title="Adding 3D Models"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="scenes.html" title="Example Scenes"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Machine Common Sense  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Scene File Schema</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, CACI.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+    </div>
+  </body>
+</html>
