@@ -4,7 +4,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Package Developer Notes &#8212; Machine Common Sense  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -41,58 +42,58 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="package-developer-notes">
+  <section id="package-developer-notes">
 <h1>Package Developer Notes<a class="headerlink" href="#package-developer-notes" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="package-installation">
+<section id="package-installation">
 <h2>Package Installation<a class="headerlink" href="#package-installation" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="create-a-virtual-environment">
+<section id="create-a-virtual-environment">
 <h3>Create a Virtual Environment<a class="headerlink" href="#create-a-virtual-environment" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3.6 -m venv --prompt mcs venv
-<span class="gp">$ </span><span class="nb">source</span> venv/bin/activate
-<span class="gp gp-VirtualEnv">(mcs)</span> <span class="gp">$ </span>python -m pip install --upgrade pip setuptools wheel
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> python3.6 -m venv --prompt mcs venv
+<span class="gp">$</span> <span class="nb">source</span> venv/bin/activate
+<span class="gp">(mcs) $</span> python -m pip install --upgrade pip setuptools wheel
 </pre></div>
 </div>
-</div>
-<div class="section" id="install-the-mcs-package-and-dependencies">
+</section>
+<section id="install-the-mcs-package-and-dependencies">
 <h3>Install the MCS Package and dependencies<a class="headerlink" href="#install-the-mcs-package-and-dependencies" title="Permalink to this headline">¶</a></h3>
 <p>Install the packages included in the requirements file so that linting and documentation work. The requirements.txt file includes developer and package dependencies.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(mcs)</span> <span class="gp">$ </span>python -m pip install -r requirements.txt
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">(mcs) $</span> python -m pip install -r requirements.txt
 </pre></div>
 </div>
 <p>From the MCS root folder, install the package in your virtual environment in editable mode (-e) so that local changes will automatically reflect in the virtual environment.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(mcs)</span> <span class="gp">$ </span>python -m pip install -e .
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">(mcs) $</span> python -m pip install -e .
 </pre></div>
 </div>
-</div>
-<div class="section" id="run-pre-commit">
+</section>
+<section id="run-pre-commit">
 <h3>Run pre-commit<a class="headerlink" href="#run-pre-commit" title="Permalink to this headline">¶</a></h3>
 <p>Run pre-commit install to set up the git hooks for linting and auto-documentation.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(mcs)</span> <span class="gp">$ </span>pre-commit install
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">(mcs) $</span> pre-commit install
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="linting">
+</section>
+</section>
+<section id="linting">
 <h2>Linting<a class="headerlink" href="#linting" title="Permalink to this headline">¶</a></h2>
 <p>We are currently using <a class="reference external" href="https://flake8.pycqa.org/en/latest/">flake8</a> and <a class="reference external" href="https://pypi.org/project/autopep8/">autopep8</a> for linting and formatting our Python code. This is enforced within the python_api and scene_generator projects. Both are <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/">PEP 8</a> compliant (besides some inline exceptions), although we are ignoring the following rules:
 - <strong>E402</strong>: Module level import not at top of file
 - <strong>W504</strong>: Line break occurred after a binary operator</p>
 <p>A full list of error codes and warnings enforced can be found <a class="reference external" href="https://flake8.pycqa.org/en/latest/user/error-codes.html">here</a></p>
 <p>Both have settings so that they should run on save within Visual Studio Code <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/.vscode/settings.json">settings.json</a> as well as on commit after running <cite>pre-commit install</cite> (see <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/.pre-commit-config.yaml">.pre-commit-config.yaml</a> and <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/.flake8">.flake8</a>), but can also be run on the command line:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(mcs)</span> <span class="gp">$ </span>flake8
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">(mcs) $</span> flake8
 </pre></div>
 </div>
 <p>and</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(mcs)</span> <span class="gp">$ </span>autopep8 --in-place --aggressive --recursive &lt;directory&gt;
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">(mcs) $</span> autopep8 --in-place --aggressive --recursive &lt;directory&gt;
 </pre></div>
 </div>
 <p>or</p>
-</div>
-<div class="section" id="testing">
+</section>
+<section id="testing">
 <h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
 <p>See our <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/tests/README.md">tests README</a></p>
-</div>
-<div class="section" id="sphinx-documentation">
+</section>
+<section id="sphinx-documentation">
 <h2>Sphinx Documentation<a class="headerlink" href="#sphinx-documentation" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Good Sphinx Tutorial: <a class="reference external" href="https://medium.com/&#64;richdayandnight/a-simple-tutorial-on-how-to-document-your-python-project-using-sphinx-and-rinohtype-177c22a15b5b">https://medium.com/&#64;richdayandnight/a-simple-tutorial-on-how-to-document-your-python-project-using-sphinx-and-rinohtype-177c22a15b5b</a></p></li>
@@ -100,113 +101,50 @@
 <li><p>Sphinx: <a class="reference external" href="https://www.sphinx-doc.org/en/master/">https://www.sphinx-doc.org/en/master/</a></p></li>
 <li><p>Sphinx’s own Tutorial: <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/quickstart.html">https://www.sphinx-doc.org/en/master/usage/quickstart.html</a></p></li>
 </ul>
-</div>
-<div class="section" id="python-style-guide">
+</section>
+<section id="python-style-guide">
 <h2>Python Style Guide<a class="headerlink" href="#python-style-guide" title="Permalink to this headline">¶</a></h2>
 <p>See <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">https://numpydoc.readthedocs.io/en/latest/format.html</a></p>
-</div>
-<div class="section" id="running">
+</section>
+<section id="running">
 <h2>Running<a class="headerlink" href="#running" title="Permalink to this headline">¶</a></h2>
 <p>We have made multiple run scripts:</p>
 <p>To run a script (like <cite>run_human_input.py</cite>) from the terminal with visual output:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(mcs)</span> <span class="gp">$ </span>run_in_human_input_mode &lt;mcs_unity_build_file&gt; &lt;mcs_config_json_file&gt;
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">(mcs) $</span> run_in_human_input_mode &lt;mcs_unity_build_file&gt; &lt;mcs_config_json_file&gt;
 </pre></div>
 </div>
 <p>To run it headlessly, first install xvfb (on Ubuntu, run <cite>sudo apt-get install xvfb</cite>), then:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(mcs)</span> <span class="gp">$ </span>xvfb-run --auto-servernum --server-args<span class="o">=</span><span class="s1">&#39;-screen 0 640x480x24&#39;</span> python3 run_human_input.py &lt;mcs_unity_build_file&gt; &lt;mcs_config_json_file&gt;
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">(mcs) $</span> xvfb-run --auto-servernum --server-args<span class="o">=</span><span class="s1">&#39;-screen 0 640x480x24&#39;</span> python3 run_human_input.py &lt;mcs_unity_build_file&gt; &lt;mcs_config_json_file&gt;
 </pre></div>
 </div>
 <p>Each run will generate a subdirectory (named based on your config file) containing the output image files from each step.</p>
-</div>
-<div class="section" id="making-gifs">
+</section>
+<section id="making-gifs">
 <h2>Making GIFs<a class="headerlink" href="#making-gifs" title="Permalink to this headline">¶</a></h2>
 <p>First, install ffmpeg. Then (change the frame rate with the <cite>-r</cite> option):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ffmpeg -r <span class="m">3</span> -i frame_image_%d.png output.gif
 </pre></div>
 </div>
-</div>
-<div class="section" id="logging">
-<h2>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h2>
-<p>MCS uses the python logging package with some defaults.  Logging should be initialized via the mcs.init_logging() method if logging is desired.  the mcs.init_logging function have two parameters, log_config, and log_config_file.  The first is a dictionary and the second is a path to a file.  Both of these should contain a dictionary that contains the logging configuration of python logging. (<a class="reference external" href="https://docs.python.org/3/library/logging.config.html#logging-config-dictschema">https://docs.python.org/3/library/logging.config.html#logging-config-dictschema</a>)  The log_config_file, if it exists, will always override the dictionary and defaults to log.config.user.py in the current working directory.  In most cases, one of the examples below should be used.</p>
-<p>Common examples of logging initialization:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Below initializes default which logs to console</span>
-<span class="n">mcs</span><span class="o">.</span><span class="n">init_logging</span><span class="p">()</span>
-
-<span class="c1"># Below initializes development default with file logging as well as console logging</span>
-<span class="n">mcs</span><span class="o">.</span><span class="n">init_logging</span><span class="p">(</span><span class="n">LoggingConfig</span><span class="o">.</span><span class="n">get_dev_logging_config</span><span class="p">())</span>
-
-<span class="c1">#Below initializes error only console logging</span>
-<span class="n">mcs</span><span class="o">.</span><span class="n">init_logging</span><span class="p">(</span><span class="n">LoggingConfig</span><span class="o">.</span><span class="n">get_errors_only_console_config</span><span class="p">())</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="full-list-of-config-options">
-<h2>Full List of Config Options<a class="headerlink" href="#full-list-of-config-options" title="Permalink to this headline">¶</a></h2>
-<p>Outlined here is a comprehensive list of config file options that can be used.</p>
+</section>
+<section id="more-config-options">
+<h2>More Config Options<a class="headerlink" href="#more-config-options" title="Permalink to this headline">¶</a></h2>
+<p>Outlined here is a list of config file options that can be used <strong>in addition</strong> to the ones listed under the <a class="reference internal" href="install.html#mcs-config-file"><span class="std std-ref">MCS Configuration File</span></a> section.</p>
 <p>To use an MCS configuration file, you can either pass in a file path via the <cite>config_file_path</cite> property in the create_controller() method, or set the <cite>MCS_CONFIG_FILE_PATH</cite> environment variable to the path of your MCS configuration file (note that the configuration must be an INI file – see <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/sample_config.ini">sample_config.ini</a> for an example).</p>
-<div class="section" id="config-file-properties">
-<h3>Config File Properties<a class="headerlink" href="#config-file-properties" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="aws-specific-properties">
-<h4>AWS specific properties<a class="headerlink" href="#aws-specific-properties" title="Permalink to this headline">¶</a></h4>
-<p>The following string properties can be specified in order to upload and organize files in S3:</p>
-<ul class="simple">
-<li><p>aws_access_key_id</p></li>
-<li><p>aws_secret_access_key</p></li>
-<li><p>s3_bucket</p></li>
-<li><p>s3_folder</p></li>
-</ul>
-</div>
-<div class="section" id="evaluation">
-<h4>evaluation<a class="headerlink" href="#evaluation" title="Permalink to this headline">¶</a></h4>
-<p>(boolean)</p>
-<p>Whether or not we’re running in evaluation mode (default: False). If <cite>True</cite>, evaluation files for each scene will be created and uploaded to S3.</p>
-</div>
-<div class="section" id="evaluation-name">
+<section id="developer-config-file-properties">
+<h3>Developer Config File Properties<a class="headerlink" href="#developer-config-file-properties" title="Permalink to this headline">¶</a></h3>
+<section id="evaluation-name">
 <h4>evaluation_name<a class="headerlink" href="#evaluation-name" title="Permalink to this headline">¶</a></h4>
 <p>(string)</p>
-<p>Identifier to add to filenames uploaded to S3 (default: ‘’).</p>
-</div>
-<div class="section" id="history-enabled">
-<h4>history_enabled<a class="headerlink" href="#history-enabled" title="Permalink to this headline">¶</a></h4>
-<p>(boolean, optional)</p>
-<p>Whether to save the scene history output data in your local directory. Default: True</p>
-</div>
-<div class="section" id="metadata">
-<h4>metadata<a class="headerlink" href="#metadata" title="Permalink to this headline">¶</a></h4>
-<p>(string)</p>
-<p>The <cite>metadata</cite> property describes what metadata will be returned by the MCS Python library. This can also be specified via the <cite>MCS_METADATA_LEVEL</cite> environment variable. It can be set to one of the following strings:</p>
-<ul class="simple">
-<li><p><cite>oracle</cite>: Returns the metadata for all the objects in the scene, including visible, held, and hidden objects. Object masks will have consistent colors throughout all steps for a scene.</p></li>
-<li><p><cite>level2</cite>: Only returns the images (with depth masks AND object masks), camera info, and properties corresponding to the player themself (like head tilt or pose). No information about specific objects will be included. Note that here, object masks will have randomized colors per step.</p></li>
-<li><p><cite>level1</cite>: Only returns the images (with depth masks but NOT object masks), camera info, and properties corresponding to the player themself (like head tilt or pose). No information about specific objects will be included.</p></li>
-<li><p><cite>none</cite>: Only returns the images (but not the masks), camera info, and properties corresponding to the player themself (like head tilt or pose). No information about specific objects will be included.</p></li>
-</ul>
-<p>If no metadata level is set:
-- <cite>default</cite>: Fallback if no metadata level is specified. Only meant for use during development (evaluations will never be run this way). Includes metadata for visible and held objects in the scene, as well as camera info and properties corresponding to the player. Does not include depth maps or object masks.</p>
-</div>
-<div class="section" id="noise-enabled">
-<h4>noise_enabled<a class="headerlink" href="#noise-enabled" title="Permalink to this headline">¶</a></h4>
-<p>(boolean)</p>
-<p>Whether to add random noise to the numerical amounts in movement and object interaction action parameters. Will default to <cite>False</cite>.</p>
-</div>
-<div class="section" id="seed">
-<h4>seed<a class="headerlink" href="#seed" title="Permalink to this headline">¶</a></h4>
-<p>(int)</p>
-<p>A seed for the Python random number generator (defaults to None).</p>
-</div>
-<div class="section" id="size">
-<h4>size<a class="headerlink" href="#size" title="Permalink to this headline">¶</a></h4>
-<p>(int)</p>
-<p>Desired screen width. If value given, it must be more than <cite>450</cite>. If none given, screen width will default to <cite>600</cite>.</p>
-</div>
-<div class="section" id="team">
+<p>Identifier to add to scene history and video files (default: ‘’).</p>
+</section>
+<section id="team">
 <h4>team<a class="headerlink" href="#team" title="Permalink to this headline">¶</a></h4>
 <p>(string)</p>
-<p>Team name identifier to prefix to filenames uploaded to S3 (default: ‘’).</p>
-</div>
-</div>
-</div>
-<div class="section" id="handling-pull-requests-from-contributors">
+<p>Team name identifier to prefix to scene history and video files (default: ‘’).</p>
+</section>
+</section>
+</section>
+<section id="handling-pull-requests-from-contributors">
 <h2>Handling Pull Requests From Contributors<a class="headerlink" href="#handling-pull-requests-from-contributors" title="Permalink to this headline">¶</a></h2>
 <p>Checkout the pull request from github</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git fetch origin +refs/pull/&lt;pull#&gt;/merge
@@ -214,29 +152,28 @@
 </div>
 <p>If there are any package dependency changes, create a new virtual environment using the initialization steps above. Even if there aren’t, it would be a good to start with a fresh environment anyway.</p>
 <p>Run the unit tests locally</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(mcs)</span> <span class="gp">$ </span>python -m unittest
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">(mcs) $</span> python -m unittest
 </pre></div>
 </div>
 <p>If the unit tests pass, then ensure the new code is solves the issue in the PR and follows our coding conventions.</p>
 <p>Be sure that PEP-8 formatting is correct or is easily fixable.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(mcs)</span> <span class="gp">$ </span>flake8
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">(mcs) $</span> flake8
 </pre></div>
 </div>
 <p>After iterating with the contributor, if you feel the PR is reasonably close, feel free to approve the PR, merge, and fix any lingering issues.</p>
-</div>
-<div class="section" id="releases">
+</section>
+<section id="releases">
 <h2>Releases<a class="headerlink" href="#releases" title="Permalink to this headline">¶</a></h2>
 <p>Update the version number in the following files:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/CPU_Container.dockerfile">CPU_Container.dockerfile</a></p></li>
 <li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/Dockerfile">Dockerfile</a></p></li>
 <li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/README.md">README.md</a></p></li>
-<li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/requirements.txt">requirements.txt</a></p></li>
-<li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/setup.py">setup.py</a></p></li>
 <li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/machine_common_sense/_version.py">machine_common_sense/_version.py</a></p></li>
+<li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/docs/source/install.rst">docs/source/install.rst</a> (just the links at the top of the file)</p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -260,17 +197,9 @@
 <li><a class="reference internal" href="#python-style-guide">Python Style Guide</a></li>
 <li><a class="reference internal" href="#running">Running</a></li>
 <li><a class="reference internal" href="#making-gifs">Making GIFs</a></li>
-<li><a class="reference internal" href="#logging">Logging</a></li>
-<li><a class="reference internal" href="#full-list-of-config-options">Full List of Config Options</a><ul>
-<li><a class="reference internal" href="#config-file-properties">Config File Properties</a><ul>
-<li><a class="reference internal" href="#aws-specific-properties">AWS specific properties</a></li>
-<li><a class="reference internal" href="#evaluation">evaluation</a></li>
+<li><a class="reference internal" href="#more-config-options">More Config Options</a><ul>
+<li><a class="reference internal" href="#developer-config-file-properties">Developer Config File Properties</a><ul>
 <li><a class="reference internal" href="#evaluation-name">evaluation_name</a></li>
-<li><a class="reference internal" href="#history-enabled">history_enabled</a></li>
-<li><a class="reference internal" href="#metadata">metadata</a></li>
-<li><a class="reference internal" href="#noise-enabled">noise_enabled</a></li>
-<li><a class="reference internal" href="#seed">seed</a></li>
-<li><a class="reference internal" href="#size">size</a></li>
 <li><a class="reference internal" href="#team">team</a></li>
 </ul>
 </li>

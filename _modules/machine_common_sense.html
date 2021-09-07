@@ -43,28 +43,28 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">logging.config</span>
 <span class="kn">import</span> <span class="nn">signal</span>
-<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
-<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">exists</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">exists</span>
 
-<span class="kn">from</span> <span class="nn">._version</span> <span class="kn">import</span> <span class="n">__version__</span>
-<span class="kn">from</span> <span class="nn">.action</span> <span class="kn">import</span> <span class="n">Action</span>
-<span class="kn">from</span> <span class="nn">.config_manager</span> <span class="kn">import</span> <span class="n">ConfigManager</span>
-<span class="kn">from</span> <span class="nn">.controller</span> <span class="kn">import</span> <span class="n">Controller</span>
-<span class="kn">from</span> <span class="nn">.goal_metadata</span> <span class="kn">import</span> <span class="n">GoalCategory</span><span class="p">,</span> <span class="n">GoalMetadata</span>
-<span class="kn">from</span> <span class="nn">.history_writer</span> <span class="kn">import</span> <span class="n">HistoryWriter</span>
-<span class="kn">from</span> <span class="nn">.logging_config</span> <span class="kn">import</span> <span class="n">LoggingConfig</span>
-<span class="kn">from</span> <span class="nn">.material</span> <span class="kn">import</span> <span class="n">Material</span>
-<span class="kn">from</span> <span class="nn">.object_metadata</span> <span class="kn">import</span> <span class="n">ObjectMetadata</span>
-<span class="kn">from</span> <span class="nn">.pose</span> <span class="kn">import</span> <span class="n">Pose</span>
-<span class="kn">from</span> <span class="nn">.return_status</span> <span class="kn">import</span> <span class="n">ReturnStatus</span>
-<span class="kn">from</span> <span class="nn">.reward</span> <span class="kn">import</span> <span class="n">Reward</span>
-<span class="kn">from</span> <span class="nn">.scene_history</span> <span class="kn">import</span> <span class="n">SceneHistory</span>
-<span class="kn">from</span> <span class="nn">.serializer</span> <span class="kn">import</span> <span class="n">SerializerJson</span><span class="p">,</span> <span class="n">SerializerMsgPack</span>
-<span class="kn">from</span> <span class="nn">.setup</span> <span class="kn">import</span> <span class="n">add_subscribers</span>
-<span class="kn">from</span> <span class="nn">.step_metadata</span> <span class="kn">import</span> <span class="n">StepMetadata</span>
-<span class="kn">from</span> <span class="nn">.stringifier</span> <span class="kn">import</span> <span class="n">Stringifier</span>
-<span class="kn">from</span> <span class="nn">.unity_executable_provider</span> <span class="kn">import</span> <span class="n">UnityExecutableProvider</span>
-<span class="kn">from</span> <span class="nn">.validation</span> <span class="kn">import</span> <span class="n">Validation</span>
+<span class="kn">from</span> <span class="nn">._version</span> <span class="k">import</span> <span class="n">__version__</span>
+<span class="kn">from</span> <span class="nn">.action</span> <span class="k">import</span> <span class="n">Action</span>
+<span class="kn">from</span> <span class="nn">.config_manager</span> <span class="k">import</span> <span class="n">ConfigManager</span>
+<span class="kn">from</span> <span class="nn">.controller</span> <span class="k">import</span> <span class="n">Controller</span>
+<span class="kn">from</span> <span class="nn">.goal_metadata</span> <span class="k">import</span> <span class="n">GoalCategory</span><span class="p">,</span> <span class="n">GoalMetadata</span>
+<span class="kn">from</span> <span class="nn">.history_writer</span> <span class="k">import</span> <span class="n">HistoryWriter</span>
+<span class="kn">from</span> <span class="nn">.logging_config</span> <span class="k">import</span> <span class="n">LoggingConfig</span>
+<span class="kn">from</span> <span class="nn">.material</span> <span class="k">import</span> <span class="n">Material</span>
+<span class="kn">from</span> <span class="nn">.object_metadata</span> <span class="k">import</span> <span class="n">ObjectMetadata</span>
+<span class="kn">from</span> <span class="nn">.pose</span> <span class="k">import</span> <span class="n">Pose</span>
+<span class="kn">from</span> <span class="nn">.return_status</span> <span class="k">import</span> <span class="n">ReturnStatus</span>
+<span class="kn">from</span> <span class="nn">.reward</span> <span class="k">import</span> <span class="n">Reward</span>
+<span class="kn">from</span> <span class="nn">.scene_history</span> <span class="k">import</span> <span class="n">SceneHistory</span>
+<span class="kn">from</span> <span class="nn">.serializer</span> <span class="k">import</span> <span class="n">SerializerJson</span><span class="p">,</span> <span class="n">SerializerMsgPack</span>
+<span class="kn">from</span> <span class="nn">.setup</span> <span class="k">import</span> <span class="n">add_subscribers</span>
+<span class="kn">from</span> <span class="nn">.step_metadata</span> <span class="k">import</span> <span class="n">StepMetadata</span>
+<span class="kn">from</span> <span class="nn">.stringifier</span> <span class="k">import</span> <span class="n">Stringifier</span>
+<span class="kn">from</span> <span class="nn">.unity_executable_provider</span> <span class="k">import</span> <span class="n">UnityExecutableProvider</span>
+<span class="kn">from</span> <span class="nn">.validation</span> <span class="k">import</span> <span class="n">Validation</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="c1"># Set default logging handler to avoid &quot;No handler found&quot; warnings</span>
@@ -148,13 +148,38 @@
 
         <span class="n">config</span> <span class="o">=</span> <span class="n">ConfigManager</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">time_limit</span><span class="p">(</span><span class="n">TIME_LIMIT_SECONDS</span><span class="p">):</span>
-            <span class="n">controller</span> <span class="o">=</span> <span class="n">Controller</span><span class="p">(</span><span class="n">unity_exec</span><span class="p">,</span>
-                                    <span class="n">config</span><span class="p">)</span>
+            <span class="n">controller</span> <span class="o">=</span> <span class="n">Controller</span><span class="p">(</span><span class="n">unity_exec</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">controller</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;MCS/Python Controller failed to initialize&#39;</span><span class="p">)</span>
         <span class="n">add_subscribers</span><span class="p">(</span><span class="n">controller</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">controller</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">Msg</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in create_controller()&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="n">Msg</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates and returns a new MCS Controller object.  Should only be called</span>
+<span class="sd">    After a run and before a scene is changed.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    controller : Controller</span>
+<span class="sd">        The currently used controller that the config should be changed</span>
+<span class="sd">        on.</span>
+<span class="sd">    config_file_path: str, optional</span>
+<span class="sd">        Path to configuration file to read in and set various properties,</span>
+<span class="sd">        such as metadata level and whether or not to save history files</span>
+<span class="sd">        (default None)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">change_config</span><span class="p">(</span><span class="n">controller</span><span class="p">:</span> <span class="n">Controller</span><span class="p">,</span> <span class="n">config_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">ConfigManager</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)</span>
+    <span class="n">controller</span><span class="o">.</span><span class="n">_set_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">controller</span><span class="o">.</span><span class="n">remove_all_event_handlers</span><span class="p">()</span>
+    <span class="n">add_subscribers</span><span class="p">(</span><span class="n">controller</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="load_scene_json_file"><a class="viewcode-back" href="../api.html#machine_common_sense.load_scene_json_file">[docs]</a><span class="k">def</span> <span class="nf">load_scene_json_file</span><span class="p">(</span><span class="n">scene_json_file_path</span><span class="p">):</span>

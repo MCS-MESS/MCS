@@ -40,10 +40,10 @@
           <div class="body" role="main">
             
   <h1>Source code for machine_common_sense.goal_metadata</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
+<span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
 
-<span class="kn">from</span> <span class="nn">.config_manager</span> <span class="kn">import</span> <span class="n">ConfigManager</span>
-<span class="kn">from</span> <span class="nn">.stringifier</span> <span class="kn">import</span> <span class="n">Stringifier</span>
+<span class="kn">from</span> <span class="nn">.action</span> <span class="k">import</span> <span class="n">Action</span>
+<span class="kn">from</span> <span class="nn">.stringifier</span> <span class="k">import</span> <span class="n">Stringifier</span>
 
 
 <div class="viewcode-block" id="GoalMetadata"><a class="viewcode-back" href="../../api.html#machine_common_sense.GoalMetadata">[docs]</a><span class="k">class</span> <span class="nc">GoalMetadata</span><span class="p">:</span>
@@ -109,7 +109,9 @@
 <span class="sd">        :mod:`Goal &lt;machine_common_sense.GoalCategory&gt;`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="n">ACTION_LIST</span> <span class="o">=</span> <span class="p">[(</span><span class="n">item</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="p">{})</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">Action</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">action_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">category</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
@@ -128,12 +130,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">last_step</span> <span class="o">=</span> <span class="n">last_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">metadata</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Stringifier</span><span class="o">.</span><span class="n">class_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="c1"># Allows converting the class to a dictionary, along with allowing</span>
     <span class="c1">#   certain fields to be left out of output file</span>
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">yield</span> <span class="s1">&#39;action_list&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span>
         <span class="k">yield</span> <span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">category</span>
         <span class="k">yield</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
@@ -157,14 +159,16 @@
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">[</span><span class="n">adjusted_step</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">[</span><span class="n">adjusted_step</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">ConfigManager</span><span class="o">.</span><span class="n">ACTION_LIST</span></div></div>
+        <span class="k">return</span> <span class="n">GoalMetadata</span><span class="o">.</span><span class="n">ACTION_LIST</span></div></div>
 
 
 <div class="viewcode-block" id="GoalCategory"><a class="viewcode-back" href="../../api.html#machine_common_sense.GoalCategory">[docs]</a><span class="nd">@unique</span>
 <span class="k">class</span> <span class="nc">GoalCategory</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Each goal will have a &quot;category&quot; string and a &quot;metadata&quot; dict with one or</span>
-<span class="sd">    more properties depending on the &quot;category&quot;.</span>
+<span class="sd">    Each goal dict will have a &quot;category&quot; string that describes the type of</span>
+<span class="sd">    scene (or, the type of task within the scene) being run. Each goal dict</span>
+<span class="sd">    will also have a &quot;metadata&quot; dict containing one or more properties</span>
+<span class="sd">    depending on the &quot;category&quot;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">AGENTS</span> <span class="o">=</span> <span class="s2">&quot;agents&quot;</span>
@@ -182,12 +186,12 @@
 <span class="sd">    These trials will demand a &quot;common sense&quot; understanding of agents, their</span>
 <span class="sd">    behaviors, and their interactions with objects in the environment.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    choose : list of strings</span>
-<span class="sd">        The list of choices, one of which must be given in your call to</span>
-<span class="sd">        end_scene. For Agents goals, this value will always be</span>
-<span class="sd">        [&quot;expected&quot;, &quot;unexpected&quot;].</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    You are required to call `controller.end_scene()` at the end of each scene</span>
+<span class="sd">    with a continuous plausibility `rating`, from 0.0 (completely implausible)</span>
+<span class="sd">    to 1.0 (completely plausible). You are not required to also pass it a</span>
+<span class="sd">    `score`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">INTUITIVE_PHYSICS</span> <span class="o">=</span> <span class="s2">&quot;intuitive physics&quot;</span>
@@ -199,12 +203,14 @@
 <span class="sd">    permanence or shape constancy. Inspired by Emmanuel Dupoux&#39;s &quot;IntPhys: A</span>
 <span class="sd">    Benchmark for Visual Intuitive Physics Reasoning&quot; (http://intphys.com).</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    choose : list of strings</span>
-<span class="sd">        The list of choices, one of which must be given in your call to</span>
-<span class="sd">        end_scene. For Intuitive Physics goals, this value will always be</span>
-<span class="sd">        [&quot;plausible&quot;, &quot;implausible&quot;].</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    You are required to call `controller.end_scene()` at the end of each scene</span>
+<span class="sd">    with a binary plausibility `rating` -- either 0 (implausible) or 1</span>
+<span class="sd">    (plausible) -- and a continuous plausibility `score` -- from 0.0</span>
+<span class="sd">    (completely implausible) to 1.0 (completely plausible). This is also</span>
+<span class="sd">    where you would submit any retrospective reporting on a per step basis via</span>
+<span class="sd">    `report`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">RETRIEVAL</span> <span class="o">=</span> <span class="s2">&quot;retrieval&quot;</span>
@@ -232,6 +238,8 @@
 
     <span class="n">TRANSFERRAL</span> <span class="o">=</span> <span class="s2">&quot;transferral&quot;</span>
     <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    NOT USED IN MCS EVAL 4+</span>
+
 <span class="sd">    In a trial that has a transferral goal, you must find and pickup the</span>
 <span class="sd">    first target object and put it down either next to or on top of the second</span>
 <span class="sd">    target object. This may involve exploring the scene, avoiding obstacles,</span>
@@ -291,6 +299,8 @@
 
     <span class="n">TRAVERSAL</span> <span class="o">=</span> <span class="s2">&quot;traversal&quot;</span>
     <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    NOT USED IN MCS EVAL 4+</span>
+
 <span class="sd">    In a trial that has a traversal goal, you must find and move next to a</span>
 <span class="sd">    target object. This may involve exploring the scene, and avoiding</span>
 <span class="sd">    obstacles. These trials will demand a &quot;common sense&quot; understanding of</span>

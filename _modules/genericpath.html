@@ -190,10 +190,10 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
             <span class="n">hasbytes</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">funcname</span><span class="si">}</span><span class="s1">() argument must be str, bytes, or &#39;</span>
-                            <span class="sa">f</span><span class="s1">&#39;os.PathLike object, not </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{funcname}</span><span class="s1">() argument must be str, bytes, or &#39;</span>
+                            <span class="n">f</span><span class="s1">&#39;os.PathLike object, not </span><span class="si">{s.__class__.__name__!r}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">None</span>
     <span class="k">if</span> <span class="n">hasstr</span> <span class="ow">and</span> <span class="n">hasbytes</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t mix strings and bytes in path components&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t mix strings and bytes in path components&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">None</span>
 </pre></div>
 
             <div class="clearer"></div>

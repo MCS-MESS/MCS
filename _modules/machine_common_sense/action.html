@@ -40,9 +40,9 @@
           <div class="body" role="main">
             
   <h1>Source code for machine_common_sense.action</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
+<span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
 
-<span class="kn">from</span> <span class="nn">.validation</span> <span class="kn">import</span> <span class="n">Validation</span>
+<span class="kn">from</span> <span class="nn">.validation</span> <span class="k">import</span> <span class="n">Validation</span>
 
 
 <div class="viewcode-block" id="Action"><a class="viewcode-back" href="../../api.html#machine_common_sense.Action">[docs]</a><span class="nd">@unique</span>
@@ -662,7 +662,7 @@
 <span class="sd">        Unexpected error; please report immediately to development team.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">desc</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">desc</span><span class="p">):</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="n">obj</span><span class="o">.</span><span class="n">_value_</span> <span class="o">=</span> <span class="n">action</span>
         <span class="n">obj</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">key</span>
@@ -672,7 +672,7 @@
         <span class="bp">cls</span><span class="o">.</span><span class="n">_value2member_map_</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span>
         <span class="k">return</span> <span class="n">obj</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;&lt;</span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_name_</span><span class="p">,</span>

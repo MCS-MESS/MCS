@@ -4,8 +4,9 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Examples &#8212; Machine Common Sense  documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Example Usage &#8212; Machine Common Sense  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -18,7 +19,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Python API" href="api.html" />
-    <link rel="prev" title="Machine Common Sense Documentation" href="index.html" /> 
+    <link rel="prev" title="Installation and Setup" href="install.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -33,10 +34,10 @@
           <a href="api.html" title="Python API"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Machine Common Sense Documentation"
+          <a href="install.html" title="Installation and Setup"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Machine Common Sense  documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Examples</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Example Usage</a></li> 
       </ul>
     </div>  
 
@@ -45,11 +46,43 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="examples">
-<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="run-multiple-scenes-sequentially">
+  <section id="example-usage">
+<h1>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h1>
+<p>Here are some example usage snippets for different use cases. Note that there are also additional scripts that may be useful in the scripts/ folder of the github project.</p>
+<section id="using-your-own-config-file-and-or-unity-build">
+<h2>Using your own config file and/or unity build<a class="headerlink" href="#using-your-own-config-file-and-or-unity-build" title="Permalink to this headline">¶</a></h2>
+<p>In this case, make sure your <cite>MCS_CONFIG_FILE_PATH</cite> path isn’t set, as that takes precedence over the <cite>config_file_path</cite> parameter:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">machine_common_sense</span> <span class="kn">as</span> <span class="nn">mcs</span>
+
+<span class="c1"># Specify a location for the Unity app as opposed to downloading it automatically</span>
+<span class="n">controller</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">create_controller</span><span class="p">(</span><span class="n">unity_app_file_path</span><span class="o">=</span><span class="s1">&#39;./some-path/unity-app&#39;</span><span class="p">,</span>
+                                   <span class="n">config_file_path</span><span class="o">=</span><span class="s1">&#39;./some-path/config.ini&#39;</span><span class="p">)</span>
+
+<span class="c1"># Either load the scene data dict from an MCS scene config JSON file or create your own.</span>
+<span class="c1"># We will give you the training scene config JSON files and the format to make your own.</span>
+<span class="n">scene_data</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">load_scene_json_file</span><span class="p">(</span><span class="n">scene_json_file_path</span><span class="p">)</span>
+
+<span class="n">output</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">start_scene</span><span class="p">(</span><span class="n">scene_data</span><span class="p">)</span>
+
+<span class="c1"># Use your machine learning algorithm to select your next action based on the scene</span>
+<span class="c1"># output (goal, actions, images, metadata, etc.) from your previous action.</span>
+<span class="n">action</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">select_action</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+<span class="c1"># Continue to select actions until your algorithm decides to stop.</span>
+<span class="k">while</span> <span class="n">action</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+    <span class="n">controller</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+    <span class="n">action</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">select_action</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+<span class="c1"># For interaction-based goals, your series of selected actions will be scored.</span>
+<span class="c1"># For observation-based goals, you will pass a classification and a confidence</span>
+<span class="c1"># to the end_scene function here.</span>
+<span class="n">controller</span><span class="o">.</span><span class="n">end_scene</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="run-multiple-scenes-sequentially">
 <h2>Run multiple scenes sequentially<a class="headerlink" href="#run-multiple-scenes-sequentially" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">machine_common_sense</span> <span class="k">as</span> <span class="nn">mcs</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">machine_common_sense</span> <span class="kn">as</span> <span class="nn">mcs</span>
 
 <span class="c1"># Only create the MCS controller ONCE!</span>
 <span class="n">controller</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">create_controller</span><span class="p">()</span>
@@ -64,11 +97,12 @@
     <span class="n">controller</span><span class="o">.</span><span class="n">end_scene</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="run-with-console-logging">
+</section>
+<section id="run-with-console-logging">
 <h2>Run with console logging<a class="headerlink" href="#run-with-console-logging" title="Permalink to this headline">¶</a></h2>
+<p><em>Note that logging is only available in versions 0.4.4 and above.</em></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">machine_common_sense</span> <span class="k">as</span> <span class="nn">mcs</span>
+<span class="kn">import</span> <span class="nn">machine_common_sense</span> <span class="kn">as</span> <span class="nn">mcs</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;machine_common_sense&#39;</span><span class="p">)</span>
 <span class="n">mcs</span><span class="o">.</span><span class="n">init_logging</span><span class="p">()</span>
@@ -79,18 +113,19 @@
 
 <span class="n">action</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">select_action</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 <span class="k">while</span> <span class="n">action</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Taking </span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">params</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Taking {action} with {params}&quot;</span><span class="p">)</span>
     <span class="n">controller</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
     <span class="n">action</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">select_action</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
 <span class="n">controller</span><span class="o">.</span><span class="n">end_scene</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="initialize-logging">
+</section>
+<section id="initialize-logging">
 <h2>Initialize logging<a class="headerlink" href="#initialize-logging" title="Permalink to this headline">¶</a></h2>
+<p><em>Note that logging is only available in versions 0.4.4 and above.</em></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">machine_common_sense</span> <span class="k">as</span> <span class="nn">mcs</span>
+<span class="kn">import</span> <span class="nn">machine_common_sense</span> <span class="kn">as</span> <span class="nn">mcs</span>
 <span class="kn">from</span> <span class="nn">machine_common_sense.logging_config</span> <span class="kn">import</span> <span class="n">LoggingConfig</span>
 
 <span class="c1"># The following are 3 built in methods to initialize logging.  Only one of these should</span>
@@ -106,8 +141,8 @@
 <span class="n">mcs</span><span class="o">.</span><span class="n">init_logging</span><span class="p">(</span><span class="n">LoggingConfig</span><span class="o">.</span><span class="n">get_errors_only_console_config</span><span class="p">())</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="run-with-human-input">
+</section>
+<section id="run-with-human-input">
 <h2>Run with Human Input<a class="headerlink" href="#run-with-human-input" title="Permalink to this headline">¶</a></h2>
 <p>To start the Unity application and enter your actions and parameters from the terminal, you can run the <cite>run_in_human_input_mode</cite> script that was installed in the package with the MCS Python Library (the <cite>mcs_unity_build_file</cite> is the Unity executable downloaded previously):</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">run_in_human_input_mode &lt;mcs_unity_build_file&gt; &lt;mcs_scene_json_file&gt;</span>
@@ -115,8 +150,8 @@
 </div>
 <p>Run options:
 - <cite>–config_file_path &lt;file_path&gt;</cite></p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -127,7 +162,8 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Examples</a><ul>
+<li><a class="reference internal" href="#">Example Usage</a><ul>
+<li><a class="reference internal" href="#using-your-own-config-file-and-or-unity-build">Using your own config file and/or unity build</a></li>
 <li><a class="reference internal" href="#run-multiple-scenes-sequentially">Run multiple scenes sequentially</a></li>
 <li><a class="reference internal" href="#run-with-console-logging">Run with console logging</a></li>
 <li><a class="reference internal" href="#initialize-logging">Initialize logging</a></li>
@@ -137,8 +173,8 @@
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Machine Common Sense Documentation</a></p>
+  <p class="topless"><a href="install.html"
+                        title="previous chapter">Installation and Setup</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="api.html"
                         title="next chapter">Python API</a></p>
@@ -176,10 +212,10 @@
           <a href="api.html" title="Python API"
              >next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Machine Common Sense Documentation"
+          <a href="install.html" title="Installation and Setup"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Machine Common Sense  documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Examples</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Example Usage</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

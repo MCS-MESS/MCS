@@ -76,10 +76,10 @@
         <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="n">max_value</span> <span class="ow">or</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="n">min_value</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Value of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1"> needs to be between &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">min_value</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">max_value</span><span class="si">}</span><span class="s1">. &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;Current value </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1"> &#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39;will be reset to </span><span class="si">{</span><span class="n">default_value</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="s1">&#39;Value of </span><span class="si">{label}</span><span class="s1"> needs to be between &#39;</span>
+                    <span class="n">f</span><span class="s1">&#39;</span><span class="si">{min_value}</span><span class="s1"> and </span><span class="si">{max_value}</span><span class="s1">. &#39;</span>
+                    <span class="n">f</span><span class="s1">&#39;Current value </span><span class="si">{value}</span><span class="s1"> &#39;</span>
+                    <span class="n">f</span><span class="s1">&#39;will be reset to </span><span class="si">{default_value}</span><span class="s1">.&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">default_value</span>
         <span class="k">return</span> <span class="n">value</span></div>
 
@@ -105,8 +105,8 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Value of </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">&#39;</span>
-                             <span class="sa">f</span><span class="s1">&#39; needs to be a number. Will be set to 0.&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Value of </span><span class="si">{label}</span><span class="s1">&#39;</span>
+                             <span class="n">f</span><span class="s1">&#39; needs to be a number. Will be set to 0.&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span></div></div>
 </pre></div>
 

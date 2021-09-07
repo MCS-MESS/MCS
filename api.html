@@ -4,7 +4,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Python API &#8212; Machine Common Sense  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,8 +18,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Training Datasets" href="training.html" />
-    <link rel="prev" title="Examples" href="examples.html" /> 
+    <link rel="next" title="Example Scenes" href="scenes.html" />
+    <link rel="prev" title="Example Usage" href="examples.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -30,10 +31,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="training.html" title="Training Datasets"
+          <a href="scenes.html" title="Example Scenes"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="examples.html" title="Examples"
+          <a href="examples.html" title="Example Usage"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Machine Common Sense  documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Python API</a></li> 
@@ -45,7 +46,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="python-api">
+  <section id="python-api">
 <h1>Python API<a class="headerlink" href="#python-api" title="Permalink to this headline">¶</a></h1>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -66,7 +67,7 @@
 <td><p>MCS Controller class implementation for the MCS wrapper of the AI2-THOR library.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#machine_common_sense.GoalCategory" title="machine_common_sense.GoalCategory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">machine_common_sense.GoalCategory</span></code></a>(value)</p></td>
-<td><p>Each goal will have a “category” string and a “metadata” dict with one or more properties depending on the “category”.</p></td>
+<td><p>Each goal dict will have a “category” string that describes the type of scene (or, the type of task within the scene) being run.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#machine_common_sense.GoalMetadata" title="machine_common_sense.GoalMetadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">machine_common_sense.GoalMetadata</span></code></a>([…])</p></td>
 <td><p>Defines metadata for a goal in the MCS 3D environment.</p></td>
@@ -646,21 +647,90 @@ such as metadata level and whether or not to save history files
 </dl>
 <dl class="py method">
 <dt id="machine_common_sense.Controller.end_scene">
-<code class="sig-name descname">end_scene</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">choice</span></em>, <em class="sig-param"><span class="n">confidence</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/controller.html#Controller.end_scene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.Controller.end_scene" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">end_scene</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rating</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>float<span class="p">, </span>int<span class="p">, </span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">score</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">report</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>int<span class="p">, </span>object<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/controller.html#Controller.end_scene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.Controller.end_scene" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ends the current scene.  Calling end_scene() before calling
 start_scene() will do nothing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>choice</strong> (<em>string</em><em>, </em><em>optional</em>) – The selected choice required for ending scenes with
-violation-of-expectation or classification goals.
-Is not required for other goals. (default None)</p></li>
-<li><p><strong>confidence</strong> (<em>float</em><em>, </em><em>optional</em>) – <p>The choice confidence between 0 and 1 required for ending scenes
-with violation-of-expectation or classification goals.
-Is not required for other goals. (default None)</p>
+<li><p><strong>rating</strong> (<em>float</em><em> or </em><em>int</em><em> or </em><em>string</em><em>, </em><em>required</em>) – The plausibility rating to classify a passive / VoE scene as either
+plausible or implausible. Not used for any interactive scenes. For
+passive agent scenes, this rating should be continuous, from 0.0
+(completely implausible) to 1.0 (completely plausible). For other
+passive scenes, this rating must be binary, either 0 (implausible)
+or 1 (plausible). Please note that end-of-scene ratings are
+required for all passive / VoE scenes. (default None)</p></li>
+<li><p><strong>score</strong> (<em>float</em><em>, </em><em>optional</em>) – <p>The continuous plausibility score between 0.0 (completely
+implausible) and 1.0 (completely plausible). End-of-scene scores
+are required for all passive / VoE scenes except agent scenes.
+Not used for any interactive scenes or passive agent scenes.
+(default 1.0)</p>
 <p>Note: when an issue causes the program to exit prematurely or
 end_scene isn’t properly called but history_enabled is true,
 this value will be written to file as -1.</p>
+</p></li>
+<li><p><strong>report</strong> (<em>Dict</em><em>[</em><em>int</em><em>, </em><em>object</em><em>]</em><em>, </em><em>optional</em>) – <p>Variable for retrospective per frame reporting for passive / VoE
+scenes. Not used for any interactive scenes or passive agent
+scenes. (default None)</p>
+<p>Key is an int representing a step/frame number from output step
+metadata, starting at 1. Value or payload contains:</p>
+<blockquote>
+<div><ul>
+<li><dl class="simple">
+<dt>rating<span class="classifier">float or int or string, optional</span></dt><dd><p>The plausibility rating to classify a passive / VoE scene
+as either plausible or implausible. Not used for any
+interactive scenes. For passive agent scenes, this rating
+should be continuous, from 0.0 (completely implausible) to
+1.0 (completely plausible). For other passive scenes, this
+rating must be binary, either 0 (implausible) or 1
+(plausible). Please note that frame-by-frame ratings are no
+longer required for any scenes (but end-of-scene ratings
+are). (default None)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>score<span class="classifier">float, optional</span></dt><dd><p>The continuous plausibility score between 0.0 (completely
+implausible) and 1.0 (completely plausible). Frame-by-frame
+scores are required for all passive / VoE scenes except
+agent scenes. Not used for any interactive scenes or
+passive agent scenes. (default None)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>violations_xy_list<span class="classifier">List[Dict[str, float]], optional</span></dt><dd><p>A list of one or more (x, y) locations
+(ex: [{“x”: 1, “y”: 3.4}]), each representing a potential
+violation-of-expectation. These locations are required for
+all passive / VoE scenes except agent scenes. Not used for
+any interactive scenes or passive agent scenes.
+(default None)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>internal_state<span class="classifier">object, optional</span></dt><dd><p>A properly formatted json object representing various kinds
+of internal states at a particular moment. Examples include
+the estimated position of the agent, current map of the
+world, etc. (default None)</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>Example report:</p>
+<p>{</p>
+<blockquote>
+<div><p>1: {</p>
+<blockquote>
+<div><p>“rating”: 1,</p>
+<p>”score”: 0.75,</p>
+<p>”violations_xy_list”: [{“x”: 1,”y”: 1}],</p>
+<p>”internal_state”: {“test”: “some state”}</p>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<p>}</p>
 </p></li>
 </ul>
 </dd>
@@ -692,41 +762,6 @@ specified, returns ‘default’.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="machine_common_sense.Controller.make_step_prediction">
-<code class="sig-name descname">make_step_prediction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">choice</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">confidence</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">violations_xy_list</span><span class="p">:</span> <span class="n">List<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>float<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">heatmap_img</span><span class="p">:</span> <span class="n">PIL.Image.Image</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">internal_state</span><span class="p">:</span> <span class="n">object</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/machine_common_sense/controller.html#Controller.make_step_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.Controller.make_step_prediction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make a prediction on the previously taken step/action.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>choice</strong> (<em>string</em><em>, </em><em>optional</em>) – The selected choice for per frame prediction with
-violation-of-expectation or classification goals.
-Is not required for other goals. (default None)</p></li>
-<li><p><strong>confidence</strong> (<em>float</em><em>, </em><em>optional</em>) – The choice confidence between 0 and 1 required by the end of
-scenes with violation-of-expectation or classification goals.
-Is not required for other goals. (default None)</p></li>
-<li><p><strong>violations_xy_list</strong> (<em>List</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>float</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – A list of one or more (x, y) locations (ex: [{“x”: 1, “y”: 3.4}]),
-each representing a potential violation-of-expectation. Required
-on each step for passive tasks. (default None)</p></li>
-<li><p><strong>heatmap_img</strong> (<em>PIL.Image.Image</em><em>, </em><em>optional</em>) – An image representing scene plausiblility at a particular
-moment. During evaluation, this image will be recorded as a frame
-of a heatmap video for review but is ignored otherwise.
-(default None)</p></li>
-<li><p><strong>internal_state</strong> (<em>object</em><em>, </em><em>optional</em>) – A properly formatted json object representing various kinds of
-internal states at a particular moment. Examples include the
-estimated position of the agent, current map of the world, etc.
-(default None)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt id="machine_common_sense.Controller.retrieve_object_states">
 <code class="sig-name descname">retrieve_object_states</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">object_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/controller.html#Controller.retrieve_object_states"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.Controller.retrieve_object_states" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the state list at the current step for the object with the
@@ -740,7 +775,8 @@ given ID from the scene configuration data, if any.</p>
 returns the scene output data object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>config_data</strong> (<em>dict</em>) – The MCS scene configuration data for the scene to start.</p>
+<dd class="field-odd"><p><strong>config_data</strong> (<em>SceneConfiguration</em><em> or </em><em>dict that can be serialized to</em>) – SceneConfiguration
+The MCS scene configuration data for the scene to start.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The output data object from the start of the scene (the output from
@@ -786,8 +822,10 @@ more.</p>
 <dl class="py class">
 <dt id="machine_common_sense.GoalCategory">
 <em class="property">class </em><code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">GoalCategory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/goal_metadata.html#GoalCategory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.GoalCategory" title="Permalink to this definition">¶</a></dt>
-<dd><p>Each goal will have a “category” string and a “metadata” dict with one or
-more properties depending on the “category”.</p>
+<dd><p>Each goal dict will have a “category” string that describes the type of
+scene (or, the type of task within the scene) being run. Each goal dict
+will also have a “metadata” dict containing one or more properties
+depending on the “category”.</p>
 <dl class="py attribute">
 <dt id="machine_common_sense.GoalCategory.AGENTS">
 <code class="sig-name descname">AGENTS</code><em class="property"> = 'agents'</em><a class="headerlink" href="#machine_common_sense.GoalCategory.AGENTS" title="Permalink to this definition">¶</a></dt>
@@ -803,13 +841,11 @@ followed by the test trial, depicting either an expected or unexpected
 agent behavior. All nine of these trials happen within the same “scene”.
 These trials will demand a “common sense” understanding of agents, their
 behaviors, and their interactions with objects in the environment.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>choose</strong> (<em>list of strings</em>) – The list of choices, one of which must be given in your call to
-end_scene. For Agents goals, this value will always be
-[“expected”, “unexpected”].</p>
-</dd>
-</dl>
+<p class="rubric">Notes</p>
+<p>You are required to call <cite>controller.end_scene()</cite> at the end of each scene
+with a continuous plausibility <cite>rating</cite>, from 0.0 (completely implausible)
+to 1.0 (completely plausible). You are not required to also pass it a
+<cite>score</cite>.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -821,13 +857,13 @@ whether the scene is “plausible” or “implausible”. These trials will dem
 a “common sense” understanding of basic (“intuitive”) physics, like object
 permanence or shape constancy. Inspired by Emmanuel Dupoux’s “IntPhys: A
 Benchmark for Visual Intuitive Physics Reasoning” (<a class="reference external" href="http://intphys.com">http://intphys.com</a>).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>choose</strong> (<em>list of strings</em>) – The list of choices, one of which must be given in your call to
-end_scene. For Intuitive Physics goals, this value will always be
-[“plausible”, “implausible”].</p>
-</dd>
-</dl>
+<p class="rubric">Notes</p>
+<p>You are required to call <cite>controller.end_scene()</cite> at the end of each scene
+with a binary plausibility <cite>rating</cite> – either 0 (implausible) or 1
+(plausible) – and a continuous plausibility <cite>score</cite> – from 0.0
+(completely implausible) to 1.0 (completely plausible). This is also
+where you would submit any retrospective reporting on a per step basis via
+<cite>report</cite>.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -856,7 +892,8 @@ visualization interface.</p></li>
 <dl class="py attribute">
 <dt id="machine_common_sense.GoalCategory.TRANSFERRAL">
 <code class="sig-name descname">TRANSFERRAL</code><em class="property"> = 'transferral'</em><a class="headerlink" href="#machine_common_sense.GoalCategory.TRANSFERRAL" title="Permalink to this definition">¶</a></dt>
-<dd><p>In a trial that has a transferral goal, you must find and pickup the
+<dd><p>NOT USED IN MCS EVAL 4+</p>
+<p>In a trial that has a transferral goal, you must find and pickup the
 first target object and put it down either next to or on top of the second
 target object. This may involve exploring the scene, avoiding obstacles,
 interacting with objects (like closed receptacles), and (future
@@ -902,7 +939,8 @@ or a blue cube).</p></li>
 <dl class="py attribute">
 <dt id="machine_common_sense.GoalCategory.TRAVERSAL">
 <code class="sig-name descname">TRAVERSAL</code><em class="property"> = 'traversal'</em><a class="headerlink" href="#machine_common_sense.GoalCategory.TRAVERSAL" title="Permalink to this definition">¶</a></dt>
-<dd><p>In a trial that has a traversal goal, you must find and move next to a
+<dd><p>NOT USED IN MCS EVAL 4+</p>
+<p>In a trial that has a traversal goal, you must find and move next to a
 target object. This may involve exploring the scene, and avoiding
 obstacles. These trials will demand a “common sense” understanding of
 self navigation (how to move and rotate yourself within a scene and around
@@ -1565,7 +1603,7 @@ to change the logging configuration without code changes.  Default, log.config.u
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
             <div class="clearer"></div>
@@ -1576,10 +1614,10 @@ to change the logging configuration without code changes.  Default, log.config.u
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
   <p class="topless"><a href="examples.html"
-                        title="previous chapter">Examples</a></p>
+                        title="previous chapter">Example Usage</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="training.html"
-                        title="next chapter">Training Datasets</a></p>
+  <p class="topless"><a href="scenes.html"
+                        title="next chapter">Example Scenes</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -1611,10 +1649,10 @@ to change the logging configuration without code changes.  Default, log.config.u
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="training.html" title="Training Datasets"
+          <a href="scenes.html" title="Example Scenes"
              >next</a> |</li>
         <li class="right" >
-          <a href="examples.html" title="Examples"
+          <a href="examples.html" title="Example Usage"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Machine Common Sense  documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Python API</a></li> 
