@@ -135,10 +135,13 @@ your current viewport. Can be used in place of the “objectId” property.
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”IS_CLOSED_COMPLETELY”</em> – If the object is completely closed.</p></li>
 <li><p><em>”NOT_INTERACTABLE”</em> – If the object corresponding to the “objectImageCoords” vector is not an
-interactable object.</p></li>
+interactable object. This includes structural objects like the room’s
+walls.</p></li>
 <li><p><em>”NOT_OBJECT”</em> – If the object corresponding to the “objectId” (or object corresponding
 to the “objectImageCoords” vector) is not an object.</p></li>
 <li><p><em>”NOT_OPENABLE”</em> – If the object itself cannot be closed.</p></li>
+<li><p><em>”NOT_RECEPTACLE”</em> – If the object corresponding to the “objectImageCoords” vector is not a
+receptacle object.</p></li>
 <li><p><em>”OBSTRUCTED”</em> – If you cannot close the object because your path is obstructed.</p></li>
 <li><p><em>”OUT_OF_REACH”</em> – If you cannot close the object because you are out of reach.</p></li>
 <li><p><em>”FAILED”</em> – Unexpected error; please report immediately to development team.</p></li>
@@ -353,10 +356,13 @@ your current viewport. Can be used in place of the “objectId” property.
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”IS_OPENED_COMPLETELY”</em> – If the object is completely opened.</p></li>
 <li><p><em>”NOT_INTERACTABLE”</em> – If the object corresponding to the “objectImageCoords” vector is not an
-interactable object.</p></li>
+interactable object. This includes structural objects like the room’s
+walls.</p></li>
 <li><p><em>”NOT_OBJECT”</em> – If the object corresponding to the “objectId” (or object corresponding
 to the “objectImageCoords” vector) is not an object.</p></li>
 <li><p><em>”NOT_OPENABLE”</em> – If the object itself cannot be opened.</p></li>
+<li><p><em>”NOT_RECEPTACLE”</em> – If the object corresponding to the “objectImageCoords” vector is not a
+receptacle object.</p></li>
 <li><p><em>”OBSTRUCTED”</em> – If you cannot open the object because your path is obstructed.</p></li>
 <li><p><em>”OUT_OF_REACH”</em> – If you cannot open the object because you are out of reach.</p></li>
 <li><p><em>”FAILED”</em> – Unexpected error; please report immediately to development team.</p></li>
@@ -518,7 +524,8 @@ on your current viewport. Can be used in place of the
 <li><p><em>”NOT_HELD”</em> – If you cannot put down the object corresponding to the “objectId”
 because you are not holding it.</p></li>
 <li><p><em>”NOT_INTERACTABLE”</em> – If the object corresponding to the “objectImageCoords” or
-“receptacleObjectImageCoords” vector is not an interactable object.</p></li>
+“receptacleObjectImageCoords” vector is not an interactable object.
+This includes structural objects like the room’s walls.</p></li>
 <li><p><em>”NOT_OBJECT”</em> – If the object corresponding to the “objectId” and/or
 “receptacleObjectId” (or object corresponding to the
 “receptacleObjectImageCoords” vector) is not an object.</p></li>
@@ -634,15 +641,16 @@ transforming parameters.</p></li>
 
 <dl class="py class">
 <dt id="machine_common_sense.Controller">
-<em class="property">class </em><code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">Controller</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unity_app_file_path</span></em>, <em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/controller.html#Controller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.Controller" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">Controller</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unity_app_file_path</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">config</span><span class="p">:</span> <span class="n">machine_common_sense.config_manager.ConfigManager</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/controller.html#Controller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.Controller" title="Permalink to this definition">¶</a></dt>
 <dd><p>MCS Controller class implementation for the MCS wrapper of the AI2-THOR
 library.</p>
 <p><a class="reference external" href="https://ai2thor.allenai.org/ithor/documentation/">https://ai2thor.allenai.org/ithor/documentation/</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>config_file_path</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to configuration file to read in and set various properties,
-such as metadata level and whether or not to save history files
-(default None)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>unity_app_file</strong> (<em>str</em>) – </p></li>
+<li><p><strong>config</strong> (<em>ConfigManager</em>) – </p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
@@ -971,22 +979,23 @@ ball, but the actual object is a yellow ball, or a blue cube).</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>action_list</strong> (<em>list of lists of</em><em> (</em><em>string</em><em>, </em><em>dict</em><em>) </em><em>tuples</em><em>, or </em><em>None</em>) – The list of all actions that are available for the scene at each step
+<li><p><strong>action_list</strong> (<em>list of lists of</em><em> (</em><em>string</em><em>, </em><em>dict</em><em>) </em><em>tuples</em><em>, or </em><em>None</em>) – <p>The list of all actions that are available for the scene at each step
 (outer list). Each inner list is the list of all actions that are
 available for the single step corresponding to the inner list’s index
 within the outer list. Each action is returned as a tuple containing
-the action string and the action’s restricted paramters, if any.
-For example: (“Pass”, {}) forces a Pass action; (“PickupObject”, {})
+the action string and the action’s restricted paramters, if any.</p>
+<p>For example: (“Pass”, {}) forces a Pass action; (“PickupObject”, {})
 forces a PickupObject action with any parameters; and
 (“PickupObject”, {“objectId”: “a”}) forces a PickupObject action with
-the specific parameters objectId=a.
-An action_list of None means that all actions are always available.
+the specific parameters objectId=a.</p>
+<p>An action_list of None means that all actions are always available.
 An empty inner list means that all actions will be available on that
-specific step.
-See StepMetadata.action_list for the available actions of the current
-step.
+specific step.</p>
+<p>See <a class="reference internal" href="#machine_common_sense.StepMetadata" title="machine_common_sense.StepMetadata"><code class="xref py py-mod docutils literal notranslate"><span class="pre">StepMetadata.action_list</span></code></a>
+for the available actions of the current step.
 May be a subset of all possible actions. See
-<a class="reference internal" href="#machine_common_sense.Action" title="machine_common_sense.Action"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Action</span></code></a>.</p></li>
+<a class="reference internal" href="#machine_common_sense.Action" title="machine_common_sense.Action"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Action</span></code></a>.</p>
+</p></li>
 <li><p><strong>category</strong> (<em>string</em>) – The category that describes this goal and the properties in its
 metadata. See <a class="reference internal" href="#machine_common_sense.GoalCategory" title="machine_common_sense.GoalCategory"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Goal</span></code></a>.</p></li>
 <li><p><strong>description</strong> (<em>string</em>) – <p>A human-readable sentence describing this goal and containing
@@ -1129,14 +1138,12 @@ Material enum.</p>
 
 <dl class="py class">
 <dt id="machine_common_sense.ObjectMetadata">
-<em class="property">class </em><code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">ObjectMetadata</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dimensions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">direction</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">distance</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">distance_in_steps</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">distance_in_world</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">held</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">mass</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">material_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">position</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rotation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">shape</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">state_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">texture_color_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visible</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">is_open</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">openable</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/object_metadata.html#ObjectMetadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.ObjectMetadata" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">ObjectMetadata</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">dimensions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">direction</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">distance</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">distance_in_steps</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">distance_in_world</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">held</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">mass</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">material_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">position</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rotation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">segment_color</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">shape</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">state_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">texture_color_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visible</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">is_open</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">openable</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/object_metadata.html#ObjectMetadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.ObjectMetadata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines metadata for an object in the MCS 3D environment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>uuid</strong> (<em>string</em>) – The unique ID of this object, used with some actions.</p></li>
-<li><p><strong>color</strong> (<em>dict</em>) – The “r”, “g”, and “b” pixel values of this object in images from the
-StepMetadata’s “object_mask_list”.</p></li>
 <li><p><strong>dimensions</strong> (<em>list of dicts</em>) – The dimensions of this object in the environment’s 3D global
 coordinate system as a list of 8 points (dicts with “x”, “y”, and “z”).</p></li>
 <li><p><strong>direction</strong> (<em>dict</em>) – The direction vector of “x”, “y”, and “z” degrees between your position
@@ -1158,6 +1165,8 @@ See <a class="reference internal" href="#machine_common_sense.Material" title="m
 center of this object’s 3D model.</p></li>
 <li><p><strong>rotation</strong> (<em>dict</em>) – This object’s rotation angles around the “x”, “y”, and “z” axes
 in degrees.</p></li>
+<li><p><strong>segment_color</strong> (<em>dict</em>) – The “r”, “g”, and “b” pixel values of this object in images from the
+StepMetadata’s “object_mask_list”.</p></li>
 <li><p><strong>shape</strong> (<em>string</em>) – This object’s shape in plain English.</p></li>
 <li><p><strong>state_list</strong> (<em>list of strings</em>) – This object’s state(s) from the current step in the scene. Sometimes
 used by objects with scripted behavior in passive scenes.</p></li>
@@ -1219,27 +1228,6 @@ used by objects with scripted behavior in passive scenes.</p></li>
 <em class="property">class </em><code class="sig-name descname">McsStepMetadataEncoder</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">skipkeys</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">ensure_ascii</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">check_circular</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_nan</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sort_keys</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">indent</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">separators</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/serializer.html#SerializerJson.McsStepMetadataEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.SerializerJson.McsStepMetadataEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>JSON Encoder Class for MCS Step Metadata, e.g.
 json_dump = json.dumps(output, cls=McsStepMetadataEncoder, indent=4)</p>
-<dl class="py method">
-<dt id="machine_common_sense.SerializerJson.McsStepMetadataEncoder.default">
-<code class="sig-name descname">default</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/serializer.html#SerializerJson.McsStepMetadataEncoder.default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.SerializerJson.McsStepMetadataEncoder.default" title="Permalink to this definition">¶</a></dt>
-<dd><p>Implement this method in a subclass such that it returns
-a serializable object for <code class="docutils literal notranslate"><span class="pre">o</span></code>, or calls the base implementation
-(to raise a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>).</p>
-<p>For example, to support arbitrary iterators, you could
-implement default like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">):</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">iterable</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-        <span class="k">pass</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
-    <span class="c1"># Let the base class default method raise the TypeError</span>
-    <span class="k">return</span> <span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py method">
@@ -1289,7 +1277,7 @@ for each JSON object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>action_list</strong> (<em>list of</em><em> (</em><em>string</em><em>, </em><em>dict</em><em>) </em><em>tuples</em>) – The list of all actions that are available for the next step.
+<li><p><strong>action_list</strong> (<em>list of</em><em> (</em><em>string</em><em>, </em><em>dict</em><em>) </em><em>tuples</em>) – <p>The list of all actions that are available for the next step.
 Each action is returned as a tuple containing the action string and
 the action’s restricted parameters, if any.
 For example: (“Pass”, {}) forces a Pass action; (“PickupObject”, {})
@@ -1297,10 +1285,17 @@ forces a PickupObject action with any parameters; and
 (“PickupObject”, {“objectId”: “a”}) forces a PickupObject action with
 the specific parameters objectId=a.
 An action_list of None or an empty list means that all actions will
-be available for the next step.
-Derived from GoalMetadata.action_list.
+be available for the next step.</p>
+<p>To “step” using the first action from the action_list:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">step_metadata</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">start_scene</span><span class="p">(</span><span class="n">scene_data</span><span class="p">)</span>
+<span class="n">action</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">step_metadata</span><span class="o">.</span><span class="n">action_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">step_metadata</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Derived from <a class="reference internal" href="#machine_common_sense.GoalMetadata" title="machine_common_sense.GoalMetadata"><code class="xref py py-mod docutils literal notranslate"><span class="pre">GoalMetadata.action_list[step_number]</span></code></a>.
 May be a subset of all possible actions. See
-<a class="reference internal" href="#machine_common_sense.Action" title="machine_common_sense.Action"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Action</span></code></a>.</p></li>
+<a class="reference internal" href="#machine_common_sense.Action" title="machine_common_sense.Action"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Action</span></code></a>.</p>
+</p></li>
 <li><p><strong>camera_aspect_ratio</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>)</em>) – The player camera’s aspect ratio. This will remain constant for the
 whole scene.</p></li>
 <li><p><strong>camera_clipping_planes</strong> (<em>(</em><em>float</em><em>, </em><em>float</em><em>)</em>) – The player camera’s near and far clipping planes. This will remain
@@ -1531,12 +1526,45 @@ input value is not a number, will print an error.</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt id="machine_common_sense.change_config">
+<code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">change_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">controller</span><span class="p">:</span> <span class="n">machine_common_sense.controller.Controller</span></em>, <em class="sig-param"><span class="n">config_file_or_dict</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense.html#change_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.change_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates and returns a new MCS Controller object.  Should only be called
+After a run and before a scene is changed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>controller</strong> (<a class="reference internal" href="#machine_common_sense.Controller" title="machine_common_sense.Controller"><em>Controller</em></a>) – The currently used controller that the config should be changed
+on.</p></li>
+<li><p><strong>config_file_or_dict</strong> (<em>str</em><em> or </em><em>dict</em><em>, </em><em>optional</em>) – Can be a path to configuration file to read in or a dictionary
+of various properties, such as metadata level and whether or
+not to save history files (default None)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt id="machine_common_sense.create_controller">
-<code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">create_controller</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unity_app_file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">unity_cache_version</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">config_file_path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense.html#create_controller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.create_controller" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">create_controller</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_file_or_dict</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">unity_app_file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">unity_cache_version</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense.html#create_controller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.create_controller" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates and returns a new MCS Controller object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>config_file_or_dict</strong> (<em>str</em><em> or </em><em>dict</em><em>, </em><em>required</em>) – <p>Can be a path to configuration file to read in or a dictionary
+of various properties, such as metadata level and whether or
+not to save history files (default None)</p>
+<ul>
+<li><p>Note the <strong>order of precedence for config options</strong>, in case more
+than one is given:</p></li>
+</ul>
+<ol class="arabic simple">
+<li><p><strong>MCS_CONFIG_FILE_PATH</strong> environment variable (meant for internal
+TA2 use during evaluation)</p></li>
+<li><p>If no environment variable given, use <strong>config_file_or_dict</strong>
+parameter. The value can be a string file path or a dictionary.</p></li>
+<li><p>Raises FileNotFoundError if no config found.</p></li>
+</ol>
+</p></li>
 <li><p><strong>unity_app_file_path</strong> (<em>str</em><em>, </em><em>optional</em>) – The file path to your MCS Unity application.  If Not provided,
 the internal cache and downloader will attempt to locate and use
 the current version.
@@ -1544,9 +1572,6 @@ the current version.
 <li><p><strong>unity_cache_version</strong> (<em>str</em><em>, </em><em>optional</em>) – If no file path is provided for the MCS Unity application, the
 version provided will be found via cache and internal downloader.
 If not provided, the version matching the MCS code will be used.
-(default None)</p></li>
-<li><p><strong>config_file_path</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to configuration file to read in and set various properties,
-such as metadata level and whether or not to save history files
 (default None)</p></li>
 </ul>
 </dd>

@@ -58,15 +58,18 @@
 <span class="sd">        available for the single step corresponding to the inner list&#39;s index</span>
 <span class="sd">        within the outer list. Each action is returned as a tuple containing</span>
 <span class="sd">        the action string and the action&#39;s restricted paramters, if any.</span>
+
 <span class="sd">        For example: (&quot;Pass&quot;, {}) forces a Pass action; (&quot;PickupObject&quot;, {})</span>
 <span class="sd">        forces a PickupObject action with any parameters; and</span>
 <span class="sd">        (&quot;PickupObject&quot;, {&quot;objectId&quot;: &quot;a&quot;}) forces a PickupObject action with</span>
 <span class="sd">        the specific parameters objectId=a.</span>
+
 <span class="sd">        An action_list of None means that all actions are always available.</span>
 <span class="sd">        An empty inner list means that all actions will be available on that</span>
 <span class="sd">        specific step.</span>
-<span class="sd">        See StepMetadata.action_list for the available actions of the current</span>
-<span class="sd">        step.</span>
+
+<span class="sd">        See :mod:`StepMetadata.action_list &lt;machine_common_sense.StepMetadata&gt;`</span>
+<span class="sd">        for the available actions of the current step.</span>
 <span class="sd">        May be a subset of all possible actions. See</span>
 <span class="sd">        :mod:`Action &lt;machine_common_sense.Action&gt;`.</span>
 <span class="sd">    category : string</span>

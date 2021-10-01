@@ -197,16 +197,16 @@
                                 <span class="n">habituation_total</span><span class="p">,</span> <span class="n">last_preview_phase_step</span><span class="p">,</span>
                                 <span class="n">last_step</span><span class="p">,</span> <span class="n">metadata</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
-            <span class="n">uuid</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">distance_in_steps</span><span class="p">,</span> \
+            <span class="n">uuid</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="n">distance_in_steps</span><span class="p">,</span> \
                 <span class="n">distance_in_world</span><span class="p">,</span> <span class="n">held</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">material_list</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> \
-                <span class="n">rotation</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">state_list</span><span class="p">,</span> <span class="n">texture_color_list</span><span class="p">,</span> \
-                <span class="n">visible</span> <span class="o">=</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">unpackb</span><span class="p">(</span>
+                <span class="n">rotation</span><span class="p">,</span> <span class="n">segment_color</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">state_list</span><span class="p">,</span> \
+                <span class="n">texture_color_list</span><span class="p">,</span> <span class="n">visible</span> <span class="o">=</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">unpackb</span><span class="p">(</span>
                     <span class="n">data</span><span class="p">,</span> <span class="n">ext_hook</span><span class="o">=</span><span class="n">SerializerMsgPack</span><span class="o">.</span><span class="n">_ext_unpack</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">ObjectMetadata</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span>
+            <span class="k">return</span> <span class="n">ObjectMetadata</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span>
                                   <span class="n">distance_in_steps</span><span class="p">,</span> <span class="n">distance_in_world</span><span class="p">,</span> <span class="n">held</span><span class="p">,</span>
                                   <span class="n">mass</span><span class="p">,</span> <span class="n">material_list</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">rotation</span><span class="p">,</span>
-                                  <span class="n">shape</span><span class="p">,</span> <span class="n">state_list</span><span class="p">,</span> <span class="n">texture_color_list</span><span class="p">,</span>
-                                  <span class="n">visible</span><span class="p">)</span>
+                                  <span class="n">segment_color</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">state_list</span><span class="p">,</span>
+                                  <span class="n">texture_color_list</span><span class="p">,</span> <span class="n">visible</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">unpackb</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ext_hook</span><span class="o">=</span><span class="n">SerializerMsgPack</span><span class="o">.</span><span class="n">_ext_unpack</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -253,7 +253,9 @@
 <span class="sd">        json_dump = json.dumps(output, cls=McsStepMetadataEncoder, indent=4)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SerializerJson.McsStepMetadataEncoder.default"><a class="viewcode-back" href="../../api.html#machine_common_sense.SerializerJson.McsStepMetadataEncoder.default">[docs]</a>        <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="c1"># Empty docstring here to override superclass function docstring.</span>
+        <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">StepMetadata</span><span class="p">):</span>
                 <span class="k">return</span> <span class="p">{</span>
                     <span class="s1">&#39;action_list&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">action_list</span><span class="p">,</span>
@@ -295,7 +297,6 @@
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ObjectMetadata</span><span class="p">):</span>
                 <span class="k">return</span> <span class="p">{</span>
                     <span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
-                    <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">color</span><span class="p">,</span>
                     <span class="s1">&#39;dimensions&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span>
                     <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span>
                     <span class="s1">&#39;distance&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span>
@@ -306,6 +307,7 @@
                     <span class="s1">&#39;material_list&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">material_list</span><span class="p">,</span>
                     <span class="s1">&#39;position&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">position</span><span class="p">,</span>
                     <span class="s1">&#39;rotation&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">rotation</span><span class="p">,</span>
+                    <span class="s1">&#39;segment_color&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">segment_color</span><span class="p">,</span>
                     <span class="s1">&#39;shape&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
                     <span class="s1">&#39;state_list&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">state_list</span><span class="p">,</span>
                     <span class="s1">&#39;texture_color_list&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">texture_color_list</span><span class="p">,</span>
@@ -313,7 +315,7 @@
                 <span class="p">}</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div></div>
+            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SerializerJson.convert_object_list"><a class="viewcode-back" href="../../api.html#machine_common_sense.SerializerJson.convert_object_list">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">convert_object_list</span><span class="p">(</span><span class="n">raw_list</span><span class="p">):</span>
@@ -323,14 +325,22 @@
         <span class="n">object_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">object_raw</span> <span class="ow">in</span> <span class="n">raw_list</span><span class="p">:</span>
             <span class="n">obj</span> <span class="o">=</span> <span class="n">ObjectMetadata</span><span class="p">(</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;uuid&#39;</span><span class="p">],</span> <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;dimensions&#39;</span><span class="p">],</span> <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">],</span> <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;distance_in_steps&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;distance_in_world&#39;</span><span class="p">],</span> <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;held&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">],</span> <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;material_list&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">],</span> <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;rotation&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">],</span> <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;state_list&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;texture_color_list&#39;</span><span class="p">],</span> <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;visible&#39;</span><span class="p">])</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;uuid&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;dimensions&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;distance_in_steps&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;distance_in_world&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;held&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;material_list&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;rotation&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;segment_color&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;state_list&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;texture_color_list&#39;</span><span class="p">],</span>
+                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;visible&#39;</span><span class="p">])</span>
             <span class="n">object_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">object_list</span></div>
 

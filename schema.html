@@ -50,8 +50,7 @@
 <h1>Scene File Schema<a class="headerlink" href="#scene-file-schema" title="Permalink to this headline">¶</a></h1>
 <section id="scenes">
 <h2>Scenes<a class="headerlink" href="#scenes" title="Permalink to this headline">¶</a></h2>
-<p>A <strong>scene</strong> is a JSON object (called a <a class="reference internal" href="#scene-config"><span class="std std-ref">scene config</span></a>) that, when passed to the MCS Unity application via the MCS Python Library, describes the objects, materials (colors and textures), and scripted actions that will happen in that specific instance of the MCS 3D simulation environment.</p>
-<p>Please note that all scenes are currently in a room that is 5-by-5 (X/Z) and 3 high (Y) using Unity’s global coordinate system, where we consider 1 unit to be approximately 2 feet.</p>
+<p>A <strong>scene</strong> is a JSON object (called a <a class="reference internal" href="#scene-config"><span class="std std-ref">scene config</span></a>) that, when passed to the MCS Unity application via the machine_common_sense python library, describes the objects, materials (colors and textures), environmental features, and scripted actions that are present in a specific instance of the MCS 3D simulation environment.</p>
 <section id="scene-config">
 <h3>Scene Config<a class="headerlink" href="#scene-config" title="Permalink to this headline">¶</a></h3>
 <p>Example:</p>
@@ -120,11 +119,12 @@
 </div>
 <p>Each <strong>scene config</strong> has the following properties:</p>
 <ul class="simple">
-<li><p><cite>answer</cite> (<a class="reference internal" href="#answer-config"><span class="std std-ref">answer config</span></a>, optional): The best answer to the goal for the scene. Default: none</p></li>
 <li><p><cite>ceilingMaterial</cite> (string, optional): The material (color/texture) for the room’s ceiling. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options. Default (v0.0.3+): <cite>“AI2-THOR/Materials/Walls/Drywall”</cite></p></li>
 <li><p><cite>floorMaterial</cite> (string, optional): The material (color/texture) for the room’s floor. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options. Default (v0.0.3+): <cite>“AI2-THOR/Materials/Fabrics/CarpetWhite 3”</cite></p></li>
 <li><p><cite>floorProperties</cite> (<a class="reference internal" href="#physics-config"><span class="std std-ref">physics config</span></a>, optional): Enable custom friction, bounciness, and/or drag on the floor. Default: see <a class="reference internal" href="#physics-config"><span class="std std-ref">physics config</span></a>.</p></li>
+<li><p><cite>floorTextures</cite> (<a class="reference internal" href="#material-position-config"><span class="std std-ref">material position config list</span></a>, optional): A list of materials to apply to specific areas of the room’s floor. These materials override the material set by <cite>floorMaterial</cite> for those specific areas. Default: none</p></li>
 <li><p><cite>goal</cite> (<a class="reference internal" href="#goal-config"><span class="std std-ref">goal config</span></a>, optional): The goal for the scene. Default: none</p></li>
+<li><p><cite>holes</cite> (<a class="reference internal" href="#grid-config"><span class="std std-ref">grid config list</span></a>, optional): The list of X/Z coordinates corresponding to one or more holes in the room’s floor. Coordinates must be integers. Holes are always size 1x1 centered on the given X/Z coordinate. Adjacent holes are combined. Y coordinates are ignored. Holes are too deep to escape. Default: none</p></li>
 <li><p><cite>intuitivePhysics</cite> (bool, optional): Specific performer and room setup for intuitive physics scenes.</p></li>
 <li><p><cite>isometric</cite> (bool, optional): Specific performer and room setup for agent scenes.</p></li>
 <li><p><cite>name</cite> (string, required): A unique name for the scene used for our logs. Default: the filename</p></li>
@@ -195,11 +195,6 @@
 <p>Each <strong>goal metadata config</strong> has the following properties:</p>
 <p>(Coming soon!)</p>
 </section>
-<section id="answer-config">
-<h3>Answer Config<a class="headerlink" href="#answer-config" title="Permalink to this headline">¶</a></h3>
-<p>Each <strong>answer config</strong> has the following properties:</p>
-<p>(Coming soon!)</p>
-</section>
 <section id="change-materials-config">
 <h3>Change Materials Config<a class="headerlink" href="#change-materials-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>change materials config</strong> has the following properties:</p>
@@ -216,6 +211,24 @@
 <li><p><cite>stepEnd</cite> (integer, required): The step on which the action should end.  Must be equal to or greater than the <cite>stepBegin</cite>.</p></li>
 <li><p><cite>vector</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, required): The coordinates to describe the movement. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
 <li><p><cite>relative</cite> (bool, optional): Whether to apply the force using the object’s relative coordinate system, rather than the environment’s absolute coordinate system. Default: <cite>false</cite></p></li>
+<li><p><cite>repeat</cite> (bool, optional): Whether to indefinitely repeat this action. Will wait <cite>stepWait</cite> number of steps after <cite>stepEnd</cite>, then will execute this action for <cite>stepEnd - stepBegin + 1</cite> number of steps, then repeat. Default: <cite>false</cite></p></li>
+<li><p><cite>stepWait</cite> (integer, optional): If <cite>repeat</cite> is <cite>true</cite>, the number of steps to wait after the <cite>stepEnd</cite> before repeating this action. Default: <cite>0</cite></p></li>
+</ul>
+</section>
+<section id="grid-config">
+<h3>Grid Config<a class="headerlink" href="#grid-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>grid config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>x</cite> (integer)</p></li>
+<li><p><cite>z</cite> (integer)</p></li>
+</ul>
+</section>
+<section id="material-position-config">
+<h3>Material Position Config<a class="headerlink" href="#material-position-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>material position config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>material</cite> (string, required): The material to use.</p></li>
+<li><p><cite>positions</cite> (<a class="reference internal" href="#grid-config"><span class="std std-ref">grid config list</span></a>): The list of X/Z coordinates corresponding to one or more areas in which to apply the material. Coordinates must be integers. Areas are always size 1x1 centered on the given X/Z coordinate. Adjacent areas are combined. Y coordinates are ignored.</p></li>
 </ul>
 </section>
 <section id="move-config">
@@ -225,6 +238,8 @@
 <li><p><cite>stepBegin</cite> (integer, required): The step on which the action should begin.  Must be non-negative.  A value of <cite>0</cite> means the action will begin during scene initialization.</p></li>
 <li><p><cite>stepEnd</cite> (integer, required): The step on which the action should end.  Must be equal to or greater than the <cite>stepBegin</cite>.</p></li>
 <li><p><cite>vector</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, required): The coordinates to describe the movement. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
+<li><p><cite>repeat</cite> (bool, optional): Whether to indefinitely repeat this action. Will wait <cite>stepWait</cite> number of steps after <cite>stepEnd</cite>, then will execute this action for <cite>stepEnd - stepBegin + 1</cite> number of steps, then repeat. Default: <cite>false</cite></p></li>
+<li><p><cite>stepWait</cite> (integer, optional): If <cite>repeat</cite> is <cite>true</cite>, the number of steps to wait after the <cite>stepEnd</cite> before repeating this action. Default: <cite>0</cite></p></li>
 </ul>
 </section>
 <section id="physics-config">
@@ -264,6 +279,8 @@
 <li><p><cite>stepBegin</cite> (integer, required): The step on which the action should begin.  Must be non-negative.  A value of <cite>0</cite> means the action will begin during scene initialization.</p></li>
 <li><p><cite>stepEnd</cite> (integer, required): The step on which the action should end.  Must be equal to or greater than the <cite>stepBegin</cite>.</p></li>
 <li><p><cite>size</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, required): The coordinates to describe the size, which is multiplied by the object’s current size. Default: <cite>{ “x”: 1, “y”: 1, “z”: 1 }</cite></p></li>
+<li><p><cite>repeat</cite> (bool, optional): Whether to indefinitely repeat this action. Will wait <cite>stepWait</cite> number of steps after <cite>stepEnd</cite>, then will execute this action for <cite>stepEnd - stepBegin + 1</cite> number of steps, then repeat. Default: <cite>false</cite></p></li>
+<li><p><cite>stepWait</cite> (integer, optional): If <cite>repeat</cite> is <cite>true</cite>, the number of steps to wait after the <cite>stepEnd</cite> before repeating this action. Default: <cite>0</cite></p></li>
 </ul>
 </section>
 <section id="single-step-config">
@@ -279,6 +296,8 @@
 <ul class="simple">
 <li><p><cite>stepBegin</cite> (integer, required): The step on which the action should occur.  Must be non-negative.  A value of <cite>0</cite> means the action will occur during scene initialization.</p></li>
 <li><p><cite>stepEnd</cite> (integer, required): The step on which the action should end.  Must be equal to or greater than the <cite>stepBegin</cite>.</p></li>
+<li><p><cite>repeat</cite> (bool, optional): Whether to indefinitely repeat this action. Will wait <cite>stepWait</cite> number of steps after <cite>stepEnd</cite>, then will execute this action for <cite>stepEnd - stepBegin + 1</cite> number of steps, then repeat. Default: <cite>false</cite></p></li>
+<li><p><cite>stepWait</cite> (integer, optional): If <cite>repeat</cite> is <cite>true</cite>, the number of steps to wait after the <cite>stepEnd</cite> before repeating this action. Default: <cite>0</cite></p></li>
 </ul>
 </section>
 <section id="open-close-config">
@@ -333,138 +352,23 @@
 <li><p>Receptacle: Can hold objects with the <cite>PutObject</cite> action.</p></li>
 <li><p>Openable: Can be opened with the <cite>OpenObject</cite> action.</p></li>
 </ul>
-<p>You can use any of these strings with an object’s <cite>type</cite> property.</p>
 </section>
-<section id="block-objects-blank">
-<h3>Block Objects (Blank)<a class="headerlink" href="#block-objects-blank" title="Permalink to this headline">¶</a></h3>
-<p>Blocks have the <cite>pickupable</cite> and <cite>receptacle</cite> attributes by default. Use the <a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block materials (blank)</span></a>.</p>
+<section id="interactable-objects">
+<h3>Interactable Objects<a class="headerlink" href="#interactable-objects" title="Permalink to this headline">¶</a></h3>
+<p>Some objects have attributes like <cite>receptacle</cite> or <cite>openable</cite> by default. Some objects have restrictions on categories of materials that can be used on them; only the listed categories are allowed. Each object’s base size is using a scale of (x=1, y=1, z=1). Most objects will be positioned on top of the floor with <cite>position.y = 0</cite>; objects marked with <cite>(*)</cite> instead bisect the floor and must be offset by half their height.</p>
+<section id="small-objects">
+<h4>Small Objects<a class="headerlink" href="#small-objects" title="Permalink to this headline">¶</a></h4>
+<p>All of the following object types have the <cite>pickupable</cite> attribute by default.</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Object Type</p></th>
-<th class="head"><p>Shape</p></th>
-<th class="head"><p>Default Mass</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><cite>“block_blank_blue_cube”</cite></p></td>
-<td><p>blank block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“block_blank_blue_cylinder”</cite></p></td>
-<td><p>blank block cylinder</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“block_blank_red_cube”</cite></p></td>
-<td><p>blank block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“block_blank_red_cylinder”</cite></p></td>
-<td><p>blank block cylinder</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“block_blank_wood_cube”</cite></p></td>
-<td><p>blank block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“block_blank_wood_cylinder”</cite></p></td>
-<td><p>blank block cylinder</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“block_blank_yellow_cube”</cite></p></td>
-<td><p>blank block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“block_blank_yellow_cylinder”</cite></p></td>
-<td><p>blank block cylinder</p></td>
-<td><p>0.66</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="block-objects-letter-number">
-<h3>Block Objects (Letter/Number)<a class="headerlink" href="#block-objects-letter-number" title="Permalink to this headline">¶</a></h3>
-<p>Blocks have the <cite>pickupable</cite> and <cite>receptacle</cite> attributes by default. Use the <a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block materials (letter/number)</span></a>.</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Object Type</p></th>
-<th class="head"><p>Shape</p></th>
-<th class="head"><p>Default Mass</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><cite>“block_blue_letter_a”</cite></p></td>
-<td><p>letter block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“block_blue_letter_b”</cite></p></td>
-<td><p>letter block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“block_blue_letter_c”</cite></p></td>
-<td><p>letter block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“block_blue_letter_d”</cite></p></td>
-<td><p>letter block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“block_blue_letter_m”</cite></p></td>
-<td><p>letter block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“block_blue_letter_s”</cite></p></td>
-<td><p>letter block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“block_yellow_number_1”</cite></p></td>
-<td><p>number block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“block_yellow_number_2”</cite></p></td>
-<td><p>number block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“block_yellow_number_3”</cite></p></td>
-<td><p>number block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“block_yellow_number_4”</cite></p></td>
-<td><p>number block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“block_yellow_number_5”</cite></p></td>
-<td><p>number block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“block_yellow_number_6”</cite></p></td>
-<td><p>number block cube</p></td>
-<td><p>0.66</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="pickupable-objects">
-<h3>Pickupable Objects<a class="headerlink" href="#pickupable-objects" title="Permalink to this headline">¶</a></h3>
-<p>The following object types have the <cite>pickupable</cite> attribute by default.</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Object Type</p></th>
@@ -473,6 +377,7 @@
 <th class="head"><p>Receptacle</p></th>
 <th class="head"><p>Openable</p></th>
 <th class="head"><p>Materials</p></th>
+<th class="head"><p>Base Size</p></th>
 <th class="head"><p>Details</p></th>
 </tr>
 </thead>
@@ -483,6 +388,7 @@
 <td></td>
 <td></td>
 <td><p>none</p></td>
+<td><p>x=0.111,y=0.12,z=0.122</p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><cite>“apple_2”</cite></p></td>
@@ -491,6 +397,7 @@
 <td></td>
 <td></td>
 <td><p>none</p></td>
+<td><p>x=0.117,y=0.121,z=0.116</p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><cite>“ball”</cite></p></td>
@@ -498,15 +405,215 @@
 <td><p>1</p></td>
 <td></td>
 <td></td>
-<td><p>block (blank), metal, plastic, rubber, wood</p></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#rubber-materials"><span class="std std-ref">rubber</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1,y=1,z=1</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“cake”</cite></p></td>
-<td><p>cake</p></td>
-<td><p>0.5</p></td>
+<tr class="row-odd"><td><p><cite>“block_blank_blue_cube”</cite></p></td>
+<td><p>blank block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
 <td></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
 <td></td>
-<td><p>none</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_blank_blue_cylinder”</cite></p></td>
+<td><p>blank block cylinder</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_blank_red_cube”</cite></p></td>
+<td><p>blank block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_blank_red_cylinder”</cite></p></td>
+<td><p>blank block cylinder</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_blank_wood_cube”</cite></p></td>
+<td><p>blank block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_blank_wood_cylinder”</cite></p></td>
+<td><p>blank block cylinder</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_blank_yellow_cube”</cite></p></td>
+<td><p>blank block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_blank_yellow_cylinder”</cite></p></td>
+<td><p>blank block cylinder</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_blue_letter_a”</cite></p></td>
+<td><p>letter block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block_letter_number</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_blue_letter_b”</cite></p></td>
+<td><p>letter block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block_letter_number</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_blue_letter_c”</cite></p></td>
+<td><p>letter block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block_letter_number</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_blue_letter_d”</cite></p></td>
+<td><p>letter block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block_letter_number</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_blue_letter_m”</cite></p></td>
+<td><p>letter block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block_letter_number</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_blue_letter_s”</cite></p></td>
+<td><p>letter block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block_letter_number</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_yellow_number_1”</cite></p></td>
+<td><p>number block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block_letter_number</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_yellow_number_2”</cite></p></td>
+<td><p>number block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block_letter_number</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_yellow_number_3”</cite></p></td>
+<td><p>number block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block_letter_number</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_yellow_number_4”</cite></p></td>
+<td><p>number block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block_letter_number</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“block_yellow_number_5”</cite></p></td>
+<td><p>number block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block_letter_number</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“block_yellow_number_6”</cite></p></td>
+<td><p>number block cube</p></td>
+<td><p>0.66</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-letter-number"><span class="std std-ref">block_letter_number</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.1,y=0.1,z=0.1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“bowl_3”</cite></p></td>
+<td><p>bowl</p></td>
+<td><p>0.25</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.175,y=0.116,z=0.171</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“bowl_4”</cite></p></td>
+<td><p>bowl</p></td>
+<td><p>0.25</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.209,y=0.059,z=0.206</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“bowl_6”</cite></p></td>
+<td><p>bowl</p></td>
+<td><p>0.25</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.198,y=0.109,z=0.201</p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><cite>“car_1”</cite></p></td>
@@ -514,103 +621,80 @@
 <td><p>0.5</p></td>
 <td></td>
 <td></td>
-<td><p>block (blank), wood</p></td>
-<td></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#flat-materials"><span class="std std-ref">flat</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.075,y=0.065,z=0.14</p></td>
+<td><p>Toy sedan</p></td>
 </tr>
 <tr class="row-odd"><td><p><cite>“case_1”</cite></p></td>
-<td><p>box</p></td>
+<td><p>case</p></td>
 <td><p>5</p></td>
 <td><p>X</p></td>
 <td><p>X</p></td>
-<td><p>metal, plastic</p></td>
-<td><p>same as suitcase_1</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a></p></td>
+<td><p>x=0.71,y=0.19,z=0.42</p></td>
+<td><p>Suitcase. Same as suitcase_1</p></td>
 </tr>
-<tr class="row-even"><td><p><cite>“crayon_black”</cite></p></td>
-<td><p>crayon</p></td>
-<td><p>0.125</p></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“crayon_blue”</cite></p></td>
-<td><p>crayon</p></td>
-<td><p>0.125</p></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><cite>“crayon_green”</cite></p></td>
-<td><p>crayon</p></td>
-<td><p>0.125</p></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“crayon_pink”</cite></p></td>
-<td><p>crayon</p></td>
-<td><p>0.125</p></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><cite>“crayon_red”</cite></p></td>
-<td><p>crayon</p></td>
-<td><p>0.125</p></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“crayon_yellow”</cite></p></td>
-<td><p>crayon</p></td>
-<td><p>0.125</p></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><cite>“dog_on_wheels”</cite></p></td>
-<td><p>dog</p></td>
-<td><p>0.5</p></td>
-<td></td>
-<td></td>
-<td><p>block (blank), wood</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“duck_on_wheels”</cite></p></td>
-<td><p>duck</p></td>
-<td><p>0.5</p></td>
-<td></td>
-<td></td>
-<td><p>block (blank), wood</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><cite>“bowl_3”</cite></p></td>
-<td><p>bowl</p></td>
-<td><p>0.25</p></td>
+<tr class="row-even"><td><p><cite>“case_3”</cite></p></td>
+<td><p>case</p></td>
+<td><p>5</p></td>
 <td><p>X</p></td>
+<td><p>X</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a></p></td>
+<td><p>x=0.81,y=0.21,z=0.56</p></td>
+<td><p>Suitcase</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“crayon_black”</cite></p></td>
+<td><p>crayon</p></td>
+<td><p>0.125</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td></td>
+<td><p>none</p></td>
+<td><p>x=0.01,y=0.085,z=0.01</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“bowl_4”</cite></p></td>
-<td><p>bowl</p></td>
-<td><p>0.25</p></td>
-<td><p>X</p></td>
+<tr class="row-even"><td><p><cite>“crayon_blue”</cite></p></td>
+<td><p>crayon</p></td>
+<td><p>0.125</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td></td>
+<td><p>none</p></td>
+<td><p>x=0.01,y=0.085,z=0.01</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><cite>“bowl_6”</cite></p></td>
-<td><p>bowl</p></td>
-<td><p>0.25</p></td>
-<td><p>X</p></td>
+<tr class="row-odd"><td><p><cite>“crayon_green”</cite></p></td>
+<td><p>crayon</p></td>
+<td><p>0.125</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td></td>
+<td><p>none</p></td>
+<td><p>x=0.01,y=0.085,z=0.01</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“crayon_pink”</cite></p></td>
+<td><p>crayon</p></td>
+<td><p>0.125</p></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td><p>x=0.01,y=0.085,z=0.01</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“crayon_red”</cite></p></td>
+<td><p>crayon</p></td>
+<td><p>0.125</p></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td><p>x=0.01,y=0.085,z=0.01</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“crayon_yellow”</cite></p></td>
+<td><p>crayon</p></td>
+<td><p>0.125</p></td>
+<td></td>
+<td></td>
+<td><p>none</p></td>
+<td><p>x=0.01,y=0.085,z=0.01</p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><cite>“cup_2”</cite></p></td>
@@ -618,7 +702,8 @@
 <td><p>0.25</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.105,y=0.135,z=0.104</p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><cite>“cup_3”</cite></p></td>
@@ -626,7 +711,8 @@
 <td><p>0.25</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.123,y=0.149,z=0.126</p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><cite>“cup_6”</cite></p></td>
@@ -634,128 +720,152 @@
 <td><p>0.25</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.106,y=0.098,z=0.106</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><cite>“gift_box_1”</cite></p></td>
-<td><p>box</p></td>
+<tr class="row-even"><td><p><cite>“dog_on_wheels”</cite></p></td>
+<td><p>dog</p></td>
 <td><p>0.5</p></td>
-<td><p>X</p></td>
-<td><p>X</p></td>
-<td><p>cardboard</p></td>
+<td></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#flat-materials"><span class="std std-ref">flat</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.355,y=0.134,z=0.071</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“pacifier”</cite></p></td>
+<tr class="row-odd"><td><p><cite>“duck_on_wheels”</cite></p></td>
+<td><p>duck</p></td>
+<td><p>0.5</p></td>
+<td></td>
+<td></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#flat-materials"><span class="std std-ref">flat</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.21,y=0.17,z=0.065</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“pacifier”</cite></p></td>
 <td><p>pacifier</p></td>
 <td></td>
 <td><p>0.5</p></td>
 <td></td>
 <td><p>none</p></td>
+<td><p>x=0.07,y=0.04,z=0.05</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><cite>“plate_1”</cite></p></td>
+<tr class="row-odd"><td><p><cite>“plate_1”</cite></p></td>
 <td><p>plate</p></td>
 <td><p>0.25</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.208,y=0.117,z=0.222</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“plate_3”</cite></p></td>
+<tr class="row-even"><td><p><cite>“plate_3”</cite></p></td>
 <td><p>plate</p></td>
 <td><p>0.25</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.304,y=0.208,z=0.305</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><cite>“plate_4”</cite></p></td>
+<tr class="row-odd"><td><p><cite>“plate_4”</cite></p></td>
 <td><p>plate</p></td>
 <td><p>0.25</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.202,y=0.113,z=0.206</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“racecar_red”</cite></p></td>
+<tr class="row-even"><td><p><cite>“racecar_red”</cite></p></td>
 <td><p>car</p></td>
 <td><p>0.5</p></td>
 <td></td>
 <td></td>
-<td><p>block (blank), wood</p></td>
-<td></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#flat-materials"><span class="std std-ref">flat</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.07,y=0.06,z=0.15</p></td>
+<td><p>Toy racecar</p></td>
 </tr>
-<tr class="row-even"><td><p><cite>“soccer_ball”</cite></p></td>
+<tr class="row-odd"><td><p><cite>“soccer_ball”</cite></p></td>
 <td><p>ball</p></td>
 <td><p>0.5</p></td>
 <td></td>
 <td></td>
 <td><p>none</p></td>
-<td></td>
+<td><p>x=0.22,y=0.22,z=0.22</p></td>
+<td><p>(*)</p></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“suitcase_1”</cite></p></td>
-<td><p>box</p></td>
+<tr class="row-even"><td><p><cite>“suitcase_1”</cite></p></td>
+<td><p>case</p></td>
 <td><p>5</p></td>
 <td><p>X</p></td>
 <td><p>X</p></td>
-<td><p>metal, plastic</p></td>
-<td><p>same as case_1</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a></p></td>
+<td><p>x=0.71,y=0.19,z=0.42</p></td>
+<td><p>Same as case_1</p></td>
 </tr>
-<tr class="row-even"><td><p><cite>“train_1”</cite></p></td>
+<tr class="row-odd"><td><p><cite>“train_1”</cite></p></td>
 <td><p>train</p></td>
 <td><p>0.5</p></td>
 <td></td>
 <td></td>
-<td><p>block (blank), wood</p></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#flat-materials"><span class="std std-ref">flat</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.16,y=0.2,z=0.23</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“trolley_1”</cite></p></td>
+<tr class="row-even"><td><p><cite>“trolley_1”</cite></p></td>
 <td><p>trolley</p></td>
 <td><p>0.5</p></td>
 <td></td>
 <td></td>
-<td><p>block (blank), wood</p></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#flat-materials"><span class="std std-ref">flat</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.16,y=0.2,z=0.23</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><cite>“trophy”</cite></p></td>
+<tr class="row-odd"><td><p><cite>“trophy”</cite></p></td>
 <td><p>trophy</p></td>
 <td><p>0.5</p></td>
 <td></td>
 <td></td>
 <td><p>none</p></td>
+<td><p>x=0.19,y=0.3,z=0.14</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“truck_1”</cite></p></td>
+<tr class="row-even"><td><p><cite>“truck_1”</cite></p></td>
 <td><p>truck</p></td>
 <td><p>0.5</p></td>
 <td></td>
 <td></td>
-<td><p>block (blank), wood</p></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#flat-materials"><span class="std std-ref">flat</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.2,y=0.18,z=0.25</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><cite>“turtle_on_wheels”</cite></p></td>
+<tr class="row-odd"><td><p><cite>“turtle_on_wheels”</cite></p></td>
 <td><p>turtle</p></td>
 <td></td>
 <td></td>
 <td><p>0.5</p></td>
-<td><p>block (blank), wood</p></td>
+<td><p><a class="reference internal" href="#block-materials-blank"><span class="std std-ref">block_blank</span></a>, <a class="reference internal" href="#flat-materials"><span class="std std-ref">flat</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.24,y=0.14,z=0.085</p></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="furniture-objects">
-<h3>Furniture Objects<a class="headerlink" href="#furniture-objects" title="Permalink to this headline">¶</a></h3>
+<h4>Furniture Objects<a class="headerlink" href="#furniture-objects" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 13%" />
-<col style="width: 13%" />
-<col style="width: 13%" />
-<col style="width: 13%" />
-<col style="width: 13%" />
-<col style="width: 13%" />
-<col style="width: 13%" />
-<col style="width: 13%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Object Type</p></th>
@@ -765,6 +875,7 @@
 <th class="head"><p>Receptacle</p></th>
 <th class="head"><p>Openable</p></th>
 <th class="head"><p>Materials</p></th>
+<th class="head"><p>Base Size</p></th>
 <th class="head"><p>Details</p></th>
 </tr>
 </thead>
@@ -775,7 +886,8 @@
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1,y=1,z=0.5</p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><cite>“bookcase_2_shelf”</cite></p></td>
@@ -784,7 +896,8 @@
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1,y=1.5,z=0.5</p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><cite>“bookcase_3_shelf”</cite></p></td>
@@ -793,7 +906,8 @@
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1,y=2,z=0.5</p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><cite>“bookcase_4_shelf”</cite></p></td>
@@ -802,7 +916,8 @@
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1,y=2.5,z=0.5</p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><cite>“bookcase_1_shelf_sideless”</cite></p></td>
@@ -811,7 +926,8 @@
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1,y=1,z=0.5</p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><cite>“bookcase_2_shelf_sideless”</cite></p></td>
@@ -820,7 +936,8 @@
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1,y=1.5,z=0.5</p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><cite>“bookcase_3_shelf_sideless”</cite></p></td>
@@ -829,7 +946,8 @@
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1,y=2,z=0.5</p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><cite>“bookcase_4_shelf_sideless”</cite></p></td>
@@ -838,7 +956,8 @@
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1,y=2.5,z=0.5</p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><cite>“cart_1”</cite></p></td>
@@ -847,44 +966,9 @@
 <td><p>X</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a></p></td>
+<td><p>x=0.725,y=1.29,z=0.55</p></td>
 <td></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“chest_1”</cite></p></td>
-<td><p>box</p></td>
-<td><p>15</p></td>
-<td></td>
-<td><p>X</p></td>
-<td><p>X</p></td>
-<td><p>metal, plastic, wood</p></td>
-<td><p>Rectangular box</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“chest_2”</cite></p></td>
-<td><p>box</p></td>
-<td><p>15</p></td>
-<td></td>
-<td><p>X</p></td>
-<td><p>X</p></td>
-<td><p>metal, plastic, wood</p></td>
-<td><p>Domed chest</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“chest_3”</cite></p></td>
-<td><p>box</p></td>
-<td><p>15</p></td>
-<td></td>
-<td><p>X</p></td>
-<td><p>X</p></td>
-<td><p>metal, plastic, wood</p></td>
-<td><p>Rectangular box</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“chest_8”</cite></p></td>
-<td><p>box</p></td>
-<td><p>15</p></td>
-<td></td>
-<td><p>X</p></td>
-<td><p>X</p></td>
-<td><p>metal, plastic, wood</p></td>
-<td><p>Domed chest</p></td>
 </tr>
 <tr class="row-odd"><td><p><cite>“chair_1”</cite></p></td>
 <td><p>chair</p></td>
@@ -892,7 +976,8 @@
 <td><p>X</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.54,y=1.04,z=0.46</p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><cite>“chair_2”</cite></p></td>
@@ -901,7 +986,8 @@
 <td><p>X</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.3,y=0.75,z=0.3</p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><cite>“chair_3”</cite></p></td>
@@ -910,7 +996,8 @@
 <td><p>X</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.42,y=0.8,z=0.63</p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><cite>“chair_4”</cite></p></td>
@@ -919,7 +1006,8 @@
 <td><p>X</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a></p></td>
+<td><p>x=0.54,y=0.88,z=0.44</p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><cite>“changing_table”</cite></p></td>
@@ -928,8 +1016,49 @@
 <td></td>
 <td><p>X</p></td>
 <td><p>X</p></td>
-<td><p>wood</p></td>
+<td><p><a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1.1,y=0.96,z=0.58</p></td>
 <td></td>
+</tr>
+<tr class="row-even"><td><p><cite>“chest_1”</cite></p></td>
+<td><p>box</p></td>
+<td><p>15</p></td>
+<td></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.83,y=0.42,z=0.55</p></td>
+<td><p>Rectangular box</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“chest_2”</cite></p></td>
+<td><p>box</p></td>
+<td><p>15</p></td>
+<td></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.52,y=0.42,z=0.31</p></td>
+<td><p>Domed chest</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“chest_3”</cite></p></td>
+<td><p>box</p></td>
+<td><p>15</p></td>
+<td></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.46,y=0.26,z=0.32</p></td>
+<td><p>Rectangular box</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“chest_8”</cite></p></td>
+<td><p>box</p></td>
+<td><p>15</p></td>
+<td></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.42,y=0.32,z=0.36</p></td>
+<td><p>Domed chest</p></td>
 </tr>
 <tr class="row-even"><td><p><cite>“crib”</cite></p></td>
 <td><p>crib</p></td>
@@ -937,142 +1066,158 @@
 <td></td>
 <td></td>
 <td></td>
-<td><p>wood</p></td>
+<td><p><a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.65,y=0.9,z=1.25</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“foam_floor_tiles”</cite></p></td>
-<td><p>foam floor tiles</p></td>
-<td><p>1</p></td>
-<td></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><cite>“shelf_1”</cite></p></td>
+<tr class="row-odd"><td><p><cite>“shelf_1”</cite></p></td>
 <td><p>shelf</p></td>
 <td><p>10</p></td>
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.78,y=0.77,z=0.4</p></td>
 <td><p>Object with four cubbies</p></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“shelf_2”</cite></p></td>
+<tr class="row-even"><td><p><cite>“shelf_2”</cite></p></td>
 <td><p>shelf</p></td>
 <td><p>20</p></td>
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.93,y=0.73,z=1.02</p></td>
 <td><p>Object with three shelves</p></td>
 </tr>
-<tr class="row-even"><td><p><cite>“sofa_1”</cite></p></td>
+<tr class="row-odd"><td><p><cite>“sofa_1”</cite></p></td>
 <td><p>sofa</p></td>
 <td><p>100</p></td>
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>sofa 1</p></td>
+<td><p><a class="reference internal" href="#sofa-1-materials"><span class="std std-ref">sofa_1</span></a></p></td>
+<td><p>x=2.64,y=1.15,z=1.23</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“sofa_2”</cite></p></td>
+<tr class="row-even"><td><p><cite>“sofa_2”</cite></p></td>
 <td><p>sofa</p></td>
 <td><p>100</p></td>
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>sofa 2</p></td>
+<td><p><a class="reference internal" href="#sofa-2-materials"><span class="std std-ref">sofa_2</span></a></p></td>
+<td><p>x=2.55,y=1.25,z=0.95</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><cite>“sofa_3”</cite></p></td>
+<tr class="row-odd"><td><p><cite>“sofa_3”</cite></p></td>
 <td><p>sofa</p></td>
 <td><p>100</p></td>
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>sofa 3</p></td>
+<td><p><a class="reference internal" href="#sofa-3-materials"><span class="std std-ref">sofa_3</span></a></p></td>
+<td><p>x=2.4,y=1.25,z=0.95</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“sofa_chair_1”</cite></p></td>
+<tr class="row-even"><td><p><cite>“sofa_chair_1”</cite></p></td>
 <td><p>sofa chair</p></td>
 <td><p>50</p></td>
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>sofa chair 1</p></td>
+<td><p><a class="reference internal" href="#sofa-chair-1-materials"><span class="std std-ref">sofa_chair_1</span></a></p></td>
+<td><p>x=1.43,y=1.15,z=1.23</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><cite>“sofa_chair_2”</cite></p></td>
+<tr class="row-odd"><td><p><cite>“sofa_chair_2”</cite></p></td>
 <td><p>sofa chair</p></td>
 <td><p>50</p></td>
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>sofa 2</p></td>
+<td><p><a class="reference internal" href="#sofa-2-materials"><span class="std std-ref">sofa_2</span></a></p></td>
+<td><p>x=1.425,y=1.25,z=0.95</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“sofa_chair_3”</cite></p></td>
+<tr class="row-even"><td><p><cite>“sofa_chair_3”</cite></p></td>
 <td><p>sofa chair</p></td>
 <td><p>50</p></td>
 <td></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>sofa 3</p></td>
+<td><p><a class="reference internal" href="#sofa-3-materials"><span class="std std-ref">sofa_3</span></a></p></td>
+<td><p>x=1.425,y=1.25,z=0.95</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><cite>“table_1”</cite></p></td>
+<tr class="row-odd"><td><p><cite>“table_1”</cite></p></td>
 <td><p>table</p></td>
 <td><p>10</p></td>
 <td><p>X</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.69,y=0.88,z=1.63</p></td>
 <td><p>Rectangular table with legs</p></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“table_2”</cite></p></td>
+<tr class="row-even"><td><p><cite>“table_2”</cite></p></td>
 <td><p>table</p></td>
 <td><p>5</p></td>
 <td><p>X</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.67,y=0.74,z=0.67</p></td>
 <td><p>Circular table</p></td>
 </tr>
-<tr class="row-even"><td><p><cite>“table_3”</cite></p></td>
+<tr class="row-odd"><td><p><cite>“table_3”</cite></p></td>
 <td><p>table</p></td>
 <td><p>2.5</p></td>
 <td><p>X</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.573,y=1.018,z=0.557</p></td>
 <td><p>Circular table</p></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“table_4”</cite></p></td>
+<tr class="row-even"><td><p><cite>“table_4”</cite></p></td>
 <td><p>table</p></td>
 <td><p>5</p></td>
 <td><p>X</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.62,y=0.62,z=1.17</p></td>
 <td><p>Semi-circular table</p></td>
 </tr>
-<tr class="row-even"><td><p><cite>“table_5”</cite></p></td>
+<tr class="row-odd"><td><p><cite>“table_5”</cite></p></td>
 <td><p>table</p></td>
 <td><p>20</p></td>
 <td><p>X</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1.2,y=0.7,z=0.9</p></td>
 <td><p>Rectangular table with sides</p></td>
 </tr>
-<tr class="row-odd"><td><p><cite>“table_7”</cite></p></td>
+<tr class="row-even"><td><p><cite>“table_7”</cite></p></td>
 <td><p>table</p></td>
 <td><p>10</p></td>
 <td><p>X</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1.02,y=0.45,z=0.65</p></td>
+<td><p>Rectangular table with legs</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“table_8”</cite></p></td>
+<td><p>table</p></td>
+<td><p>10</p></td>
+<td><p>X</p></td>
+<td><p>X</p></td>
+<td></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=0.65,y=0.71,z=1.02</p></td>
 <td><p>Rectangular table with legs</p></td>
 </tr>
 <tr class="row-even"><td><p><cite>“table_11”</cite></p></td>
@@ -1081,7 +1226,8 @@
 <td><p>X</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1,y=0.5,z=1</p></td>
 <td><p>Rectangular table with T legs</p></td>
 </tr>
 <tr class="row-odd"><td><p><cite>“table_12”</cite></p></td>
@@ -1090,7 +1236,8 @@
 <td><p>X</p></td>
 <td><p>X</p></td>
 <td></td>
-<td><p>metal, plastic, wood</p></td>
+<td><p><a class="reference internal" href="#metal-materials"><span class="std std-ref">metal</span></a>, <a class="reference internal" href="#plastic-materials"><span class="std std-ref">plastic</span></a>, <a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1,y=0.5,z=1</p></td>
 <td><p>Rectangular table with X legs</p></td>
 </tr>
 <tr class="row-even"><td><p><cite>“tv_2”</cite></p></td>
@@ -1099,8 +1246,9 @@
 <td></td>
 <td></td>
 <td></td>
-<td></td>
-<td></td>
+<td><p>none</p></td>
+<td><p>x=1.234,y=0.896,z=0.256</p></td>
+<td><p>(*)</p></td>
 </tr>
 <tr class="row-odd"><td><p><cite>“wardrobe”</cite></p></td>
 <td><p>wardrobe</p></td>
@@ -1108,15 +1256,17 @@
 <td></td>
 <td><p>X</p></td>
 <td><p>X</p></td>
-<td><p>wood</p></td>
+<td><p><a class="reference internal" href="#wood-materials"><span class="std std-ref">wood</span></a></p></td>
+<td><p>x=1.07,y=2.1,z=0.49</p></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 </section>
+</section>
 <section id="primitive-objects">
 <h3>Primitive Objects<a class="headerlink" href="#primitive-objects" title="Permalink to this headline">¶</a></h3>
-<p>The following primitive shapes have the <cite>physics</cite> attribute by default, a default mass of 1, default dimensions of (x=1, y=1, z=1), and no material restrictions. Please note these are NOT the internal Unity primitive 3D GameObjects.</p>
+<p>The following objects have a default mass of 1, base size of (x=1, y=1, z=1), and no material restrictions. You can configure them with properties like <cite>physics</cite>, <cite>moveable</cite>, <cite>pickupable</cite>, or <cite>structure</cite>. Please note that these are NOT the internal Unity primitive 3D GameObjects.</p>
 <ul class="simple">
 <li><p><cite>“circle_frustum”</cite></p></li>
 <li><p><cite>“cone”</cite></p></li>
@@ -1132,156 +1282,249 @@
 </section>
 <section id="other-objects">
 <h3>Other Objects<a class="headerlink" href="#other-objects" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li><p><cite>“cube_hollow_narrow”</cite></p></li>
-<li><p><cite>“cube_hollow_wide”</cite></p></li>
-<li><p><cite>“hash”</cite></p></li>
-<li><p><cite>“letter_l_narrow”</cite></p></li>
-<li><p><cite>“letter_l_wide”</cite></p></li>
-<li><p><cite>“letter_x”</cite></p></li>
-</ul>
+<p>The following objects have a default mass of 1 and no material restrictions. You can configure them with properties like <cite>physics</cite>, <cite>moveable</cite>, <cite>pickupable</cite>, or <cite>structure</cite>.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Object Type</p></th>
+<th class="head"><p>Base Size</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><cite>“cube_hollow_narrow”</cite></p></td>
+<td><p>(x=1,y=1,z=1)</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“cube_hollow_wide”</cite></p></td>
+<td><p>(x=1,y=1,z=1)</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“hash”</cite></p></td>
+<td><p>(x=1,y=1,z=1)</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“letter_l_narrow”</cite></p></td>
+<td><p>(x=0.5,y=1,z=0.5)</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“letter_l_wide”</cite></p></td>
+<td><p>(x=1,y=1,z=0.5)</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“letter_l_wide_tall”</cite></p></td>
+<td><p>(x=1,y=2,z=0.5)</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“letter_x”</cite></p></td>
+<td><p>(x=1,y=1,z=1)</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“lock_wall”</cite></p></td>
+<td><p>(x=1,y=1,z=1)</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="deprecated-objects">
 <h3>Deprecated Objects<a class="headerlink" href="#deprecated-objects" title="Permalink to this headline">¶</a></h3>
 <p>The following object types are not currently used:</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 17%" />
-<col style="width: 17%" />
-<col style="width: 17%" />
-<col style="width: 17%" />
-<col style="width: 17%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Object Type</p></th>
-<th class="head"><p>Moveable</p></th>
-<th class="head"><p>Pickupable</p></th>
-<th class="head"><p>Receptacle</p></th>
-<th class="head"><p>Openable</p></th>
-<th class="head"><p>Materials</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><cite>“box_2”</cite></p></td>
-<td><p>X</p></td>
-<td><p>X</p></td>
-<td><p>X</p></td>
-<td><p>X</p></td>
-<td><p>cardboard</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“box_3”</cite></p></td>
-<td><p>X</p></td>
-<td><p>X</p></td>
-<td><p>X</p></td>
-<td><p>X</p></td>
-<td><p>cardboard</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“box_4”</cite></p></td>
-<td><p>X</p></td>
-<td><p>X</p></td>
-<td><p>X</p></td>
-<td><p>X</p></td>
-<td><p>cardboard</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“painting_2”</cite></p></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“painting_4”</cite></p></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“painting_5”</cite></p></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“painting_9”</cite></p></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“painting_10”</cite></p></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“painting_16”</cite></p></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“plant_1”</cite></p></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“plant_5”</cite></p></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“plant_7”</cite></p></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“plant_9”</cite></p></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-</tr>
-<tr class="row-odd"><td><p><cite>“plant_12”</cite></p></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-</tr>
-<tr class="row-even"><td><p><cite>“plant_16”</cite></p></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td><p>none</p></td>
-</tr>
-</tbody>
-</table>
+<ul class="simple">
+<li><ul>
+<li><p><cite>“box_2”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“box_3”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“box_4”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“cake”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“foam_floor_tiles”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“gift_box_1”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“painting_2”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“painting_4”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“painting_5”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“painting_9”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“painting_10”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“painting_16”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“plant_1”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“plant_5”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“plant_7”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“plant_9”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“plant_12”</cite></p></li>
+</ul>
+</li>
+<li><ul>
+<li><p><cite>“plant_16”</cite></p></li>
+</ul>
+</li>
+</ul>
 </section>
 <section id="child-components">
 <h3>Child Components<a class="headerlink" href="#child-components" title="Permalink to this headline">¶</a></h3>
 <p>Some objects have child components representing cabinets, drawers, or shelves. Child components are not found in the scene configuration file but are automatically generated by the MCS environment. Child components have their own object IDs so the player may use actions like OpenObject or PutObject with specific cabinets/drawers/shelves.</p>
 <p>The following objects have the following child components:</p>
 <ul class="simple">
-<li><p><cite>“changing_table”</cite>:
-- <cite>“&lt;id&gt;_drawer_top”</cite>
-- <cite>“&lt;id&gt;_drawer_bottom”</cite>
-- <cite>“&lt;id&gt;_shelf_top”</cite>
-- <cite>“&lt;id&gt;_shelf_middle”</cite>
-- <cite>“&lt;id&gt;_shelf_bottom”</cite></p></li>
+<li><dl class="simple">
+<dt><cite>“changing_table”</cite>:</dt><dd><ul>
+<li><p><cite>“&lt;id&gt;_drawer_top”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_drawer_bottom”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_top”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_middle”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_bottom”</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>“bookcase_1_shelf”</cite>:</dt><dd><ul>
+<li><p><cite>“&lt;id&gt;_bottom”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_1”</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>“bookcase_1_shelf_sideless”</cite>:</dt><dd><ul>
+<li><p><cite>“&lt;id&gt;_bottom”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_1”</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>“bookcase_2_shelf”</cite>:</dt><dd><ul>
+<li><p><cite>“&lt;id&gt;_bottom”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_1”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_2”</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>“bookcase_2_shelf_sideless”</cite>:</dt><dd><ul>
+<li><p><cite>“&lt;id&gt;_bottom”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_1”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_2”</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>“bookcase_3_shelf”</cite>:</dt><dd><ul>
+<li><p><cite>“&lt;id&gt;_bottom”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_1”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_2”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_3”</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>“bookcase_3_shelf_sideless”</cite>:</dt><dd><ul>
+<li><p><cite>“&lt;id&gt;_bottom”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_1”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_2”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_3”</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>“bookcase_4_shelf”</cite>:</dt><dd><ul>
+<li><p><cite>“&lt;id&gt;_bottom”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_1”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_2”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_3”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_4”</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>“bookcase_4_shelf_sideless”</cite>:</dt><dd><ul>
+<li><p><cite>“&lt;id&gt;_bottom”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_1”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_2”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_3”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_shelf_4”</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>“shelf_1”</cite>:</dt><dd><ul>
+<li><p><cite>“&lt;id&gt;_bottom_left_shelf”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_bottom_right_shelf”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_top_left_shelf”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_top_right_shelf”</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>“shelf_2”</cite>:</dt><dd><ul>
+<li><p><cite>“&lt;id&gt;_middle_shelf”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_lower_shelf”</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>“wardrobe”</cite>:</dt><dd><ul>
+<li><p><cite>“&lt;id&gt;_bottom_shelf_left”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_left_door”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_lower_drawer_bottom_left”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_lower_drawer_bottom_right”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_lower_drawer_top_left”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_lower_drawer_top_right”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_middle_shelf_left”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_middle_shelf_right”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_right_door”</cite></p></li>
+<li><p><cite>“&lt;id&gt;_top_shelf”</cite></p></li>
+</ul>
+</dd>
+</dl>
+</li>
 </ul>
 </section>
 </section>
@@ -1292,7 +1535,7 @@
 <p>The following materials are currently available:</p>
 <section id="block-materials-blank">
 <h3>Block Materials (Blank)<a class="headerlink" href="#block-materials-blank" title="Permalink to this headline">¶</a></h3>
-<p>Colors that look good on the blank blocks, as well as some of the baby toys.</p>
+<p>Colors that were designed for the blank blocks, and look good on some of the wooden baby toys.</p>
 <ul class="simple">
 <li><p><cite>“UnityAssetStore/Wooden_Toys_Bundle/ToyBlocks/meshes/Materials/blue_1x1”</cite></p></li>
 <li><p><cite>“UnityAssetStore/Wooden_Toys_Bundle/ToyBlocks/meshes/Materials/gray_1x1”</cite></p></li>
@@ -1333,6 +1576,7 @@
 <ul class="simple">
 <li><p><cite>“AI2-THOR/Materials/Ceramics/BrownMarbleFake 1”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Ceramics/ConcreteBoards1”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Ceramics/ConcreteFloor”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Ceramics/GREYGRANITE”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Ceramics/PinkConcrete_Bedroom1”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Ceramics/RedBrick”</cite></p></li>
@@ -1343,13 +1587,79 @@
 <section id="fabric-materials">
 <h3>Fabric Materials<a class="headerlink" href="#fabric-materials" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Fabrics/BedroomCarpet”</cite> (blue pattern)</p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/Carpet2”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Carpet3”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/Carpet4”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Carpet8”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/CarpetDark”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/CarpetDark 1”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/CarpetDarkGreen”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/CarpetGreen”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/CarpetWhite”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/CarpetWhite 3”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/HotelCarpet”</cite> (red pattern)</p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/HotelCarpet3”</cite> (red pattern)</p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/RUG2”</cite> (red and blue pattern)</p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Rug3”</cite> (blue and red pattern)</p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/RUG4”</cite> (red and yellow pattern)</p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Rug5”</cite> (white pattern)</p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Rug6”</cite> (green, purple, and red pattern)</p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/RUG7”</cite> (red and blue pattern)</p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/RugPattern224”</cite> (brown, green, and white pattern)</p></li>
+<li><p><cite>“Custom/Materials/AzureCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/BlueCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/ChartreuseCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/CyanCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/GreenCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/GreyCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/LimeCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/MagentaCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/MaroonCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/NavyCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/OliveCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/OrangeCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/PurpleCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/RedCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/RoseCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/SpringGreenCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/TealCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/VioletCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/WhiteCarpetMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/YellowCarpetMCS”</cite></p></li>
+</ul>
+</section>
+<section id="flat-materials">
+<h3>Flat Materials<a class="headerlink" href="#flat-materials" title="Permalink to this headline">¶</a></h3>
+<p>Custom-made textures that are completely flat colors.</p>
+<ul class="simple">
+<li><p><cite>“Custom/Materials/Azure”</cite></p></li>
+<li><p><cite>“Custom/Materials/Black”</cite></p></li>
+<li><p><cite>“Custom/Materials/Blue”</cite></p></li>
+<li><p><cite>“Custom/Materials/Brown”</cite></p></li>
+<li><p><cite>“Custom/Materials/Chartreuse”</cite></p></li>
+<li><p><cite>“Custom/Materials/Cyan”</cite></p></li>
+<li><p><cite>“Custom/Materials/Goldenrod”</cite></p></li>
+<li><p><cite>“Custom/Materials/Green”</cite></p></li>
+<li><p><cite>“Custom/Materials/Grey”</cite></p></li>
+<li><p><cite>“Custom/Materials/Indigo”</cite></p></li>
+<li><p><cite>“Custom/Materials/Lime”</cite></p></li>
+<li><p><cite>“Custom/Materials/Magenta”</cite></p></li>
+<li><p><cite>“Custom/Materials/Maroon”</cite></p></li>
+<li><p><cite>“Custom/Materials/Navy”</cite></p></li>
+<li><p><cite>“Custom/Materials/Olive”</cite></p></li>
+<li><p><cite>“Custom/Materials/Orange”</cite></p></li>
+<li><p><cite>“Custom/Materials/Pink”</cite></p></li>
+<li><p><cite>“Custom/Materials/Purple”</cite></p></li>
+<li><p><cite>“Custom/Materials/Red”</cite></p></li>
+<li><p><cite>“Custom/Materials/Rose”</cite></p></li>
+<li><p><cite>“Custom/Materials/Silver”</cite></p></li>
+<li><p><cite>“Custom/Materials/SpringGreen”</cite></p></li>
+<li><p><cite>“Custom/Materials/Tan”</cite></p></li>
+<li><p><cite>“Custom/Materials/Teal”</cite></p></li>
+<li><p><cite>“Custom/Materials/Violet”</cite></p></li>
+<li><p><cite>“Custom/Materials/White”</cite></p></li>
+<li><p><cite>“Custom/Materials/Yellow”</cite></p></li>
 </ul>
 </section>
 <section id="metal-materials">
@@ -1360,6 +1670,7 @@
 <li><p><cite>“AI2-THOR/Materials/Metals/Brass 1”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Metals/Brass_Mat”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Metals/BrownMetal 1”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Metals/BrushedAluminum_Blue”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Metals/BrushedIron_AlbedoTransparency”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Metals/GenericStainlessSteel”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Metals/HammeredMetal_AlbedoTransparency 1”</cite></p></li>
@@ -1391,8 +1702,10 @@
 <h3>Sofa 1 Materials<a class="headerlink" href="#sofa-1-materials" title="Permalink to this headline">¶</a></h3>
 <p>Specific textures for <cite>sofa_1</cite> only.</p>
 <ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Sofa1_Blue”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/Sofa1_Brown”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/Sofa1_Red”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Sofa1_White”</cite></p></li>
 </ul>
 </section>
 <section id="sofa-chair-1-materials">
@@ -1400,7 +1713,9 @@
 <p>Specific textures for <cite>sofa_chair_1</cite> only.</p>
 <ul class="simple">
 <li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair1_Black”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair1_Blue”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair1_Brown”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair1_White”</cite></p></li>
 </ul>
 </section>
 <section id="sofa-2-materials">
@@ -1409,11 +1724,23 @@
 <ul class="simple">
 <li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair2_Grey”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair2_White”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/SofaChair2_Fabric_AlbedoTransparency”</cite></p></li>
+</ul>
+</section>
+<section id="sofa-3-materials">
+<h3>Sofa 3 Materials<a class="headerlink" href="#sofa-3-materials" title="Permalink to this headline">¶</a></h3>
+<p>Specific textures for <cite>sofa_3</cite> AND <cite>sofa_chair_3</cite> only.</p>
+<ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Sofa3_Blue”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Sofa3_Brown”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Sofa3_Green_Dark”</cite></p></li>
+<li><p><cite>“AI2-THOR/Materials/Fabrics/Sofa3_Red”</cite></p></li>
 </ul>
 </section>
 <section id="wall-materials">
 <h3>Wall Materials<a class="headerlink" href="#wall-materials" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li><p><cite>“AI2-THOR/Materials/Walls/BrownDrywall”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Walls/Drywall”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Walls/DrywallBeige”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Walls/DrywallGreen”</cite></p></li>
@@ -1423,6 +1750,26 @@
 <li><p><cite>“AI2-THOR/Materials/Walls/RedDrywall”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Walls/WallDrywallGrey”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Walls/YellowDrywall”</cite></p></li>
+<li><p><cite>“Custom/Materials/AzureDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/BlueDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/ChartreuseDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/CyanDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/GreenDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/GreyDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/LimeDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/MagentaDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/MaroonDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/NavyDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/OliveDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/OrangeDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/PurpleDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/RedDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/RoseDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/SpringGreenDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/TealDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/VioletDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/WhiteDrywallMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/YellowDrywallMCS”</cite></p></li>
 </ul>
 </section>
 <section id="wood-materials">
@@ -1441,6 +1788,26 @@
 <li><p><cite>“AI2-THOR/Materials/Wood/WoodGrain_Brown”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Wood/WoodGrain_Tan”</cite></p></li>
 <li><p><cite>“AI2-THOR/Materials/Wood/WornWood”</cite></p></li>
+<li><p><cite>“Custom/Materials/AzureWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/BlueWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/ChartreuseWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/CyanWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/GreenWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/GreyWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/LimeWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/MagentaWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/MaroonWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/NavyWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/OliveWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/OrangeWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/PurpleWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/RedWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/RoseWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/SpringGreenWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/TealWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/VioletWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/WhiteWoodMCS”</cite></p></li>
+<li><p><cite>“Custom/Materials/YellowWoodMCS”</cite></p></li>
 <li><p><cite>“UnityAssetStore/Baby_Room/Models/Materials/wood 1”</cite></p></li>
 <li><p><cite>“UnityAssetStore/Kindergarten_Interior/Models/Materials/color wood 1”</cite> (blue)</p></li>
 <li><p><cite>“UnityAssetStore/Kindergarten_Interior/Models/Materials/color wood 2”</cite> (red)</p></li>
@@ -1466,9 +1833,10 @@
 <li><a class="reference internal" href="#object-config">Object Config</a></li>
 <li><a class="reference internal" href="#goal-config">Goal Config</a></li>
 <li><a class="reference internal" href="#goal-metadata-config">Goal Metadata Config</a></li>
-<li><a class="reference internal" href="#answer-config">Answer Config</a></li>
 <li><a class="reference internal" href="#change-materials-config">Change Materials Config</a></li>
 <li><a class="reference internal" href="#force-config">Force Config</a></li>
+<li><a class="reference internal" href="#grid-config">Grid Config</a></li>
+<li><a class="reference internal" href="#material-position-config">Material Position Config</a></li>
 <li><a class="reference internal" href="#move-config">Move Config</a></li>
 <li><a class="reference internal" href="#physics-config">Physics Config</a></li>
 <li><a class="reference internal" href="#show-config">Show Config</a></li>
@@ -1484,10 +1852,11 @@
 </li>
 <li><a class="reference internal" href="#object-list">Object List</a><ul>
 <li><a class="reference internal" href="#attributes">Attributes</a></li>
-<li><a class="reference internal" href="#block-objects-blank">Block Objects (Blank)</a></li>
-<li><a class="reference internal" href="#block-objects-letter-number">Block Objects (Letter/Number)</a></li>
-<li><a class="reference internal" href="#pickupable-objects">Pickupable Objects</a></li>
+<li><a class="reference internal" href="#interactable-objects">Interactable Objects</a><ul>
+<li><a class="reference internal" href="#small-objects">Small Objects</a></li>
 <li><a class="reference internal" href="#furniture-objects">Furniture Objects</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#primitive-objects">Primitive Objects</a></li>
 <li><a class="reference internal" href="#other-objects">Other Objects</a></li>
 <li><a class="reference internal" href="#deprecated-objects">Deprecated Objects</a></li>
@@ -1500,12 +1869,14 @@
 <li><a class="reference internal" href="#cardboard-materials">Cardboard Materials</a></li>
 <li><a class="reference internal" href="#ceramic-materials">Ceramic Materials</a></li>
 <li><a class="reference internal" href="#fabric-materials">Fabric Materials</a></li>
+<li><a class="reference internal" href="#flat-materials">Flat Materials</a></li>
 <li><a class="reference internal" href="#metal-materials">Metal Materials</a></li>
 <li><a class="reference internal" href="#plastic-materials">Plastic Materials</a></li>
 <li><a class="reference internal" href="#rubber-materials">Rubber Materials</a></li>
 <li><a class="reference internal" href="#sofa-1-materials">Sofa 1 Materials</a></li>
 <li><a class="reference internal" href="#sofa-chair-1-materials">Sofa Chair 1 Materials</a></li>
 <li><a class="reference internal" href="#sofa-2-materials">Sofa 2 Materials</a></li>
+<li><a class="reference internal" href="#sofa-3-materials">Sofa 3 Materials</a></li>
 <li><a class="reference internal" href="#wall-materials">Wall Materials</a></li>
 <li><a class="reference internal" href="#wood-materials">Wood Materials</a></li>
 </ul>

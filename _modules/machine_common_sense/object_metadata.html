@@ -51,9 +51,6 @@
 <span class="sd">    ----------</span>
 <span class="sd">    uuid : string</span>
 <span class="sd">        The unique ID of this object, used with some actions.</span>
-<span class="sd">    color : dict</span>
-<span class="sd">        The &quot;r&quot;, &quot;g&quot;, and &quot;b&quot; pixel values of this object in images from the</span>
-<span class="sd">        StepMetadata&#39;s &quot;object_mask_list&quot;.</span>
 <span class="sd">    dimensions : list of dicts</span>
 <span class="sd">        The dimensions of this object in the environment&#39;s 3D global</span>
 <span class="sd">        coordinate system as a list of 8 points (dicts with &quot;x&quot;, &quot;y&quot;, and &quot;z&quot;).</span>
@@ -85,6 +82,9 @@
 <span class="sd">    rotation : dict</span>
 <span class="sd">        This object&#39;s rotation angles around the &quot;x&quot;, &quot;y&quot;, and &quot;z&quot; axes</span>
 <span class="sd">        in degrees.</span>
+<span class="sd">    segment_color : dict</span>
+<span class="sd">        The &quot;r&quot;, &quot;g&quot;, and &quot;b&quot; pixel values of this object in images from the</span>
+<span class="sd">        StepMetadata&#39;s &quot;object_mask_list&quot;.</span>
 <span class="sd">    shape : string</span>
 <span class="sd">        This object&#39;s shape in plain English.</span>
 <span class="sd">    state_list : list of strings</span>
@@ -103,7 +103,6 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">uuid</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">direction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">distance</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
@@ -114,6 +113,7 @@
         <span class="n">material_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">rotation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">segment_color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
         <span class="n">state_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">texture_color_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -122,7 +122,6 @@
         <span class="n">openable</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="o">=</span> <span class="n">uuid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">color</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">dimensions</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">dimensions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">direction</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">direction</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span>
@@ -133,6 +132,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">material_list</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">material_list</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">material_list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">position</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">position</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">rotation</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">rotation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">segment_color</span> <span class="o">=</span> <span class="p">{}</span> \
+            <span class="k">if</span> <span class="n">segment_color</span> <span class="ow">is</span> <span class="kc">None</span> \
+            <span class="k">else</span> <span class="n">segment_color</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state_list</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">state_list</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">state_list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">texture_color_list</span> <span class="o">=</span> <span class="p">(</span>
@@ -149,7 +151,6 @@
     <span class="c1">#   certain fields to be left out of output file</span>
     <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">yield</span> <span class="s1">&#39;uuid&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span>
-        <span class="k">yield</span> <span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">color</span>
         <span class="k">yield</span> <span class="s1">&#39;dimensions&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span>
         <span class="k">yield</span> <span class="s1">&#39;direction&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span>
         <span class="k">yield</span> <span class="s1">&#39;distance&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance</span>
@@ -160,6 +161,7 @@
         <span class="k">yield</span> <span class="s1">&#39;material_list&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">material_list</span>
         <span class="k">yield</span> <span class="s1">&#39;position&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span>
         <span class="k">yield</span> <span class="s1">&#39;rotation&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span>
+        <span class="k">yield</span> <span class="s1">&#39;segment_color&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">segment_color</span>
         <span class="k">yield</span> <span class="s1">&#39;shape&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span>
         <span class="k">yield</span> <span class="s1">&#39;state_list&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_list</span>
         <span class="k">yield</span> <span class="s1">&#39;texture_color_list&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">texture_color_list</span>

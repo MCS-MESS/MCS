@@ -53,7 +53,7 @@
 <p>Please note that the GPU image requires an Nvidia GPU and Nvidia Docker to be installed.</p>
 <p>You can run the GPU image with:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run -it -e PYTHONIOENCODING=utf8 -e XAUTHORITY=/tmp/.docker.xauth -e DISPLAY=:1 \</span>
-<span class="go">       -v ${PWD}/machine_common_sense/scenes:/input -v ${PWD}/scripts:/scripts \</span>
+<span class="go">       -v ${PWD}/machine_common_sense/scenes:/input -v ${PWD}/machine_common_sense/scripts:/scripts \</span>
 <span class="go">       -v /tmp/.X11-unix:/tmp/.X11-unix \</span>
 <span class="go">       -v /tmp/.docker.xauth:/tmp/.docker.xauth \</span>
 <span class="go">       --net host --gpus all --rm mcs-playroom:0.0.6 bash</span>
@@ -92,7 +92,7 @@ prerequisites for the GPU image, since GPU acceleration will yield significantly
 </section>
 <section id="run-image-bash">
 <h3>Run Image (bash)<a class="headerlink" href="#run-image-bash" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run -it -p 5900:5900 -v ${PWD}/machine_common_sense/scenes:/input -v ${PWD}/scripts:/scripts mcs-playroom-cpu bash</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run -it -p 5900:5900 -v ${PWD}/machine_common_sense/scenes:/input -v ${PWD}/machine_common_sense/scripts:/scripts mcs-playroom-cpu bash</span>
 </pre></div>
 </div>
 </section>

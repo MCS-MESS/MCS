@@ -89,27 +89,27 @@
 <h2>Download Unity Release<a class="headerlink" href="#download-unity-release" title="Permalink to this headline">¶</a></h2>
 <p>Our Unity App is built for Linux or Mac. There is no Windows support currently.</p>
 <p>As of release 0.4.4, the latest Unity version will be downloaded for you automatically by the MCS package. We have also switched to using addressables for our Unity release, which increases the initial startup time for Unity application on the first run. If this all sounds fine, feel free to skip this section, but if you’d like to know more about addressables or are using a release prior to 0.4.4, please follow the instructions below:</p>
-<p>The links below are referencing version 0.4.4. For our previous releases, please see <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases">this page</a>.</p>
+<p>The links below are referencing version 0.4.5. For our previous releases, please see <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases">this page</a>.</p>
 <section id="linux-version">
 <h3>Linux Version:<a class="headerlink" href="#linux-version" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
-<li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.4.4/MCS-AI2-THOR-Unity-App-v0.4.4-linux.zip">Download and unzip the Linux ZIP</a> <em>Note that for versions prior to 0.4.4, the Unity Linux build and the data directory are in two separate zips.</em></p></li>
+<li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.4.5/MCS-AI2-THOR-Unity-App-v0.4.5-linux.zip">Download and unzip the Linux ZIP</a> <em>Note that for versions prior to 0.4.4, the Unity Linux build and the data directory are in two separate zips.</em></p></li>
 <li><p>Ensure that the Unity App, the Data Directory TAR, and the UnityPlayer.so file are all in the same directory.</p></li>
 <li><p>Untar the Data Directory:</p></li>
 </ol>
-<pre class="literal-block">tar -xzvf MCS-AI2-THOR-Unity-App-v0.4.4_Data.tar.gz</pre>
+<pre class="literal-block">tar -xzvf MCS-AI2-THOR-Unity-App-v0.4.5_Data.tar.gz</pre>
 <ol class="arabic simple" start="4">
 <li><p>Mark the Unity App as executable:</p></li>
 </ol>
-<pre class="literal-block">chmod a+x MCS-AI2-THOR-Unity-App-v0.4.4.x86_64</pre>
+<pre class="literal-block">chmod a+x MCS-AI2-THOR-Unity-App-v0.4.5.x86_64</pre>
 </section>
 <section id="mac-version">
 <h3>Mac Version:<a class="headerlink" href="#mac-version" title="Permalink to this headline">¶</a></h3>
-<p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.4.4/MCS-AI2-THOR-Unity-App-v0.4.4-mac.zip">Download and unzip the Mac ZIP</a></p>
+<p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.4.5/MCS-AI2-THOR-Unity-App-v0.4.5-mac.zip">Download and unzip the Mac ZIP</a></p>
 </section>
 <section id="addressables">
 <h3>Addressables<a class="headerlink" href="#addressables" title="Permalink to this headline">¶</a></h3>
-<p>As of 0.4.4, we are using addressable assets that are stored remotely on AWS, greatly decreasing the size of our Unity releases. This also means that there is a bit of a trade off on first-time start up when you download a new release, since the resources will have to be downloaded. If you would like to avoid this load time on initial start up (which could result in a timeout), you can download the latest release using the links above, and then run the <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/scripts/cache_addressables.py">cache-addressables.py</a> script:</p>
+<p>As of 0.4.4, we are using addressable assets that are stored remotely on AWS, greatly decreasing the size of our Unity releases. This also means that there is a bit of a trade off on first-time start up when you download a new release, since the resources will have to be downloaded. If you would like to avoid this load time on initial start up (which could result in a timeout), you can download the latest release using the links above, and then run the <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/machine_common_sense/scripts/cache_addressables.py">cache-addressables.py</a> script:</p>
 <p>If the python package is installed from PyPI, the script is available in your virtual environment already.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cache_addressables ~/path/to/unity/app</span>
 </pre></div>
@@ -118,12 +118,12 @@
 <section id="pass-unity-app-location-to-mcs">
 <h3>Pass Unity App Location to MCS<a class="headerlink" href="#pass-unity-app-location-to-mcs" title="Permalink to this headline">¶</a></h3>
 <p>After downloading the Unity app, you will need to reference the path using the <cite>unity_app_file_path</cite> property when using the MCS package (outlined on the <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> page). While the path to the Unity app on Linux is pretty straightforward, the path for the Mac version executable is actually within the Contents/ directory level of your download:</p>
-<pre class="literal-block">./MCS-AI2-THOR-Unity-App-v0.4.4.app/Contents/MacOS/MCS-AI2-THOR</pre>
+<pre class="literal-block">./MCS-AI2-THOR-Unity-App-v0.4.5.app/Contents/MacOS/MCS-AI2-THOR</pre>
 </section>
 </section>
 <section id="mcs-configuration-file">
 <span id="mcs-config-file"></span><h2>MCS Configuration File<a class="headerlink" href="#mcs-configuration-file" title="Permalink to this headline">¶</a></h2>
-<p>To use an MCS configuration file, you can either pass in a file path via the <cite>config_file_path</cite> property in the create_controller() method, or set the <cite>MCS_CONFIG_FILE_PATH</cite> environment variable to the path of your MCS configuration file (note that the configuration must be an INI file – see <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/sample_config.ini">sample_config.ini</a> for an example).</p>
+<p>To use a specific configuration, you can either pass in a file path or dictionary of values via the <cite>config_file_or_dict</cite> in the create_controller() method, or set the <cite>MCS_CONFIG_FILE_PATH</cite> environment variable to the path of your MCS configuration file (note that the configuration must be an INI file – see <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/sample_config.ini">sample_config.ini</a> for an example).</p>
 <section id="config-file-properties">
 <h3>Config File Properties<a class="headerlink" href="#config-file-properties" title="Permalink to this headline">¶</a></h3>
 <section id="history-enabled">
@@ -190,11 +190,9 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">machine_common_sense</span> <span class="kn">as</span> <span class="nn">mcs</span>
 
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;MCS_CONFIG_FILE_PATH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="c1"># Path to your MCS configuration file</span>
-
 <span class="n">scene_files</span> <span class="o">=</span> <span class="c1"># List of scene configuration file paths</span>
 
-<span class="n">controller</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">create_controller</span><span class="p">()</span>
+<span class="n">controller</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">create_controller</span><span class="p">(</span><span class="n">config_file_or_dict</span><span class="o">=</span><span class="s1">&#39;path/to/config&#39;</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">scene_file</span> <span class="ow">in</span> <span class="n">scene_files</span><span class="p">:</span>
     <span class="n">scene_data</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">load_scene_json_file</span><span class="p">(</span><span class="n">scene_file</span><span class="p">)</span>

@@ -64,7 +64,18 @@
 <span class="sd">        the specific parameters objectId=a.</span>
 <span class="sd">        An action_list of None or an empty list means that all actions will</span>
 <span class="sd">        be available for the next step.</span>
-<span class="sd">        Derived from GoalMetadata.action_list.</span>
+
+<span class="sd">        To &quot;step&quot; using the first action from the action_list:</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            step_metadata = controller.start_scene(scene_data)</span>
+<span class="sd">            action, params = step_metadata.action_list[0]</span>
+<span class="sd">            step_metadata = controller.step(action, **params)</span>
+
+<span class="sd">        Derived from :mod:`GoalMetadata.action_list[step_number]</span>
+<span class="sd">        &lt;machine_common_sense.GoalMetadata&gt;`.</span>
 <span class="sd">        May be a subset of all possible actions. See</span>
 <span class="sd">        :mod:`Action &lt;machine_common_sense.Action&gt;`.</span>
 <span class="sd">    camera_aspect_ratio : (float, float)</span>
@@ -216,7 +227,7 @@
         <span class="k">if</span> <span class="n">obj_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">dict</span><span class="p">((</span><span class="n">obj</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">obj_list</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">obj</span><span class="o">.</span><span class="n">uuid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">obj_list</span><span class="p">}</span>
 
 <div class="viewcode-block" id="StepMetadata.copy_without_depth_or_images"><a class="viewcode-back" href="../../api.html#machine_common_sense.StepMetadata.copy_without_depth_or_images">[docs]</a>    <span class="k">def</span> <span class="nf">copy_without_depth_or_images</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a deep copy of this StepMetadata with default depth_map_list,</span>
