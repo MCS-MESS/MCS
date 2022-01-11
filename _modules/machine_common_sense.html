@@ -44,7 +44,9 @@
 <span class="kn">import</span> <span class="nn">logging.config</span>
 <span class="kn">import</span> <span class="nn">signal</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="k">import</span> <span class="n">contextmanager</span>
-<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">exists</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">typeguard</span>
 
 <span class="kn">from</span> <span class="nn">._version</span> <span class="k">import</span> <span class="n">__version__</span>
 <span class="kn">from</span> <span class="nn">.action</span> <span class="k">import</span> <span class="n">Action</span>
@@ -55,16 +57,14 @@
 <span class="kn">from</span> <span class="nn">.logging_config</span> <span class="k">import</span> <span class="n">LoggingConfig</span>
 <span class="kn">from</span> <span class="nn">.material</span> <span class="k">import</span> <span class="n">Material</span>
 <span class="kn">from</span> <span class="nn">.object_metadata</span> <span class="k">import</span> <span class="n">ObjectMetadata</span>
-<span class="kn">from</span> <span class="nn">.pose</span> <span class="k">import</span> <span class="n">Pose</span>
 <span class="kn">from</span> <span class="nn">.return_status</span> <span class="k">import</span> <span class="n">ReturnStatus</span>
 <span class="kn">from</span> <span class="nn">.reward</span> <span class="k">import</span> <span class="n">Reward</span>
 <span class="kn">from</span> <span class="nn">.scene_history</span> <span class="k">import</span> <span class="n">SceneHistory</span>
-<span class="kn">from</span> <span class="nn">.serializer</span> <span class="k">import</span> <span class="n">SerializerJson</span><span class="p">,</span> <span class="n">SerializerMsgPack</span>
-<span class="kn">from</span> <span class="nn">.setup</span> <span class="k">import</span> <span class="n">add_subscribers</span>
+<span class="kn">from</span> <span class="nn">.serializer</span> <span class="k">import</span> <span class="n">SerializerMsgPack</span>
 <span class="kn">from</span> <span class="nn">.step_metadata</span> <span class="k">import</span> <span class="n">StepMetadata</span>
 <span class="kn">from</span> <span class="nn">.stringifier</span> <span class="k">import</span> <span class="n">Stringifier</span>
+<span class="kn">from</span> <span class="nn">.subscriber</span> <span class="k">import</span> <span class="n">add_subscribers</span>
 <span class="kn">from</span> <span class="nn">.unity_executable_provider</span> <span class="k">import</span> <span class="n">UnityExecutableProvider</span>
-<span class="kn">from</span> <span class="nn">.validation</span> <span class="k">import</span> <span class="n">Validation</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="c1"># Set default logging handler to avoid &quot;No handler found&quot; warnings</span>
@@ -87,8 +87,9 @@
         <span class="n">signal</span><span class="o">.</span><span class="n">alarm</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="init_logging"><a class="viewcode-back" href="../api.html#machine_common_sense.init_logging">[docs]</a><span class="k">def</span> <span class="nf">init_logging</span><span class="p">(</span><span class="n">log_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">log_config_file</span><span class="o">=</span><span class="s2">&quot;log.config.user.py&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="init_logging"><a class="viewcode-back" href="../api.html#machine_common_sense.init_logging">[docs]</a><span class="nd">@typeguard</span><span class="o">.</span><span class="n">typechecked</span>
+<span class="k">def</span> <span class="nf">init_logging</span><span class="p">(</span><span class="n">log_config</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">log_config_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;log.config.user.py&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initializes logging system.  If no parameters are provided, a</span>
 <span class="sd">    default configuration will be applied.  See python logging</span>
@@ -99,21 +100,23 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    log_config : dict, optional</span>
-<span class="sd">        A dictionary the contains the logging configuration.  If None, a default configuration</span>
-<span class="sd">        will be used</span>
+<span class="sd">        A dictionary the contains the logging configuration.  If None, a</span>
+<span class="sd">        default configuration will be used</span>
 <span class="sd">    log_config_file: str, optional</span>
-<span class="sd">        Path to an override configuration file.  The file will contain a python dictionary</span>
-<span class="sd">        for the logging configuration.  This file is typically not used, but allows a user</span>
-<span class="sd">        to change the logging configuration without code changes.  Default, log.config.user.py</span>
+<span class="sd">        Path to an override configuration file.  The file will contain a</span>
+<span class="sd">        python dictionary for the logging configuration.  This file is</span>
+<span class="sd">        typically not used, but allows a user to change the logging</span>
+<span class="sd">        configuration without code changes.  Default, log.config.user.py</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">LoggingConfig</span><span class="o">.</span><span class="n">init_logging</span><span class="p">(</span>
         <span class="n">log_config</span><span class="o">=</span><span class="n">log_config</span><span class="p">,</span>
         <span class="n">log_config_file</span><span class="o">=</span><span class="n">log_config_file</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="create_controller"><a class="viewcode-back" href="../api.html#machine_common_sense.create_controller">[docs]</a><span class="k">def</span> <span class="nf">create_controller</span><span class="p">(</span><span class="n">config_file_or_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">unity_app_file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">unity_cache_version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="create_controller"><a class="viewcode-back" href="../api.html#machine_common_sense.create_controller">[docs]</a><span class="nd">@typeguard</span><span class="o">.</span><span class="n">typechecked</span>
+<span class="k">def</span> <span class="nf">create_controller</span><span class="p">(</span><span class="n">config_file_or_dict</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                      <span class="n">unity_app_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                      <span class="n">unity_cache_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates and returns a new MCS Controller object.</span>
 
@@ -167,8 +170,9 @@
         <span class="k">return</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="change_config"><a class="viewcode-back" href="../api.html#machine_common_sense.change_config">[docs]</a><span class="k">def</span> <span class="nf">change_config</span><span class="p">(</span><span class="n">controller</span><span class="p">:</span> <span class="n">Controller</span><span class="p">,</span>
-                  <span class="n">config_file_or_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="change_config"><a class="viewcode-back" href="../api.html#machine_common_sense.change_config">[docs]</a><span class="nd">@typeguard</span><span class="o">.</span><span class="n">typechecked</span>
+<span class="k">def</span> <span class="nf">change_config</span><span class="p">(</span><span class="n">controller</span><span class="p">:</span> <span class="n">Controller</span><span class="p">,</span>
+                  <span class="n">config_file_or_dict</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates and returns a new MCS Controller object.  Should only be called</span>
 <span class="sd">    After a run and before a scene is changed.</span>
@@ -190,7 +194,8 @@
     <span class="n">add_subscribers</span><span class="p">(</span><span class="n">controller</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="load_scene_json_file"><a class="viewcode-back" href="../api.html#machine_common_sense.load_scene_json_file">[docs]</a><span class="k">def</span> <span class="nf">load_scene_json_file</span><span class="p">(</span><span class="n">scene_json_file_path</span><span class="p">):</span>
+<div class="viewcode-block" id="load_scene_json_file"><a class="viewcode-back" href="../api.html#machine_common_sense.load_scene_json_file">[docs]</a><span class="nd">@typeguard</span><span class="o">.</span><span class="n">typechecked</span>
+<span class="k">def</span> <span class="nf">load_scene_json_file</span><span class="p">(</span><span class="n">scene_json_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads the given JSON scene config file and returns its data.</span>
 

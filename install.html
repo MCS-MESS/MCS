@@ -50,10 +50,10 @@
 <h1>Installation and Setup<a class="headerlink" href="#installation-and-setup" title="Permalink to this headline">¶</a></h1>
 <section id="virtual-environments">
 <h2>Virtual Environments<a class="headerlink" href="#virtual-environments" title="Permalink to this headline">¶</a></h2>
-<p>Python virtual environments are recommended when using the MCS package. All steps below presume the activation of the virtual environment. The developer can choose between traditional Python or Anaconda depending on need. These instructions are for Ubuntu Linux or MacOS. The Machine Common Sense package has a minimum requirement of Python 3.6 regardless of Python distribution.</p>
+<p>Python virtual environments are recommended when using the MCS package. All steps below presume the activation of the virtual environment. The developer can choose between traditional Python or Anaconda depending on need. These instructions are for Ubuntu Linux or MacOS. The Machine Common Sense package has a minimum requirement of Python 3.7 regardless of Python distribution.</p>
 <section id="traditional-python-environment">
 <h3>Traditional Python Environment<a class="headerlink" href="#traditional-python-environment" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> python3.6 -m venv venv
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> python3.7 -m venv venv
 <span class="gp">$</span> <span class="nb">source</span> venv/bin/activate
 <span class="gp">(venv) $</span> python -m pip install --upgrade pip setuptools wheel
 </pre></div>
@@ -89,23 +89,23 @@
 <h2>Download Unity Release<a class="headerlink" href="#download-unity-release" title="Permalink to this headline">¶</a></h2>
 <p>Our Unity App is built for Linux or Mac. There is no Windows support currently.</p>
 <p>As of release 0.4.4, the latest Unity version will be downloaded for you automatically by the MCS package. We have also switched to using addressables for our Unity release, which increases the initial startup time for Unity application on the first run. If this all sounds fine, feel free to skip this section, but if you’d like to know more about addressables or are using a release prior to 0.4.4, please follow the instructions below:</p>
-<p>The links below are referencing version 0.4.6. For our previous releases, please see <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases">this page</a>.</p>
+<p>The links below are referencing version 0.5.0. For our previous releases, please see <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases">this page</a>.</p>
 <section id="linux-version">
 <h3>Linux Version:<a class="headerlink" href="#linux-version" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
-<li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.4.6/MCS-AI2-THOR-Unity-App-v0.4.6-linux.zip">Download and unzip the Linux ZIP</a> <em>Note that for versions prior to 0.4.4, the Unity Linux build and the data directory are in two separate zips.</em></p></li>
+<li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.5.0/MCS-AI2-THOR-Unity-App-v0.5.0-linux.zip">Download and unzip the Linux ZIP</a> <em>Note that for versions prior to 0.4.4, the Unity Linux build and the data directory are in two separate zips.</em></p></li>
 <li><p>Ensure that the Unity App, the Data Directory TAR, and the UnityPlayer.so file are all in the same directory.</p></li>
 <li><p>Untar the Data Directory:</p></li>
 </ol>
-<pre class="literal-block">tar -xzvf MCS-AI2-THOR-Unity-App-v0.4.6_Data.tar.gz</pre>
+<pre class="literal-block">tar -xzvf MCS-AI2-THOR-Unity-App-v0.5.0_Data.tar.gz</pre>
 <ol class="arabic simple" start="4">
 <li><p>Mark the Unity App as executable:</p></li>
 </ol>
-<pre class="literal-block">chmod a+x MCS-AI2-THOR-Unity-App-v0.4.6.x86_64</pre>
+<pre class="literal-block">chmod a+x MCS-AI2-THOR-Unity-App-v0.5.0.x86_64</pre>
 </section>
 <section id="mac-version">
 <h3>Mac Version:<a class="headerlink" href="#mac-version" title="Permalink to this headline">¶</a></h3>
-<p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.4.6/MCS-AI2-THOR-Unity-App-v0.4.6-mac.zip">Download and unzip the Mac ZIP</a></p>
+<p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.5.0/MCS-AI2-THOR-Unity-App-v0.5.0-mac.zip">Download and unzip the Mac ZIP</a></p>
 </section>
 <section id="addressables">
 <h3>Addressables<a class="headerlink" href="#addressables" title="Permalink to this headline">¶</a></h3>
@@ -118,7 +118,7 @@
 <section id="pass-unity-app-location-to-mcs">
 <h3>Pass Unity App Location to MCS<a class="headerlink" href="#pass-unity-app-location-to-mcs" title="Permalink to this headline">¶</a></h3>
 <p>After downloading the Unity app, you will need to reference the path using the <cite>unity_app_file_path</cite> property when using the MCS package (outlined on the <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> page). While the path to the Unity app on Linux is pretty straightforward, the path for the Mac version executable is actually within the Contents/ directory level of your download:</p>
-<pre class="literal-block">./MCS-AI2-THOR-Unity-App-v0.4.6.app/Contents/MacOS/MCS-AI2-THOR</pre>
+<pre class="literal-block">./MCS-AI2-THOR-Unity-App-v0.5.0.app/Contents/MacOS/MCS-AI2-THOR</pre>
 </section>
 </section>
 <section id="mcs-configuration-file">
@@ -137,9 +137,9 @@
 <p>The <cite>metadata</cite> property describes what metadata will be returned by the MCS Python library. The <cite>metadata</cite> property is available so that users can run baseline or ablation studies during training. It can be set to one of the following strings:</p>
 <ul class="simple">
 <li><p><cite>oracle</cite>: Returns the metadata for all the objects in the scene, including visible, held, and hidden objects. Object masks will have consistent colors throughout all steps for a scene.</p></li>
-<li><p><cite>level2</cite>: Only returns the images (with depth maps AND object masks), camera info, and properties corresponding to the player themself (like head tilt or pose). No information about specific objects will be included. Note that here, object masks will have randomized colors per step.</p></li>
-<li><p><cite>level1</cite>: Only returns the images (with depth maps but NOT object masks), camera info, and properties corresponding to the player themself (like head tilt or pose). No information about specific objects will be included.</p></li>
-<li><p><cite>none</cite>: Only returns the images (but no depth maps or object masks), camera info, and properties corresponding to the player themself (like head tilt or pose). No information about specific objects will be included.</p></li>
+<li><p><cite>level2</cite>: Only returns the images (with depth maps AND object masks), camera info, and properties corresponding to the player themself (like head tilt). No information about specific objects will be included. Note that here, object masks will have randomized colors per step.</p></li>
+<li><p><cite>level1</cite>: Only returns the images (with depth maps but NOT object masks), camera info, and properties corresponding to the player themself (like head tilt). No information about specific objects will be included.</p></li>
+<li><p><cite>none</cite>: Only returns the images (but no depth maps or object masks), camera info, and properties corresponding to the player themself (like head tilt). No information about specific objects will be included.</p></li>
 </ul>
 <p>If no metadata level is set:
 - <cite>default</cite>: Fallback if no metadata level is specified. Only meant for use during development (evaluations will never be run this way). Includes metadata for visible and held objects in the scene, as well as camera info and properties corresponding to the player. Does not include depth maps or object masks.</p>
@@ -158,11 +158,6 @@
 <h4>save_debug_json<a class="headerlink" href="#save-debug-json" title="Permalink to this headline">¶</a></h4>
 <p>(boolean, optional)</p>
 <p>Save AI2-THOR/Unity input, AI2-THOR/Unity output, and MCS StepMetadata output to JSON file on each step. Default: False</p>
-</section>
-<section id="seed">
-<h4>seed<a class="headerlink" href="#seed" title="Permalink to this headline">¶</a></h4>
-<p>(int, optional)</p>
-<p>A seed for the Python random number generator (defaults to None).</p>
 </section>
 <section id="size">
 <h4>size<a class="headerlink" href="#size" title="Permalink to this headline">¶</a></h4>
@@ -253,7 +248,6 @@
 <li><a class="reference internal" href="#noise-enabled">noise_enabled</a></li>
 <li><a class="reference internal" href="#save-debug-images">save_debug_images</a></li>
 <li><a class="reference internal" href="#save-debug-json">save_debug_json</a></li>
-<li><a class="reference internal" href="#seed">seed</a></li>
 <li><a class="reference internal" href="#size">size</a></li>
 <li><a class="reference internal" href="#video-enabled">video_enabled</a></li>
 </ul>

@@ -50,7 +50,7 @@
 <h1>Containerization<a class="headerlink" href="#containerization" title="Permalink to this headline">¶</a></h1>
 <section id="gpu-image">
 <h2>GPU Image<a class="headerlink" href="#gpu-image" title="Permalink to this headline">¶</a></h2>
-<p>Please note that the GPU image requires an Nvidia GPU and Nvidia Docker to be installed.</p>
+<p>GPU images requires an Nvidia GPU and Nvidia Docker to be installed.</p>
 <p>You can run the GPU image with:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run -it -e PYTHONIOENCODING=utf8 -e XAUTHORITY=/tmp/.docker.xauth -e DISPLAY=:1 \</span>
 <span class="go">       -v ${PWD}/machine_common_sense/scenes:/input -v ${PWD}/machine_common_sense/scripts:/scripts \</span>

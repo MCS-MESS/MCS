@@ -41,9 +41,7 @@
             
   <h1>Source code for machine_common_sense.serializer</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">io</span>
-<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">msgpack</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -104,7 +102,7 @@
                     <span class="n">x</span><span class="o">.</span><span class="n">action_list</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">camera_aspect_ratio</span><span class="p">,</span>
                     <span class="n">x</span><span class="o">.</span><span class="n">camera_clipping_planes</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">camera_field_of_view</span><span class="p">,</span>
                     <span class="n">x</span><span class="o">.</span><span class="n">camera_height</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">depth_map_list</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">goal</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">head_tilt</span><span class="p">,</span>
-                    <span class="n">x</span><span class="o">.</span><span class="n">image_list</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">object_list</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">object_mask_list</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">pose</span><span class="p">,</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">image_list</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">object_list</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">object_mask_list</span><span class="p">,</span>
                     <span class="n">x</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">return_status</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">reward</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">rotation</span><span class="p">,</span>
                     <span class="n">x</span><span class="o">.</span><span class="n">step_number</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">structural_object_list</span>
                 <span class="p">],</span>
@@ -136,10 +134,10 @@
             <span class="k">return</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">ExtType</span><span class="p">(</span>
                 <span class="mi">5</span><span class="p">,</span>
                 <span class="n">msgpack</span><span class="o">.</span><span class="n">packb</span><span class="p">([</span>
-                    <span class="n">x</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">color</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span>
                     <span class="n">x</span><span class="o">.</span><span class="n">distance_in_steps</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">distance_in_world</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">held</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>
-                    <span class="n">x</span><span class="o">.</span><span class="n">material_list</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">rotation</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
-                    <span class="n">x</span><span class="o">.</span><span class="n">state_list</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">texture_color_list</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">visible</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">material_list</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">rotation</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">segment_color</span><span class="p">,</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">state_list</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">texture_color_list</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">visible</span>
                 <span class="p">],</span>
                     <span class="n">default</span><span class="o">=</span><span class="n">SerializerMsgPack</span><span class="o">.</span><span class="n">_ext_pack</span><span class="p">,</span>
                     <span class="n">strict_types</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
@@ -160,7 +158,7 @@
         <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">action_list</span><span class="p">,</span> <span class="n">camera_aspect_ratio</span><span class="p">,</span> <span class="n">camera_clipping_planes</span><span class="p">,</span> \
                 <span class="n">camera_field_of_view</span><span class="p">,</span> <span class="n">camera_height</span><span class="p">,</span> <span class="n">depth_map_list</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> \
-                <span class="n">head_tilt</span><span class="p">,</span> <span class="n">image_list</span><span class="p">,</span> <span class="n">object_list</span><span class="p">,</span> <span class="n">object_mask_list</span><span class="p">,</span> <span class="n">pose</span><span class="p">,</span> \
+                <span class="n">head_tilt</span><span class="p">,</span> <span class="n">image_list</span><span class="p">,</span> <span class="n">object_list</span><span class="p">,</span> <span class="n">object_mask_list</span><span class="p">,</span> \
                 <span class="n">position</span><span class="p">,</span> <span class="n">return_status</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">rotation</span><span class="p">,</span> <span class="n">step_number</span><span class="p">,</span> \
                 <span class="n">structural_object_list</span> <span class="o">=</span> \
                 <span class="n">msgpack</span><span class="o">.</span><span class="n">unpackb</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ext_hook</span><span class="o">=</span><span class="n">SerializerMsgPack</span><span class="o">.</span><span class="n">_ext_unpack</span><span class="p">)</span>
@@ -175,7 +173,6 @@
                                 <span class="n">image_list</span><span class="o">=</span><span class="n">image_list</span><span class="p">,</span>
                                 <span class="n">object_list</span><span class="o">=</span><span class="n">object_list</span><span class="p">,</span>
                                 <span class="n">object_mask_list</span><span class="o">=</span><span class="n">object_mask_list</span><span class="p">,</span>
-                                <span class="n">pose</span><span class="o">=</span><span class="n">pose</span><span class="p">,</span>
                                 <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
                                 <span class="n">return_status</span><span class="o">=</span><span class="n">return_status</span><span class="p">,</span>
                                 <span class="n">reward</span><span class="o">=</span><span class="n">reward</span><span class="p">,</span>
@@ -233,174 +230,14 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Serialized version of step metadata in MsgPack format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">serialized</span> <span class="o">=</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">packb</span><span class="p">(</span><span class="n">step_metadata</span><span class="p">,</span>
-                                   <span class="n">default</span><span class="o">=</span><span class="n">SerializerMsgPack</span><span class="o">.</span><span class="n">_ext_pack</span><span class="p">,</span>
-                                   <span class="n">strict_types</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">serialized</span></div>
+        <span class="k">return</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">packb</span><span class="p">(</span><span class="n">step_metadata</span><span class="p">,</span>
+                             <span class="n">default</span><span class="o">=</span><span class="n">SerializerMsgPack</span><span class="o">.</span><span class="n">_ext_pack</span><span class="p">,</span>
+                             <span class="n">strict_types</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="n">packed_step_metadata</span><span class="p">):</span>
-        <span class="n">deserialized</span> <span class="o">=</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">unpackb</span><span class="p">(</span><span class="n">packed_step_metadata</span><span class="p">,</span>
-                                       <span class="n">ext_hook</span><span class="o">=</span><span class="n">SerializerMsgPack</span><span class="o">.</span><span class="n">_ext_unpack</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">deserialized</span></div>
-
-
-<div class="viewcode-block" id="SerializerJson"><a class="viewcode-back" href="../../api.html#machine_common_sense.SerializerJson">[docs]</a><span class="k">class</span> <span class="nc">SerializerJson</span><span class="p">(</span><span class="n">ISerializer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Serializer to (de)serialize StepMetadata into/from MsgPack format.&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="SerializerJson.McsStepMetadataEncoder"><a class="viewcode-back" href="../../api.html#machine_common_sense.SerializerJson.McsStepMetadataEncoder">[docs]</a>    <span class="k">class</span> <span class="nc">McsStepMetadataEncoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        JSON Encoder Class for MCS Step Metadata, e.g.</span>
-<span class="sd">        json_dump = json.dumps(output, cls=McsStepMetadataEncoder, indent=4)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c1"># Empty docstring here to override superclass function docstring.</span>
-        <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">StepMetadata</span><span class="p">):</span>
-                <span class="k">return</span> <span class="p">{</span>
-                    <span class="s1">&#39;action_list&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">action_list</span><span class="p">,</span>
-                    <span class="s1">&#39;camera_aspect_ratio&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">camera_aspect_ratio</span><span class="p">,</span>
-                    <span class="s1">&#39;camera_clipping_planes&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">camera_clipping_planes</span><span class="p">,</span>
-                    <span class="s1">&#39;camera_field_of_view&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">camera_field_of_view</span><span class="p">,</span>
-                    <span class="s1">&#39;camera_height&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">camera_height</span><span class="p">,</span>
-                    <span class="s1">&#39;depth_map_list&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">depth_map_list</span><span class="p">,</span>
-                    <span class="s1">&#39;goal&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">goal</span><span class="p">,</span>
-                    <span class="s1">&#39;head_tilt&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">head_tilt</span><span class="p">,</span>
-                    <span class="s1">&#39;image_list&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">image_list</span><span class="p">,</span>
-                    <span class="s1">&#39;object_list&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">object_list</span><span class="p">,</span>
-                    <span class="s1">&#39;object_mask_list&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">object_mask_list</span><span class="p">,</span>
-                    <span class="s1">&#39;pose&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">pose</span><span class="p">,</span>
-                    <span class="s1">&#39;position&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">position</span><span class="p">,</span>
-                    <span class="s1">&#39;return_status&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">return_status</span><span class="p">,</span>
-                    <span class="s1">&#39;reward&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">reward</span><span class="p">,</span>
-                    <span class="s1">&#39;rotation&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">rotation</span><span class="p">,</span>
-                    <span class="s1">&#39;step_number&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">step_number</span><span class="p">,</span>
-                    <span class="s1">&#39;structural_object_list&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">structural_object_list</span>
-                <span class="p">}</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
-                <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span><span class="p">):</span>
-                <span class="c1"># Could also use: return x.tobytes().decode(&quot;latin1&quot;)</span>
-                <span class="c1"># or: buffer = BytesIO() x.save(buff, format=&quot;PNG&quot;)</span>
-                <span class="c1">#     base64.b64encode(buffer.getvalue()).decode(&#39;ascii&#39;)</span>
-                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">GoalMetadata</span><span class="p">):</span>
-                <span class="k">return</span> <span class="p">{</span>
-                    <span class="s1">&#39;action_list&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">action_list</span><span class="p">,</span>
-                    <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">category</span><span class="p">,</span>
-                    <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
-                    <span class="s1">&#39;habituation_total&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">habituation_total</span><span class="p">,</span>
-                    <span class="s1">&#39;last_preview_phase_step&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">last_preview_phase_step</span><span class="p">,</span>
-                    <span class="s1">&#39;last_step&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">last_step</span><span class="p">,</span>
-                    <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">metadata</span>
-                <span class="p">}</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ObjectMetadata</span><span class="p">):</span>
-                <span class="k">return</span> <span class="p">{</span>
-                    <span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
-                    <span class="s1">&#39;dimensions&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span>
-                    <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span>
-                    <span class="s1">&#39;distance&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span>
-                    <span class="s1">&#39;distance_in_steps&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">distance_in_steps</span><span class="p">,</span>
-                    <span class="s1">&#39;distance_in_world&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">distance_in_world</span><span class="p">,</span>
-                    <span class="s1">&#39;held&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">held</span><span class="p">,</span>
-                    <span class="s1">&#39;mass&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span>
-                    <span class="s1">&#39;material_list&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">material_list</span><span class="p">,</span>
-                    <span class="s1">&#39;position&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">position</span><span class="p">,</span>
-                    <span class="s1">&#39;rotation&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">rotation</span><span class="p">,</span>
-                    <span class="s1">&#39;segment_color&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">segment_color</span><span class="p">,</span>
-                    <span class="s1">&#39;shape&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
-                    <span class="s1">&#39;state_list&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">state_list</span><span class="p">,</span>
-                    <span class="s1">&#39;texture_color_list&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">texture_color_list</span><span class="p">,</span>
-                    <span class="s1">&#39;visible&#39;</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">visible</span>
-                <span class="p">}</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="SerializerJson.convert_object_list"><a class="viewcode-back" href="../../api.html#machine_common_sense.SerializerJson.convert_object_list">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">convert_object_list</span><span class="p">(</span><span class="n">raw_list</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Iterates over JSON object list and creates ObjectMetadata objects</span>
-<span class="sd">        for each JSON object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">object_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">object_raw</span> <span class="ow">in</span> <span class="n">raw_list</span><span class="p">:</span>
-            <span class="n">obj</span> <span class="o">=</span> <span class="n">ObjectMetadata</span><span class="p">(</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;uuid&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;dimensions&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;distance&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;distance_in_steps&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;distance_in_world&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;held&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;material_list&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;rotation&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;segment_color&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;state_list&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;texture_color_list&#39;</span><span class="p">],</span>
-                <span class="n">object_raw</span><span class="p">[</span><span class="s1">&#39;visible&#39;</span><span class="p">])</span>
-            <span class="n">object_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">object_list</span></div>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="n">step_metadata</span><span class="p">:</span> <span class="n">StepMetadata</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
-        <span class="n">json_dump</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">step_metadata</span><span class="p">,</span>
-                               <span class="bp">cls</span><span class="o">=</span><span class="n">SerializerJson</span><span class="o">.</span><span class="n">McsStepMetadataEncoder</span><span class="p">,</span>
-                               <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">json_dump</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="n">input_json</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_json</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">input_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">input_json</span><span class="p">)</span>
-        <span class="n">depth_map_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">depth_map_raw</span> <span class="ow">in</span> <span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;depth_map_list&#39;</span><span class="p">]:</span>
-            <span class="n">depth_map_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">depth_map_raw</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">))</span>
-
-        <span class="n">object_mask_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">obj_mask_raw</span> <span class="ow">in</span> <span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;object_mask_list&#39;</span><span class="p">]:</span>
-            <span class="n">object_mask_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">obj_mask_raw</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">))</span>
-
-        <span class="n">image_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">img_raw</span> <span class="ow">in</span> <span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;image_list&#39;</span><span class="p">]:</span>  <span class="c1"># PIL</span>
-            <span class="n">image_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img_raw</span><span class="p">,</span>
-                                                       <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)))</span>
-
-        <span class="n">object_list_raw</span> <span class="o">=</span> <span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;object_list&#39;</span><span class="p">]</span>
-        <span class="n">object_list</span> <span class="o">=</span> <span class="n">SerializerJson</span><span class="o">.</span><span class="n">convert_object_list</span><span class="p">(</span><span class="n">object_list_raw</span><span class="p">)</span>
-
-        <span class="n">structural_object_list_raw</span> <span class="o">=</span> <span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;structural_object_list&#39;</span><span class="p">]</span>
-        <span class="n">structural_object_list</span> <span class="o">=</span> <span class="n">SerializerJson</span><span class="o">.</span><span class="n">convert_object_list</span><span class="p">(</span>
-            <span class="n">structural_object_list_raw</span><span class="p">)</span>
-
-        <span class="n">goal_raw</span> <span class="o">=</span> <span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;goal&#39;</span><span class="p">]</span>
-        <span class="n">goal</span> <span class="o">=</span> <span class="n">GoalMetadata</span><span class="p">(</span><span class="n">goal_raw</span><span class="p">[</span><span class="s1">&#39;action_list&#39;</span><span class="p">],</span> <span class="n">goal_raw</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">],</span>
-                            <span class="n">goal_raw</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">],</span>
-                            <span class="n">goal_raw</span><span class="p">[</span><span class="s1">&#39;habituation_total&#39;</span><span class="p">],</span>
-                            <span class="n">goal_raw</span><span class="p">[</span><span class="s1">&#39;last_preview_phase_step&#39;</span><span class="p">],</span>
-                            <span class="n">goal_raw</span><span class="p">[</span><span class="s1">&#39;last_step&#39;</span><span class="p">],</span> <span class="n">goal_raw</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">])</span>
-
-        <span class="k">return</span> <span class="n">StepMetadata</span><span class="p">(</span>
-            <span class="n">action_list</span><span class="o">=</span><span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;action_list&#39;</span><span class="p">],</span>
-            <span class="n">camera_aspect_ratio</span><span class="o">=</span><span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;camera_aspect_ratio&#39;</span><span class="p">],</span>
-            <span class="n">camera_clipping_planes</span><span class="o">=</span><span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;camera_clipping_planes&#39;</span><span class="p">],</span>
-            <span class="n">camera_field_of_view</span><span class="o">=</span><span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;camera_field_of_view&#39;</span><span class="p">],</span>
-            <span class="n">camera_height</span><span class="o">=</span><span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;camera_height&#39;</span><span class="p">],</span>
-            <span class="n">depth_map_list</span><span class="o">=</span><span class="n">depth_map_list</span><span class="p">,</span>
-            <span class="n">goal</span><span class="o">=</span><span class="n">goal</span><span class="p">,</span>
-            <span class="n">head_tilt</span><span class="o">=</span><span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;head_tilt&#39;</span><span class="p">],</span>
-            <span class="n">image_list</span><span class="o">=</span><span class="n">image_list</span><span class="p">,</span>
-            <span class="n">object_list</span><span class="o">=</span><span class="n">object_list</span><span class="p">,</span>
-            <span class="n">object_mask_list</span><span class="o">=</span><span class="n">object_mask_list</span><span class="p">,</span>
-            <span class="n">pose</span><span class="o">=</span><span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;pose&#39;</span><span class="p">],</span>
-            <span class="n">position</span><span class="o">=</span><span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">],</span>
-            <span class="n">return_status</span><span class="o">=</span><span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;return_status&#39;</span><span class="p">],</span>
-            <span class="n">reward</span><span class="o">=</span><span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;reward&#39;</span><span class="p">],</span>
-            <span class="n">rotation</span><span class="o">=</span><span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;rotation&#39;</span><span class="p">],</span>
-            <span class="n">step_number</span><span class="o">=</span><span class="n">input_json</span><span class="p">[</span><span class="s1">&#39;step_number&#39;</span><span class="p">],</span>
-            <span class="n">structural_object_list</span><span class="o">=</span><span class="n">structural_object_list</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">unpackb</span><span class="p">(</span><span class="n">packed_step_metadata</span><span class="p">,</span>
+                               <span class="n">ext_hook</span><span class="o">=</span><span class="n">SerializerMsgPack</span><span class="o">.</span><span class="n">_ext_unpack</span><span class="p">)</span></div>
 </pre></div>
 
             <div class="clearer"></div>

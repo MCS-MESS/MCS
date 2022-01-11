@@ -43,7 +43,6 @@
 <span></span><span class="kn">import</span> <span class="nn">copy</span>
 
 <span class="kn">from</span> <span class="nn">.goal_metadata</span> <span class="k">import</span> <span class="n">GoalMetadata</span>
-<span class="kn">from</span> <span class="nn">.pose</span> <span class="k">import</span> <span class="n">Pose</span>
 <span class="kn">from</span> <span class="nn">.return_status</span> <span class="k">import</span> <span class="n">ReturnStatus</span>
 <span class="kn">from</span> <span class="nn">.stringifier</span> <span class="k">import</span> <span class="n">Stringifier</span>
 
@@ -88,8 +87,7 @@
 <span class="sd">        The player camera&#39;s field of view. This will remain constant for</span>
 <span class="sd">        the whole scene.</span>
 <span class="sd">    camera_height : float</span>
-<span class="sd">        The player camera&#39;s height. This will change if the player uses</span>
-<span class="sd">        actions like &quot;LieDown&quot;, &quot;Stand&quot;, or &quot;Crawl&quot;.</span>
+<span class="sd">        The player camera&#39;s height.</span>
 <span class="sd">    depth_map_list : list of 2D numpy arrays</span>
 <span class="sd">        The list of 2-dimensional numpy arrays of depth float data from the</span>
 <span class="sd">        scene after the last action and physics simulation were run. This is</span>
@@ -132,8 +130,6 @@
 <span class="sd">        The radius of the performer.</span>
 <span class="sd">    performer_reach: float</span>
 <span class="sd">        The max reach of the performer.</span>
-<span class="sd">    pose : string</span>
-<span class="sd">        Your current pose. Either &quot;STANDING&quot;, &quot;CRAWLING&quot;, or &quot;LYING&quot;.</span>
 <span class="sd">    position : dict</span>
 <span class="sd">        The &quot;x&quot;, &quot;y&quot;, and &quot;z&quot; coordinates for your global position.</span>
 <span class="sd">        Will be set to &#39;None&#39; if using a metadata level below the</span>
@@ -155,7 +151,7 @@
 <span class="sd">        The list of metadata for all the visible structural objects (like</span>
 <span class="sd">        walls, occluders, and ramps) in the scene. This list will be empty</span>
 <span class="sd">        if using a metadata level below the &#39;oracle&#39; level.</span>
-<span class="sd">        Please note that occluders are composed of two separate objects,</span>
+<span class="sd">        Occluders are composed of two separate objects,</span>
 <span class="sd">        the &quot;wall&quot; and the &quot;pole&quot;, with corresponding object IDs</span>
 <span class="sd">        (occluder_wall_&lt;uuid&gt; and occluder_pole_&lt;uuid&gt;), and ramps are</span>
 <span class="sd">        composed of between one and three objects (depending on the type</span>
@@ -179,7 +175,6 @@
         <span class="n">performer_radius</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
         <span class="n">performer_reach</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
         <span class="n">physics_frames_per_second</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">pose</span><span class="o">=</span><span class="n">Pose</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">return_status</span><span class="o">=</span><span class="n">ReturnStatus</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">reward</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -211,7 +206,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">performer_radius</span> <span class="o">=</span> <span class="n">performer_radius</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">performer_reach</span> <span class="o">=</span> <span class="n">performer_reach</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">physics_frames_per_second</span> <span class="o">=</span> <span class="n">physics_frames_per_second</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pose</span> <span class="o">=</span> <span class="n">pose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">position</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">position</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">return_status</span> <span class="o">=</span> <span class="n">return_status</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reward</span> <span class="o">=</span> <span class="n">reward</span>
@@ -252,7 +246,6 @@
         <span class="k">yield</span> <span class="s1">&#39;performer_radius&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">performer_radius</span>
         <span class="k">yield</span> <span class="s1">&#39;performer_reach&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">performer_reach</span>
         <span class="k">yield</span> <span class="s1">&#39;physics_frames_per_second&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">physics_frames_per_second</span>
-        <span class="k">yield</span> <span class="s1">&#39;pose&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pose</span>
         <span class="k">yield</span> <span class="s1">&#39;position&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span>
         <span class="k">yield</span> <span class="s1">&#39;return_status&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_status</span>
         <span class="k">yield</span> <span class="s1">&#39;reward&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reward</span>

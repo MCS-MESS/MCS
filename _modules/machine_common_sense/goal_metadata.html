@@ -41,6 +41,9 @@
             
   <h1>Source code for machine_common_sense.goal_metadata</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">typeguard</span>
 
 <span class="kn">from</span> <span class="nn">.action</span> <span class="k">import</span> <span class="n">Action</span>
 <span class="kn">from</span> <span class="nn">.stringifier</span> <span class="k">import</span> <span class="n">Stringifier</span>
@@ -149,7 +152,8 @@
         <span class="c1"># yield &#39;type_list&#39;, self.type_list</span>
         <span class="k">yield</span> <span class="s1">&#39;metadata&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span>
 
-<div class="viewcode-block" id="GoalMetadata.retrieve_action_list_at_step"><a class="viewcode-back" href="../../api.html#machine_common_sense.GoalMetadata.retrieve_action_list_at_step">[docs]</a>    <span class="k">def</span> <span class="nf">retrieve_action_list_at_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_number</span><span class="p">):</span>
+<div class="viewcode-block" id="GoalMetadata.retrieve_action_list_at_step"><a class="viewcode-back" href="../../api.html#machine_common_sense.GoalMetadata.retrieve_action_list_at_step">[docs]</a>    <span class="nd">@typeguard</span><span class="o">.</span><span class="n">typechecked</span>
+    <span class="k">def</span> <span class="nf">retrieve_action_list_at_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return the action list from the given goal at the given step as a</span>
 <span class="sd">        a list of actions tuples by default.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -158,9 +162,11 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">step_number</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_step</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">[]</span>
             <span class="n">adjusted_step</span> <span class="o">=</span> <span class="n">step_number</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_preview_phase_step</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">adjusted_step</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">[</span><span class="n">adjusted_step</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">[</span><span class="n">adjusted_step</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">adjusted_step</span> <span class="ow">and</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">[</span><span class="n">adjusted_step</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">[</span><span class="n">adjusted_step</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">GoalMetadata</span><span class="o">.</span><span class="n">ACTION_LIST</span></div></div>
 
