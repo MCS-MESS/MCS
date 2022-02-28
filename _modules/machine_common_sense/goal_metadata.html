@@ -41,7 +41,7 @@
             
   <h1>Source code for machine_common_sense.goal_metadata</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">typeguard</span>
 
@@ -113,9 +113,16 @@
 <span class="sd">    metadata : dict</span>
 <span class="sd">        The metadata specific to this goal. See</span>
 <span class="sd">        :mod:`Goal &lt;machine_common_sense.GoalCategory&gt;`.</span>
+<span class="sd">    steps_allowed_in_lava : integer</span>
+<span class="sd">        The number of steps allowed in lava before the scene ends</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">ACTION_LIST</span> <span class="o">=</span> <span class="p">[(</span><span class="n">item</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="p">{})</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">Action</span><span class="p">]</span>
+    <span class="c1"># Don&#39;t allow a user to call the EndHabituation action unless it&#39;s</span>
+    <span class="c1"># specifically configured in the action_list of the scene file.</span>
+    <span class="n">DEFAULT_ACTIONS</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="p">{})</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">Action</span>
+        <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">Action</span><span class="o">.</span><span class="n">END_HABITUATION</span><span class="p">,</span> <span class="n">Action</span><span class="o">.</span><span class="n">INITIALIZE</span><span class="p">]</span>
+    <span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -125,7 +132,8 @@
         <span class="n">habituation_total</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">last_preview_phase_step</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">last_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">steps_allowed_in_lava</span><span class="o">=</span><span class="mi">0</span>
     <span class="p">):</span>
         <span class="c1"># The action_list must be None by default</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span> <span class="o">=</span> <span class="n">action_list</span>
@@ -135,6 +143,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">last_preview_phase_step</span> <span class="o">=</span> <span class="n">last_preview_phase_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_step</span> <span class="o">=</span> <span class="n">last_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps_allowed_in_lava</span> <span class="o">=</span> <span class="n">steps_allowed_in_lava</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Stringifier</span><span class="o">.</span><span class="n">class_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -153,22 +162,47 @@
         <span class="k">yield</span> <span class="s1">&#39;metadata&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span>
 
 <div class="viewcode-block" id="GoalMetadata.retrieve_action_list_at_step"><a class="viewcode-back" href="../../api.html#machine_common_sense.GoalMetadata.retrieve_action_list_at_step">[docs]</a>    <span class="nd">@typeguard</span><span class="o">.</span><span class="n">typechecked</span>
-    <span class="k">def</span> <span class="nf">retrieve_action_list_at_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">retrieve_action_list_at_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                                     <span class="n">steps_in_lava</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return the action list from the given goal at the given step as a</span>
 <span class="sd">        a list of actions tuples by default.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">action_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retrieve_unfiltered_action_list</span><span class="p">(</span>
+            <span class="n">step_number</span><span class="p">,</span> <span class="n">steps_in_lava</span><span class="p">)</span>
+        <span class="c1"># remove EndHabituation parameters</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="o">!=</span> <span class="s1">&#39;EndHabituation&#39;</span> <span class="k">else</span> <span class="p">(</span><span class="s1">&#39;EndHabituation&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="ow">in</span> <span class="n">action_list</span>
+        <span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_retrieve_unfiltered_action_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                         <span class="n">step_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                                         <span class="n">steps_in_lava</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                                         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="c1"># If steps in lava is greater than allowed, over ride</span>
+        <span class="c1">#   action list and only return EndScene</span>
+        <span class="k">if</span> <span class="n">steps_in_lava</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">steps_in_lava</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_allowed_in_lava</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="s2">&quot;EndScene&quot;</span><span class="p">,</span> <span class="p">{})]</span>
+
+        <span class="sd">&#39;&#39;&#39;Unfiltered action list from goal&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">step_number</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_preview_phase_step</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;Pass&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">step_number</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_step</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[(</span><span class="s1">&#39;Pass&#39;</span><span class="p">,</span> <span class="p">{})]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">step_number</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_step</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">[]</span>
+
             <span class="n">adjusted_step</span> <span class="o">=</span> <span class="n">step_number</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_preview_phase_step</span>
             <span class="k">if</span> <span class="p">(</span>
                 <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">adjusted_step</span> <span class="ow">and</span>
                 <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">[</span><span class="n">adjusted_step</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
             <span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">[</span><span class="n">adjusted_step</span><span class="p">]</span>
-
-        <span class="k">return</span> <span class="n">GoalMetadata</span><span class="o">.</span><span class="n">ACTION_LIST</span></div></div>
+                <span class="k">return</span> <span class="p">[</span>
+                    <span class="n">action</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span>
+                    <span class="n">Action</span><span class="o">.</span><span class="n">input_to_action_and_params</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span><span class="p">[</span><span class="n">adjusted_step</span><span class="p">]</span>
+                <span class="p">]</span>
+        <span class="k">return</span> <span class="n">GoalMetadata</span><span class="o">.</span><span class="n">DEFAULT_ACTIONS</span></div>
 
 
 <div class="viewcode-block" id="GoalCategory"><a class="viewcode-back" href="../../api.html#machine_common_sense.GoalCategory">[docs]</a><span class="nd">@unique</span>
@@ -243,97 +277,6 @@
 <span class="sd">        Human-readable information describing the target object needed for the</span>
 <span class="sd">        visualization interface.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">TRANSFERRAL</span> <span class="o">=</span> <span class="s2">&quot;transferral&quot;</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    NOT USED IN MCS EVAL 4+</span>
-
-<span class="sd">    In a trial that has a transferral goal, you must find and pickup the</span>
-<span class="sd">    first target object and put it down either next to or on top of the second</span>
-<span class="sd">    target object. This may involve exploring the scene, avoiding obstacles,</span>
-<span class="sd">    interacting with objects (like closed receptacles), and (future</span>
-<span class="sd">    evaluations) tracking moving objects. These trials will demand a &quot;common</span>
-<span class="sd">    sense&quot; understanding of self navigation (how to move and rotate yourself</span>
-<span class="sd">    within a scene and around obstacles), object interaction (how objects work,</span>
-<span class="sd">    including opening containers), and (future evaluations) the basic physics</span>
-<span class="sd">    of movement (kinematics, gravity, friction, etc.).</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    relationship : list of strings</span>
-<span class="sd">        The required final position of the two target objects in relation to</span>
-<span class="sd">        one another. For transferral goals, this value will always be either</span>
-<span class="sd">        [&quot;target_1&quot;, &quot;next_to&quot;, &quot;target_2&quot;] or [&quot;target_1&quot;, &quot;on_top_of&quot;,</span>
-<span class="sd">        &quot;target_2&quot;].</span>
-
-<span class="sd">    target_1.id : string</span>
-<span class="sd">        The objectId of the first target object to pickup and transfer to the</span>
-<span class="sd">        second target object.</span>
-
-<span class="sd">    target_1.image : list of numpy arrays</span>
-<span class="sd">        An image of the first target object to pickup and transfer to the</span>
-<span class="sd">        second target object, given as a 3D RGB pixel array.</span>
-
-<span class="sd">    target_1.info : list of strings</span>
-<span class="sd">        Human-readable information describing the target object needed for the</span>
-<span class="sd">        visualization interface.</span>
-
-<span class="sd">    target_1.match_image : string</span>
-<span class="sd">        Whether the image of the first target object (target_1.image) exactly</span>
-<span class="sd">        matches the actual object in the scene. If false, then the actual first</span>
-<span class="sd">        target object will be different in one way (for example, the image may</span>
-<span class="sd">        depict a blue ball, but the actual object is a yellow ball, or a blue</span>
-<span class="sd">        cube).</span>
-
-<span class="sd">    target_2.id : string</span>
-<span class="sd">        The objectId of the second target object to which the first target</span>
-<span class="sd">        object must be transferred.</span>
-
-<span class="sd">    target_2.image : list of numpy arrays</span>
-<span class="sd">        An image of the second target object to which the first target object</span>
-<span class="sd">        must be transferred, given as a 3D RGB pixel array.</span>
-
-<span class="sd">    target_2.info : list of strings</span>
-<span class="sd">        Human-readable information describing the target object needed for the</span>
-<span class="sd">        visualization interface.</span>
-
-<span class="sd">    target_2.match_image : string</span>
-<span class="sd">        Whether the image of the second target object (target_2.image) exactly</span>
-<span class="sd">        matches the actual object in the scene. If false, then the actual</span>
-<span class="sd">        second target object will be different in one way (for example, the</span>
-<span class="sd">        image may depict a blue ball, but the actual object is a yellow ball,</span>
-<span class="sd">        or a blue cube).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">TRAVERSAL</span> <span class="o">=</span> <span class="s2">&quot;traversal&quot;</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    NOT USED IN MCS EVAL 4+</span>
-
-<span class="sd">    In a trial that has a traversal goal, you must find and move next to a</span>
-<span class="sd">    target object. This may involve exploring the scene, and avoiding</span>
-<span class="sd">    obstacles. These trials will demand a &quot;common sense&quot; understanding of</span>
-<span class="sd">    self navigation (how to move and rotate yourself within a scene and around</span>
-<span class="sd">    obstacles).</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    target.id : string</span>
-<span class="sd">        The objectId of the target object to find and move next to.</span>
-
-<span class="sd">    target.image : list of numpy arrays</span>
-<span class="sd">        An image of the target object to find and move next to, given as a 3D</span>
-<span class="sd">        RGB pixel array.</span>
-
-<span class="sd">    target.info : list of strings</span>
-<span class="sd">        Human-readable information describing the target object needed for the</span>
-<span class="sd">        visualization interface.</span>
-
-<span class="sd">    target.match_image : string</span>
-<span class="sd">        Whether the image of the target object (target.image) exactly matches</span>
-<span class="sd">        the actual target object in the scene. If false, then the actual object</span>
-<span class="sd">        will be different in one way (for example, the image may depict a blue</span>
-<span class="sd">        ball, but the actual object is a yellow ball, or a blue cube).</span>
 <span class="sd">    &quot;&quot;&quot;</span></div>
 </pre></div>
 

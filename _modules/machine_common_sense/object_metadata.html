@@ -98,6 +98,8 @@
 <span class="sd">        Whether the object is open or not</span>
 <span class="sd">    openable : boolean</span>
 <span class="sd">        Whether the object can be opened</span>
+<span class="sd">    locked: boolean</span>
+<span class="sd">        Whether the object is locked</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
@@ -119,7 +121,8 @@
         <span class="n">texture_color_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">is_open</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">openable</span><span class="o">=</span><span class="kc">False</span>
+        <span class="n">openable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">locked</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="o">=</span> <span class="n">uuid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">dimensions</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">dimensions</span>
@@ -143,6 +146,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">visible</span> <span class="o">=</span> <span class="n">visible</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_open</span> <span class="o">=</span> <span class="n">is_open</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">openable</span> <span class="o">=</span> <span class="n">openable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">locked</span> <span class="o">=</span> <span class="n">locked</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Stringifier</span><span class="o">.</span><span class="n">class_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -167,7 +171,8 @@
         <span class="k">yield</span> <span class="s1">&#39;texture_color_list&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">texture_color_list</span>
         <span class="k">yield</span> <span class="s1">&#39;visible&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">visible</span>
         <span class="k">yield</span> <span class="s1">&#39;is_open&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_open</span>
-        <span class="k">yield</span> <span class="s1">&#39;openable&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">openable</span></div>
+        <span class="k">yield</span> <span class="s1">&#39;openable&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">openable</span>
+        <span class="k">yield</span> <span class="s1">&#39;locked&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">locked</span></div>
 </pre></div>
 
             <div class="clearer"></div>

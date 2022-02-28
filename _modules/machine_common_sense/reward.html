@@ -45,12 +45,12 @@
 <span class="kn">import</span> <span class="nn">typeguard</span>
 <span class="kn">from</span> <span class="nn">shapely</span> <span class="k">import</span> <span class="n">geometry</span>
 
-<span class="kn">from</span> <span class="nn">.controller</span> <span class="k">import</span> <span class="n">DEFAULT_MOVE</span>
 <span class="kn">from</span> <span class="nn">.goal_metadata</span> <span class="k">import</span> <span class="n">GoalCategory</span><span class="p">,</span> <span class="n">GoalMetadata</span>
 
 <span class="n">GOAL_ACHIEVED</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">GOAL_NOT_ACHIEVED</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">STEP_PENALTY</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="n">LAVA_PENALTY</span> <span class="o">=</span> <span class="mf">100.0</span>
 
 
 <div class="viewcode-block" id="Reward"><a class="viewcode-back" href="../../api.html#machine_common_sense.Reward">[docs]</a><span class="k">class</span> <span class="nc">Reward</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -93,7 +93,8 @@
             <span class="n">goal</span><span class="p">:</span> <span class="n">GoalMetadata</span><span class="p">,</span>
             <span class="n">objects</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
             <span class="n">agent</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
-            <span class="n">performer_reach</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="n">performer_reach</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">goal_reward</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">GOAL_ACHIEVED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Calculate the reward for the retrieval goal.</span>
 
@@ -104,9 +105,11 @@
 <span class="sd">            objects: Dict</span>
 <span class="sd">            agent: Dict</span>
 <span class="sd">            performer_reach: float</span>
+<span class="sd">            goal_reward: float</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            int: 1 for goal achieved, 0 otherwise</span>
+<span class="sd">            float: 1 for goal achieved and no goal_reward arg is given,</span>
+<span class="sd">            goal_reward value if goal_reward arg is given, 0 otherwise.</span>
 
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">reward</span> <span class="o">=</span> <span class="n">GOAL_NOT_ACHIEVED</span>
@@ -114,116 +117,17 @@
         <span class="n">goal_object</span> <span class="o">=</span> <span class="n">Reward</span><span class="o">.</span><span class="n">__get_object_from_list</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="n">goal_id</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">goal_object</span> <span class="ow">and</span> <span class="n">goal_object</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;isPickedUp&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-            <span class="n">reward</span> <span class="o">=</span> <span class="n">GOAL_ACHIEVED</span>
-        <span class="k">return</span> <span class="n">reward</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_calc_traversal_reward</span><span class="p">(</span>
-            <span class="n">goal</span><span class="p">:</span> <span class="n">GoalMetadata</span><span class="p">,</span>
-            <span class="n">objects</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
-            <span class="n">agent</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
-            <span class="n">performer_reach</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Calculate the reward for the traversal goal.</span>
-
-<span class="sd">        Agent must be within reach distance of an object edge to be</span>
-<span class="sd">        considered near.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            goal: GoalMetadata</span>
-<span class="sd">            objects: Dict</span>
-<span class="sd">            agent: Dict</span>
-<span class="sd">            performer_reach: float</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            int: 1 for goal achieved, 0 otherwise</span>
-
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">reward</span> <span class="o">=</span> <span class="n">GOAL_NOT_ACHIEVED</span>
-        <span class="n">goal_id</span> <span class="o">=</span> <span class="n">goal</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">goal_object</span> <span class="o">=</span> <span class="n">Reward</span><span class="o">.</span><span class="n">__get_object_from_list</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="n">goal_id</span><span class="p">)</span>
-
-        <span class="n">agent_pos</span> <span class="o">=</span> <span class="n">agent</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">]</span>
-        <span class="n">agent_xz</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">agent_pos</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span> <span class="n">agent_pos</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">])</span>
-
-        <span class="k">if</span> <span class="n">goal_object</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">goal_polygon</span> <span class="o">=</span> <span class="n">Reward</span><span class="o">.</span><span class="n">_convert_object_to_planar_polygon</span><span class="p">(</span>
-                <span class="n">goal_object</span><span class="p">)</span>
-            <span class="n">polygonal_distance</span> <span class="o">=</span> <span class="n">agent_xz</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">goal_polygon</span><span class="p">)</span>
-            <span class="n">reward</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">polygonal_distance</span> <span class="o">&lt;=</span> <span class="n">performer_reach</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">reward</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_calc_transferral_reward</span><span class="p">(</span>
-            <span class="n">goal</span><span class="p">:</span> <span class="n">GoalMetadata</span><span class="p">,</span>
-            <span class="n">objects</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
-            <span class="n">agent</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
-            <span class="n">performer_reach</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Calculate the reward for the transferral goal.</span>
-
-<span class="sd">        The action object must be next to or on top of the goal object. This</span>
-<span class="sd">        depends on the relationship action verb.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            goal: GoalMetadata</span>
-<span class="sd">            objects: Dict</span>
-<span class="sd">            agent: Dict</span>
-<span class="sd">            performer_reach: float</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            int: 1 for goal achieved, 0 otherwise</span>
-
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">reward</span> <span class="o">=</span> <span class="n">GOAL_NOT_ACHIEVED</span>
-
-        <span class="n">relationship</span> <span class="o">=</span> <span class="n">goal</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;relationship&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">relationship</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">relationship</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">GOAL_NOT_ACHIEVED</span>
-
-        <span class="c1"># action object to goal object</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">relationship</span>
-        <span class="n">action_target</span> <span class="o">=</span> <span class="n">goal</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target_1&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">action_id</span> <span class="o">=</span> <span class="n">action_target</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">goal_target</span> <span class="o">=</span> <span class="n">goal</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target_2&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">goal_id</span> <span class="o">=</span> <span class="n">goal_target</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-
-        <span class="c1"># objects = scene_metadata[&#39;objects&#39;]</span>
-        <span class="n">action_object</span> <span class="o">=</span> <span class="n">Reward</span><span class="o">.</span><span class="n">__get_object_from_list</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="n">action_id</span><span class="p">)</span>
-        <span class="n">goal_object</span> <span class="o">=</span> <span class="n">Reward</span><span class="o">.</span><span class="n">__get_object_from_list</span><span class="p">(</span><span class="n">objects</span><span class="p">,</span> <span class="n">goal_id</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">goal_object</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">goal_object</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;isPickedUp&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">GOAL_NOT_ACHIEVED</span>
-
-        <span class="k">if</span> <span class="n">action_object</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">action_object</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;isPickedUp&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">GOAL_NOT_ACHIEVED</span>
-
-        <span class="n">goal_polygon</span> <span class="o">=</span> <span class="n">Reward</span><span class="o">.</span><span class="n">_convert_object_to_planar_polygon</span><span class="p">(</span>
-            <span class="n">goal_object</span><span class="p">)</span>
-        <span class="n">action_polygon</span> <span class="o">=</span> <span class="n">Reward</span><span class="o">.</span><span class="n">_convert_object_to_planar_polygon</span><span class="p">(</span>
-            <span class="n">action_object</span><span class="p">)</span>
-
-        <span class="c1"># actions are next_to or on_top_of (ie; action obj next to goal obj)</span>
-        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;next to&#39;</span><span class="p">:</span>
-            <span class="n">polygonal_distance</span> <span class="o">=</span> <span class="n">action_polygon</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">goal_polygon</span><span class="p">)</span>
-            <span class="n">reward</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">polygonal_distance</span> <span class="o">&lt;=</span> <span class="n">DEFAULT_MOVE</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;on top of&#39;</span><span class="p">:</span>
-            <span class="c1"># check that the action object center intersects the goal object</span>
-            <span class="c1"># bounds and the y dimension of the target is above the goal</span>
-            <span class="n">action_obj_within_goal</span> <span class="o">=</span> <span class="n">action_polygon</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="n">goal_polygon</span><span class="p">)</span>
-            <span class="n">action_obj_above_goal</span> <span class="o">=</span> <span class="p">(</span><span class="n">action_object</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">&gt;</span>
-                                     <span class="n">goal_object</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">action_obj_within_goal</span> <span class="ow">and</span> <span class="n">action_obj_above_goal</span><span class="p">:</span>
-                <span class="n">reward</span> <span class="o">=</span> <span class="n">GOAL_ACHIEVED</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="n">goal_reward</span>
 
         <span class="k">return</span> <span class="n">reward</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_adjust_score_penalty</span><span class="p">(</span>
             <span class="n">current_score</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="n">number_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+            <span class="n">number_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">steps_on_lava</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">lava_penalty</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">LAVA_PENALTY</span><span class="p">,</span>
+            <span class="n">step_penalty</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">STEP_PENALTY</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Calculate the score penalty based on the number of steps,</span>
 <span class="sd">        if the current step results in a reward being achieved do</span>
@@ -233,22 +137,31 @@
 <span class="sd">        Args:</span>
 <span class="sd">            current_score: 1 or 0 depending if reward achieved</span>
 <span class="sd">            number_steps: the current step count</span>
+<span class="sd">            steps_on_lava: the number of total steps on lava</span>
+<span class="sd">            lava_penalty: the point deduction for each step on lava</span>
+<span class="sd">            step_penalty: point deduction for each step</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            float: new score based off of step penalty</span>
 
 <span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">step_penalty</span> <span class="o">=</span> <span class="n">STEP_PENALTY</span> <span class="k">if</span> <span class="n">step_penalty</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">step_penalty</span>
+        <span class="n">lava_penalty</span> <span class="o">=</span> <span class="n">LAVA_PENALTY</span> <span class="k">if</span> <span class="n">lava_penalty</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">lava_penalty</span>
         <span class="k">if</span> <span class="n">current_score</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">current_score</span> <span class="o">-</span> <span class="p">((</span><span class="n">number_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">STEP_PENALTY</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">current_score</span> <span class="o">-</span> <span class="p">((</span><span class="n">number_steps</span><span class="p">)</span> <span class="o">*</span> <span class="n">STEP_PENALTY</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">current_score</span> <span class="o">-</span> <span class="p">((</span><span class="n">number_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">step_penalty</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">steps_on_lava</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">steps_on_lava</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">current_score</span> <span class="o">-</span> <span class="p">(</span><span class="n">number_steps</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">step_penalty</span><span class="p">))</span> <span class="o">-</span> \
+            <span class="p">(</span><span class="n">steps_on_lava</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">lava_penalty</span><span class="p">))</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_calculate_default_reward</span><span class="p">(</span>
             <span class="n">goal</span><span class="p">:</span> <span class="n">GoalMetadata</span><span class="p">,</span>
             <span class="n">objects</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
             <span class="n">agent</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
-            <span class="n">reach</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="n">reach</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="n">goal_reward</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">GOAL_ACHIEVED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="sd">&#39;&#39;&#39;Returns the default reward of 0; not achieved.&#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">GOAL_NOT_ACHIEVED</span>
 
@@ -259,15 +172,23 @@
             <span class="n">objects</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span>
             <span class="n">agent</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
             <span class="n">number_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="n">reach</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+            <span class="n">reach</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+            <span class="n">steps_on_lava</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lava_penalty</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">LAVA_PENALTY</span><span class="p">,</span>
+            <span class="n">step_penalty</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">STEP_PENALTY</span><span class="p">,</span>
+            <span class="n">goal_reward</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">GOAL_ACHIEVED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Determine if the agent achieved the objective/task/goal.</span>
+<span class="sd">        Determine if the agent achieved the goal.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            goal: GoalMetadata</span>
 <span class="sd">            objects: Dict</span>
 <span class="sd">            agent: Dict</span>
 <span class="sd">            reach: float</span>
+<span class="sd">            steps_on_lava: int</span>
+<span class="sd">            lava_penalty: float</span>
+<span class="sd">            step_penalty: float</span>
+<span class="sd">            goal_reward: float</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            int: reward is 1 if goal achieved, 0 otherwise</span>
@@ -279,17 +200,21 @@
             <span class="n">category</span> <span class="o">=</span> <span class="n">goal</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="n">switch</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">GoalCategory</span><span class="o">.</span><span class="n">RETRIEVAL</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">Reward</span><span class="o">.</span><span class="n">_calc_retrieval_reward</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="n">GoalCategory</span><span class="o">.</span><span class="n">TRANSFERRAL</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">Reward</span><span class="o">.</span><span class="n">_calc_transferral_reward</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="n">GoalCategory</span><span class="o">.</span><span class="n">TRAVERSAL</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">Reward</span><span class="o">.</span><span class="n">_calc_traversal_reward</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="n">GoalCategory</span><span class="o">.</span><span class="n">RETRIEVAL</span><span class="o">.</span><span class="n">value</span><span class="p">:</span> <span class="n">Reward</span><span class="o">.</span><span class="n">_calc_retrieval_reward</span>
         <span class="p">}</span>
 
-        <span class="n">current_score</span> <span class="o">=</span> <span class="n">switch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">category</span><span class="p">,</span>
-                                   <span class="n">Reward</span><span class="o">.</span><span class="n">_calculate_default_reward</span><span class="p">)(</span><span class="n">goal</span><span class="p">,</span>
-                                                                     <span class="n">objects</span><span class="p">,</span>
-                                                                     <span class="n">agent</span><span class="p">,</span>
-                                                                     <span class="n">reach</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Reward</span><span class="o">.</span><span class="n">_adjust_score_penalty</span><span class="p">(</span><span class="n">current_score</span><span class="p">,</span> <span class="n">number_steps</span><span class="p">)</span></div></div>
+        <span class="n">current_score</span> <span class="o">=</span> <span class="n">switch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">category</span><span class="p">,</span> <span class="n">Reward</span><span class="o">.</span><span class="n">_calculate_default_reward</span><span class="p">)(</span>
+            <span class="n">goal</span><span class="p">,</span>
+            <span class="n">objects</span><span class="p">,</span>
+            <span class="n">agent</span><span class="p">,</span>
+            <span class="n">reach</span><span class="p">,</span>
+            <span class="n">GOAL_ACHIEVED</span> <span class="k">if</span> <span class="n">goal_reward</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">goal_reward</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Reward</span><span class="o">.</span><span class="n">_adjust_score_penalty</span><span class="p">(</span>
+            <span class="n">current_score</span><span class="p">,</span> <span class="n">number_steps</span><span class="p">,</span> <span class="n">steps_on_lava</span><span class="p">,</span> <span class="n">lava_penalty</span><span class="p">,</span>
+            <span class="n">step_penalty</span>
+        <span class="p">)</span></div></div>
 </pre></div>
 
             <div class="clearer"></div>

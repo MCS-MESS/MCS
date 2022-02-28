@@ -126,6 +126,13 @@
 </pre></div>
 </div>
 </section>
+<section id="testing-topdown-plots">
+<h2>Testing TopDown Plots<a class="headerlink" href="#testing-topdown-plots" title="Permalink to this headline">¶</a></h2>
+<p>The plotter module has a main which is only executed when the plotter module is run directly vs imported. The developer can provide a scene file as a positional argument and the plotter’s main will run with video_enabled for 1 step. This will create a visual, depth and topdown video in a scene folder for quick review.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>venv<span class="o">)</span> $ python plotter.py playroom.json
+</pre></div>
+</div>
+</section>
 <section id="more-config-options">
 <h2>More Config Options<a class="headerlink" href="#more-config-options" title="Permalink to this headline">¶</a></h2>
 <p>Outlined here is a list of config file options that can be used <strong>in addition</strong> to the ones listed under the <a class="reference internal" href="install.html#mcs-config-file"><span class="std std-ref">MCS Configuration File</span></a> section.</p>
@@ -191,6 +198,7 @@
 <li><a class="reference internal" href="#python-style-guide">Python Style Guide</a></li>
 <li><a class="reference internal" href="#running">Running</a></li>
 <li><a class="reference internal" href="#making-gifs">Making GIFs</a></li>
+<li><a class="reference internal" href="#testing-topdown-plots">Testing TopDown Plots</a></li>
 <li><a class="reference internal" href="#more-config-options">More Config Options</a><ul>
 <li><a class="reference internal" href="#developer-config-file-properties">Developer Config File Properties</a><ul>
 <li><a class="reference internal" href="#evaluation-name">evaluation_name</a></li>

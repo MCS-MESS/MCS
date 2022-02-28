@@ -41,8 +41,10 @@
             
   <h1>Source code for machine_common_sense.controller</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">atexit</span>
+<span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -69,7 +71,7 @@
                                 <span class="n">EndScenePayload</span><span class="p">,</span> <span class="n">EventType</span><span class="p">,</span> <span class="n">StartScenePayload</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.controller_output_handler</span> <span class="k">import</span> <span class="n">ControllerOutputHandler</span>
 <span class="kn">from</span> <span class="nn">.goal_metadata</span> <span class="k">import</span> <span class="n">GoalMetadata</span>
-<span class="kn">from</span> <span class="nn">.parameter</span> <span class="k">import</span> <span class="n">Parameter</span>
+<span class="kn">from</span> <span class="nn">.parameter</span> <span class="k">import</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">compare_param_values</span><span class="p">,</span> <span class="n">rebuild_endhabituation</span>
 <span class="kn">from</span> <span class="nn">.step_metadata</span> <span class="k">import</span> <span class="n">StepMetadata</span>
 
 
@@ -95,7 +97,8 @@
     <span class="k">return</span> <span class="n">ai2thor</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">read_buffer_image</span><span class="p">(</span>
         <span class="n">image_depth_data</span><span class="p">,</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">screen_width</span><span class="p">,</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">screen_height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen_height</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
     <span class="p">)</span>
 
 
@@ -128,27 +131,26 @@
 <span class="sd">    config: ConfigManager</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">MAX_FORCE</span> <span class="o">=</span> <span class="mf">50.0</span>  <span class="c1"># DW: used for testing but had it twice</span>
-    <span class="c1"># once at 50.0 and the other at 1.0</span>
-
     <span class="nd">@typeguard</span><span class="o">.</span><span class="n">typechecked</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unity_app_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ConfigManager</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_controller</span> <span class="o">=</span> <span class="n">ai2thor</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">Controller</span><span class="p">(</span>
-            <span class="n">quality</span><span class="o">=</span><span class="s1">&#39;Medium&#39;</span><span class="p">,</span>
-            <span class="n">fullscreen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">headless</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># TODO confirm functionality</span>
-            <span class="n">local_executable_path</span><span class="o">=</span><span class="n">unity_app_file_path</span><span class="p">,</span>
-            <span class="n">width</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get_screen_width</span><span class="p">(),</span>
-            <span class="n">height</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get_screen_height</span><span class="p">(),</span>
-            <span class="n">scene</span><span class="o">=</span><span class="s1">&#39;MCS&#39;</span><span class="p">,</span>  <span class="c1"># Unity scene name</span>
-            <span class="n">logs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="c1"># This constructor always initializes a scene, so add a scene</span>
-            <span class="c1"># config to ensure it doesn&#39;t error</span>
-            <span class="n">sceneConfig</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;objects&quot;</span><span class="p">:</span> <span class="p">[]</span>
-            <span class="p">}</span>
-        <span class="p">)</span>
+        <span class="c1"># Suppress print statements from the AI2-THOR Controller&#39;s constructor.</span>
+        <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">redirect_stdout</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">())</span> <span class="k">as</span> <span class="n">_</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_controller</span> <span class="o">=</span> <span class="n">ai2thor</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">Controller</span><span class="p">(</span>
+                <span class="n">quality</span><span class="o">=</span><span class="s1">&#39;Medium&#39;</span><span class="p">,</span>
+                <span class="n">fullscreen</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">headless</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># TODO confirm functionality</span>
+                <span class="n">local_executable_path</span><span class="o">=</span><span class="n">unity_app_file_path</span><span class="p">,</span>
+                <span class="n">width</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get_screen_width</span><span class="p">(),</span>
+                <span class="n">height</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get_screen_height</span><span class="p">(),</span>
+                <span class="n">scene</span><span class="o">=</span><span class="s1">&#39;MCS&#39;</span><span class="p">,</span>  <span class="c1"># Unity scene name</span>
+                <span class="n">logs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="c1"># This constructor always initializes a scene, so add a scene</span>
+                <span class="c1"># config to ensure it doesn&#39;t error</span>
+                <span class="n">sceneConfig</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;objects&quot;</span><span class="p">:</span> <span class="p">[]</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_controller</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;AI2-THOR/Unity Controller failed to initialize&#39;</span><span class="p">)</span>
@@ -180,8 +182,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">parameter_converter</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Controller.start_scene"><a class="viewcode-back" href="../../api.html#machine_common_sense.Controller.start_scene">[docs]</a>    <span class="nd">@typeguard</span><span class="o">.</span><span class="n">typechecked</span>
-    <span class="k">def</span> <span class="nf">start_scene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">SceneConfiguration</span><span class="p">,</span> <span class="n">Dict</span><span class="p">])</span> <span class="o">-&gt;</span> \
-            <span class="n">StepMetadata</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">start_scene</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config_data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">SceneConfiguration</span><span class="p">,</span> <span class="n">Dict</span><span class="p">])</span> \
+            <span class="o">-&gt;</span> <span class="n">StepMetadata</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Starts a new scene using the given scene configuration data dict and</span>
 <span class="sd">        returns the scene output data object.</span>
@@ -204,17 +207,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_scene_config</span> <span class="o">=</span> <span class="n">scene_config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__habituation_trial</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scene_config</span><span class="o">.</span><span class="n">retrieve_goal</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__steps_in_lava</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scene_config</span><span class="o">.</span><span class="n">retrieve_goal</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get_steps_allowed_in_lava</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_end_scene_called</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="n">skip_preview_phase</span> <span class="o">=</span> <span class="p">(</span><span class="n">scene_config</span><span class="o">.</span><span class="n">goal</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
                               <span class="n">scene_config</span><span class="o">.</span><span class="n">goal</span><span class="o">.</span><span class="n">skip_preview_phase</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_scene_config</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">is_file_writing_enabled</span><span class="p">()):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s1">&#39;./&#39;</span> <span class="o">+</span> <span class="n">scene_config</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__output_folder</span> <span class="o">=</span> <span class="s1">&#39;./&#39;</span> <span class="o">+</span> <span class="n">scene_config</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
-            <span class="n">file_list</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__output_folder</span> <span class="o">+</span> <span class="s1">&#39;*&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scene_config</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The `name` field in the scene &#39;</span> <span class="o">+</span>
+                            <span class="s1">&#39;file cannot be empty.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">is_file_writing_enabled</span><span class="p">()):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;./</span><span class="si">{scene_config.name}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__output_folder</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;./</span><span class="si">{scene_config.name}</span><span class="s1">/&#39;</span>
+            <span class="n">file_list</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{self.__output_folder}</span><span class="s1">*&#39;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">:</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
 
@@ -236,6 +244,8 @@
         <span class="p">(</span><span class="n">pre_restrict_output</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_handler</span><span class="o">.</span><span class="n">handle_output</span><span class="p">(</span>
             <span class="n">step_output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__habituation_trial</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__steps_in_lava</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">steps_on_lava</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_preview_phase</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_goal</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
@@ -309,39 +319,48 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="o">.</span><span class="n">last_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="o">.</span><span class="n">last_step</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="s2">&quot;You have passed the last step for this scene. &quot;</span>
                 <span class="s2">&quot;Ignoring your action. Please call controller.end_scene() &quot;</span>
                 <span class="s2">&quot;now.&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
 
+        <span class="c1"># if they call end scene action they should have</span>
+        <span class="c1">#   called end_scene instead of step</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Action</span><span class="o">.</span><span class="n">END_SCENE</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">end_scene</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># reformulate hidden EndHabituation parameters</span>
+        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="n">Action</span><span class="o">.</span><span class="n">END_HABITUATION</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="n">step_action_list</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="o">.</span><span class="n">_retrieve_unfiltered_action_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span><span class="p">)</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">rebuild_endhabituation</span><span class="p">(</span><span class="n">step_action_list</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="s1">&#39;,&#39;</span> <span class="ow">in</span> <span class="n">action</span><span class="p">:</span>
             <span class="n">action</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">Action</span><span class="o">.</span><span class="n">input_to_action_and_params</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
 
         <span class="n">action_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="o">.</span><span class="n">retrieve_action_list_at_step</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__steps_in_lava</span><span class="p">)</span>
+
         <span class="c1"># Only continue with this action step if the given action and</span>
         <span class="c1"># parameters are in the restricted action list.</span>
-        <span class="n">continue_with_step</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
-            <span class="n">action</span> <span class="o">==</span> <span class="n">restricted_action</span> <span class="ow">and</span> <span class="p">(</span>
-                <span class="nb">len</span><span class="p">(</span><span class="n">restricted_params</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span>
-                    <span class="n">restricted_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="n">value</span>
-                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                <span class="p">)</span>
+        <span class="n">continue_with_step</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">action</span> <span class="o">==</span> <span class="n">restricted_action</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">restricted_params</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="n">compare_param_values</span><span class="p">(</span><span class="n">restricted_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">)</span>
-            <span class="k">for</span> <span class="n">restricted_action</span><span class="p">,</span> <span class="n">restricted_params</span> <span class="ow">in</span> <span class="n">action_list</span>
-        <span class="p">)</span>
+        <span class="p">)</span> <span class="k">for</span> <span class="n">restricted_action</span><span class="p">,</span> <span class="n">restricted_params</span> <span class="ow">in</span> <span class="n">action_list</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">continue_with_step</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="n">f</span><span class="s2">&quot;The given action &#39;</span><span class="si">{action}</span><span class="s2">&#39; with parameters &quot;</span>
                 <span class="n">f</span><span class="s2">&quot;&#39;</span><span class="si">{kwargs}</span><span class="s2">&#39; isn&#39;t in the action_list. Ignoring your action. &quot;</span>
-                <span class="n">f</span><span class="s2">&quot;Please call controller.step() with an action in the &quot;</span>
-                <span class="n">f</span><span class="s2">&quot;action_list. Possible actions at step </span><span class="si">{self.__step_number}</span><span class="s2">:&quot;</span>
+                <span class="n">f</span><span class="s2">&quot;Possible actions at step </span><span class="si">{self.__step_number}</span><span class="s2">:&quot;</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">action_data</span> <span class="ow">in</span> <span class="n">action_list</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;    </span><span class="si">{action_data}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">None</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;    </span><span class="si">{action_data}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{action}</span><span class="s2">-</span><span class="si">{kwargs}</span><span class="s2"> not in </span><span class="si">{action_list}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -353,7 +372,7 @@
             <span class="n">EventType</span><span class="o">.</span><span class="n">ON_BEFORE_STEP</span><span class="p">,</span>
             <span class="n">BeforeStepPayload</span><span class="p">(</span><span class="o">**</span><span class="n">payload</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;EndHabituation&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">action</span> <span class="o">==</span> <span class="n">Action</span><span class="o">.</span><span class="n">END_HABITUATION</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__habituation_trial</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="o">.</span><span class="n">last_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
@@ -363,11 +382,6 @@
                 <span class="s2">&quot;your future actions will be skipped. Please call &quot;</span>
                 <span class="s2">&quot;controller.end_scene() now.&quot;</span><span class="p">)</span>
 
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        params = self.validate_and_convert_params(action, **kwargs)</span>
-<span class="sd">        action = self.mcs_action_to_ai2thor_action(action)</span>
-<span class="sd">        step_action = self.wrap_step(action=action, **params)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ai2thor_step</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameter_converter</span><span class="o">.</span><span class="n">build_ai2thor_step</span><span class="p">(</span>
             <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">step_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_controller</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">ai2thor_step</span><span class="p">)</span>
@@ -375,6 +389,8 @@
         <span class="p">(</span><span class="n">pre_restrict_output</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_handler</span><span class="o">.</span><span class="n">handle_output</span><span class="p">(</span>
             <span class="n">step_output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_goal</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__step_number</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__habituation_trial</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__steps_in_lava</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">steps_on_lava</span>
 
         <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_post_step_event_payload_kwargs</span><span class="p">(</span>
             <span class="n">ai2thor_step</span><span class="p">,</span> <span class="n">step_output</span><span class="p">,</span> <span class="n">pre_restrict_output</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>

@@ -127,9 +127,11 @@
 <li><p><cite>holes</cite> (<a class="reference internal" href="#grid-config"><span class="std std-ref">grid config list</span></a>, optional): The list of X/Z coordinates corresponding to one or more holes in the room’s floor. Coordinates must be integers. Holes are always size 1x1 centered on the given X/Z coordinate. Adjacent holes are combined. Y coordinates are ignored. Holes are too deep to escape. Default: none</p></li>
 <li><p><cite>intuitivePhysics</cite> (bool, optional): Specific performer and room setup for intuitive physics scenes.</p></li>
 <li><p><cite>isometric</cite> (bool, optional): Specific performer and room setup for agent scenes.</p></li>
+<li><p><cite>lava</cite> (<a class="reference internal" href="#grid-config"><span class="std std-ref">grid config list</span></a>, optional): The list of X/Z coordinates corresponding to one or more pools of lava in the room’s floor. Coordinates must be integers. Each lava pool is always size 1x1 centered on the given X/Z coordinate. Adjacent pools of lava are combined. Y coordinates are ignored. Stepping in lava will either cause a reward penalty or immediately end the scene, depending on your settings. Default: none</p></li>
 <li><p><cite>name</cite> (string, required): A unique name for the scene used for our logs. Default: the filename</p></li>
 <li><p><cite>objects</cite> (<a class="reference internal" href="#object-config"><span class="std std-ref">object config</span></a> array, optional): The objects for the scene. Default: <cite>[]</cite></p></li>
 <li><p><cite>performerStart</cite> (<a class="reference internal" href="#transform-config"><span class="std std-ref">transform config</span></a>, optional): The starting position and rotation of the performer (the “player”). Only the <cite>position.x</cite>, <cite>position.z</cite>, <cite>rotation.x</cite> (head tilt), and <cite>rotation.y</cite> properties are used. Default: <cite>{ “position”: { “x”: 0, “z”: 0 }, “rotation”: { “y”: 0 } }</cite></p></li>
+<li><p><cite>restrictOpenDoors</cite> (bool, optional): If there are multiple doors in a scene, only allow for one door to ever be opened.</p></li>
 <li><p><cite>roomDimensions</cite> (Vector3, optional): Specify the size of the room, not including the thickness of walls, floor, and ceiling.  If omitted or set to 0, 0, 0, the default will be used.  Note: There is a maximum visibility which for objects and structures beyond will not be rendered.  Use caution when creating rooms where the maximum distance exceeds this maximum visibility.  The maximum visibility is 15 meters. Default: 10, 3, 10.</p></li>
 <li><p><cite>roomMaterials</cite> (<a class="reference internal" href="#room-material-config"><span class="std std-ref">room material config</span></a>, optional): The materials for each individual wall.  For any individual wall not provided, or all outer walls if object is not provided, they will use ‘wallMaterial’ property.</p></li>
 <li><p><cite>version</cite> (int, optional): The version of this scene configuration. Default: the latest version</p></li>
@@ -153,12 +155,15 @@
 <li><p><cite>mass</cite> (float, optional): The mass of the object, which affects the physics simulation. Default: <cite>1</cite></p></li>
 <li><p><cite>materials</cite> (string array, optional): The material(s) (colors/textures) of the object. An object <cite>type</cite> may use multiple individual materials; if so, they must be listed in a specific order. Most non-primitive objects already have specific material(s). See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options. Default: none</p></li>
 <li><p><cite>materialFile</cite> (string, optional): Deprecated (please use <cite>materials</cite> now). The material (color/texture) of the object. Most non-primitive objects already have specific material(s). See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options. Default: none</p></li>
+<li><p><cite>maxAngularVelocity</cite> (force, optional): Override the object’s maximum angular velocity in the physics simulation, affecting how it turns and rolls. Default: <cite>7</cite></p></li>
 <li><p><cite>moveable</cite> (boolean, optional): Whether the object should be moveable, if it is not already moveable based on its <cite>type</cite>. Default: depends on <cite>type</cite></p></li>
 <li><p><cite>moves</cite> (<a class="reference internal" href="#move-config"><span class="std std-ref">move config</span></a> array, optional): The steps on which to move the object, moving it from one position in the scene to another. The config <cite>vector</cite> describes the amount of position to change, added to the object’s current position. Useful if you want to move objects that are <cite>kinematic</cite>. A fifth of each move is made over each of the five substeps (five screenshots) during the step. Default: <cite>[]</cite></p></li>
 <li><p><cite>nullParent</cite> (<a class="reference internal" href="#transform-config"><span class="std std-ref">transform config</span></a>, optional): Whether to wrap the object in a null parent object. Useful if you want to rotate an object by a point other than its center point. Default: none</p></li>
 <li><p><cite>openable</cite> (boolean, optional): Whether the object should be openable, if it is not already openable based on its <cite>type</cite>. Default: depends on <cite>type</cite></p></li>
 <li><p><cite>opened</cite> (boolean, optional): Whether the object should begin opened. Must also be <cite>openable</cite>. Default: <cite>false</cite></p></li>
 <li><p><cite>openClose</cite> (<a class="reference internal" href="#open-close-config"><span class="std std-ref">open close config</span></a>, optional): The steps where an object is opened or closed by the system.  Default: None</p></li>
+<li><p><cite>lips</cite> (<a class="reference internal" href="#platform-lips-config"><span class="std std-ref">platform lips config</span></a>, optional): The sides of a platform to add lips. Default: None</p></li>
+<li><p><cite>locked</cite> (boolean, optional): Whether to lock the container at the start of the simulation.  Locked containers cannot be opened.  Default: false</p></li>
 <li><p><cite>physics</cite> (boolean, optional): Whether to enable physics simulation on the object. Automatically <cite>true</cite> if <cite>moveable</cite>, <cite>openable</cite>, <cite>pickupable</cite>, or <cite>receptacle</cite> is <cite>true</cite>. Use <cite>physics</cite> if you want to enable physics but don’t want to use any of those other properties. Default: <cite>false</cite></p></li>
 <li><p><cite>physicsProperties</cite> (<a class="reference internal" href="#physics-config"><span class="std std-ref">physics config</span></a>, optional): Enable custom friction, bounciness, and/or drag on the object. Default: see <a class="reference internal" href="#physics-config"><span class="std std-ref">physics config</span></a>.</p></li>
 <li><p><cite>pickupable</cite> (boolean, optional): Whether the object should be pickupable, if it is not already openable based on its <cite>type</cite>. Pickupable objects are also automatically <cite>moveable</cite>. Default: depends on <cite>type</cite></p></li>
@@ -174,7 +179,7 @@
 <li><p><cite>structure</cite> (boolean, optional): Whether the object is a structural part of the environment. Usually paired with <cite>kinematic</cite>. Default: <cite>false</cite></p></li>
 <li><p><cite>teleports</cite> (<a class="reference internal" href="#teleport-config"><span class="std std-ref">teleport config</span></a> array, optional): The steps on which to teleport the object, teleporting it from one position in the scene to another. The config <cite>position</cite> describes the object’s end position in global coordinates and is not affected by the object’s current position. Useful if you want to have impossible events (spontaneous teleportation). Default: <cite>[]</cite></p></li>
 <li><p><cite>togglePhysics</cite> (<a class="reference internal" href="#single-step-config"><span class="std std-ref">single step config</span></a> array, optional): The steps on which to toggle physics on the object. Useful if you want to have scripted movement in specific parts of the scene. Can work with the <cite>kinematic</cite> property. Default: <cite>[]</cite></p></li>
-<li><p><cite>torques</cite> (<a class="reference internal" href="#move-config"><span class="std std-ref">move config</span></a> array, optional): The steps on which to apply <a class="reference external" href="https://docs.unity3d.com/ScriptReference/Rigidbody.AddTorque.html">torque</a> to the object. The config <cite>vector</cite> describes the amount of torque (in Newtons) to apply in each direction using the global coordinate system. Resets all existing torques on the object to 0 before applying the new torque. Default: <cite>[]</cite></p></li>
+<li><p><cite>torques</cite> (<a class="reference internal" href="#force-config"><span class="std std-ref">force config</span></a> array, optional): The steps on which to apply <a class="reference external" href="https://docs.unity3d.com/ScriptReference/Rigidbody.AddTorque.html">torque</a> to the object. The config <cite>vector</cite> describes the amount of torque (in Newtons) to apply in each direction using the global coordinate system. Resets all existing torques on the object to 0 before applying the new torque. Default: <cite>[]</cite></p></li>
 </ul>
 </section>
 <section id="goal-config">
@@ -210,6 +215,7 @@
 <li><p><cite>stepBegin</cite> (integer, required): The step on which the action should begin.  Must be non-negative.  A value of <cite>0</cite> means the action will begin during scene initialization.</p></li>
 <li><p><cite>stepEnd</cite> (integer, required): The step on which the action should end.  Must be equal to or greater than the <cite>stepBegin</cite>.</p></li>
 <li><p><cite>vector</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, required): The coordinates to describe the movement. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
+<li><p><cite>impulse</cite> (bool, optional): Whether to apply the force using Unity’s impulse force mode, rather than the default force mode. Default: <cite>false</cite></p></li>
 <li><p><cite>relative</cite> (bool, optional): Whether to apply the force using the object’s relative coordinate system, rather than the environment’s absolute coordinate system. Default: <cite>false</cite></p></li>
 <li><p><cite>repeat</cite> (bool, optional): Whether to indefinitely repeat this action. Will wait <cite>stepWait</cite> number of steps after <cite>stepEnd</cite>, then will execute this action for <cite>stepEnd - stepBegin + 1</cite> number of steps, then repeat. Default: <cite>false</cite></p></li>
 <li><p><cite>stepWait</cite> (integer, optional): If <cite>repeat</cite> is <cite>true</cite>, the number of steps to wait after the <cite>stepEnd</cite> before repeating this action. Default: <cite>0</cite></p></li>
@@ -222,6 +228,28 @@
 <li><p><cite>x</cite> (integer)</p></li>
 <li><p><cite>z</cite> (integer)</p></li>
 </ul>
+</section>
+<section id="lip-gaps-config">
+<h3>Lip Gaps Config<a class="headerlink" href="#lip-gaps-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>lip gaps config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>front</cite> (<a class="reference internal" href="#lip-gaps-span-config"><span class="std std-ref">lip gaps span config list</span></a>):: Gaps on the positive Z axis</p></li>
+<li><p><cite>back</cite> (<a class="reference internal" href="#lip-gaps-span-config"><span class="std std-ref">lip gaps span config list</span></a>):: Gaps on the negative Z axis</p></li>
+<li><p><cite>left</cite> (<a class="reference internal" href="#lip-gaps-span-config"><span class="std std-ref">lip gaps span config list</span></a>):: Gaps on the negative X axis</p></li>
+<li><p><cite>right</cite> (<a class="reference internal" href="#lip-gaps-span-config"><span class="std std-ref">lip gaps span config list</span></a>):: Gaps on the positive X axis</p></li>
+</ul>
+</section>
+<section id="lip-gaps-span-config">
+<h3>Lip Gaps Span Config<a class="headerlink" href="#lip-gaps-span-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>lip gaps span config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>low</cite> (float): Indicates where one side of the gap is located on an edge of a platform.  This</p></li>
+</ul>
+<p>value is 0 to 1 where 0 is one end of the edge and 1 is the other edge.  This value must be
+less than ‘high’.
+- <cite>high</cite> (float): Indicates where one side of the gap is located on an edge of a platform.  This
+value is 0 to 1 where 0 is one end of the edge and 1 is the other edge.  This value must be
+greater than ‘low’.</p>
 </section>
 <section id="material-position-config">
 <h3>Material Position Config<a class="headerlink" href="#material-position-config" title="Permalink to this headline">¶</a></h3>
@@ -240,6 +268,17 @@
 <li><p><cite>vector</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, required): The coordinates to describe the movement. Default: <cite>{ “x”: 0, “y”: 0, “z”: 0 }</cite></p></li>
 <li><p><cite>repeat</cite> (bool, optional): Whether to indefinitely repeat this action. Will wait <cite>stepWait</cite> number of steps after <cite>stepEnd</cite>, then will execute this action for <cite>stepEnd - stepBegin + 1</cite> number of steps, then repeat. Default: <cite>false</cite></p></li>
 <li><p><cite>stepWait</cite> (integer, optional): If <cite>repeat</cite> is <cite>true</cite>, the number of steps to wait after the <cite>stepEnd</cite> before repeating this action. Default: <cite>0</cite></p></li>
+</ul>
+</section>
+<section id="platform-lips-config">
+<h3>Platform Lips Config<a class="headerlink" href="#platform-lips-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>platform lips config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>front</cite> (bool, optional): Positive Z axis</p></li>
+<li><p><cite>back</cite> (bool, optional): Negative Z axis</p></li>
+<li><p><cite>left</cite> (bool, optional): Negative X axis</p></li>
+<li><p><cite>right</cite> (bool, optional): Positive X axis</p></li>
+<li><p><cite>gaps</cite> (<a class="reference internal" href="#lip-gaps-config"><span class="std std-ref">lip gaps config</span></a>, optional): gaps in the lits usually for ramps.</p></li>
 </ul>
 </section>
 <section id="physics-config">
@@ -1263,6 +1302,97 @@
 </tbody>
 </table>
 </section>
+<section id="tool-objects">
+<h4>Tool Objects<a class="headerlink" href="#tool-objects" title="Permalink to this headline">¶</a></h4>
+<p>All of the tools have the <cite>tool</cite> shape, <cite>metal</cite> material, <cite>moveable</cite> and <cite>receptacle</cite> attributes, and the same grey and black colors/textures.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Object Type</p></th>
+<th class="head"><p>Default Mass</p></th>
+<th class="head"><p>Base Size</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><cite>“tool_rect_0_50_x_4_00”</cite></p></td>
+<td><p>3</p></td>
+<td><p>x=0.5,y=0.3,z=4</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“tool_rect_0_50_x_5_00”</cite></p></td>
+<td><p>3.25</p></td>
+<td><p>x=0.5,y=0.3,z=5</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“tool_rect_0_50_x_6_00”</cite></p></td>
+<td><p>3.5</p></td>
+<td><p>x=0.5,y=0.3,z=6</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“tool_rect_0_50_x_7_00”</cite></p></td>
+<td><p>3.75</p></td>
+<td><p>x=0.5,y=0.3,z=7</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“tool_rect_0_50_x_8_00”</cite></p></td>
+<td><p>4</p></td>
+<td><p>x=0.5,y=0.3,z=8</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“tool_rect_0_50_x_9_00”</cite></p></td>
+<td><p>4.25</p></td>
+<td><p>x=0.5,y=0.3,z=9</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“tool_rect_0_75_x_4_00”</cite></p></td>
+<td><p>3.33</p></td>
+<td><p>x=0.75,y=0.3,z=4</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“tool_rect_0_75_x_5_00”</cite></p></td>
+<td><p>3.66</p></td>
+<td><p>x=0.75,y=0.3,z=5</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“tool_rect_0_75_x_6_00”</cite></p></td>
+<td><p>4</p></td>
+<td><p>x=0.75,y=0.3,z=6</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“tool_rect_0_75_x_7_00”</cite></p></td>
+<td><p>4.33</p></td>
+<td><p>x=0.75,y=0.3,z=7</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“tool_rect_0_75_x_8_00”</cite></p></td>
+<td><p>4.66</p></td>
+<td><p>x=0.75,y=0.3,z=8</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“tool_rect_0_75_x_9_00”</cite></p></td>
+<td><p>5</p></td>
+<td><p>x=0.75,y=0.3,z=9</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“tool_rect_1_00_x_4_00”</cite></p></td>
+<td><p>4</p></td>
+<td><p>x=1,y=0.3,z=4</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“tool_rect_1_00_x_5_00”</cite></p></td>
+<td><p>4.5</p></td>
+<td><p>x=1,y=0.3,z=5</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“tool_rect_1_00_x_6_00”</cite></p></td>
+<td><p>5</p></td>
+<td><p>x=1,y=0.3,z=6</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“tool_rect_1_00_x_7_00”</cite></p></td>
+<td><p>5.5</p></td>
+<td><p>x=1,y=0.3,z=7</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“tool_rect_1_00_x_8_00”</cite></p></td>
+<td><p>6</p></td>
+<td><p>x=1,y=0.3,z=8</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“tool_rect_1_00_x_9_00”</cite></p></td>
+<td><p>6.5</p></td>
+<td><p>x=1,y=0.3,z=9</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 <section id="primitive-objects">
 <h3>Primitive Objects<a class="headerlink" href="#primitive-objects" title="Permalink to this headline">¶</a></h3>
@@ -1836,8 +1966,11 @@
 <li><a class="reference internal" href="#change-materials-config">Change Materials Config</a></li>
 <li><a class="reference internal" href="#force-config">Force Config</a></li>
 <li><a class="reference internal" href="#grid-config">Grid Config</a></li>
+<li><a class="reference internal" href="#lip-gaps-config">Lip Gaps Config</a></li>
+<li><a class="reference internal" href="#lip-gaps-span-config">Lip Gaps Span Config</a></li>
 <li><a class="reference internal" href="#material-position-config">Material Position Config</a></li>
 <li><a class="reference internal" href="#move-config">Move Config</a></li>
+<li><a class="reference internal" href="#platform-lips-config">Platform Lips Config</a></li>
 <li><a class="reference internal" href="#physics-config">Physics Config</a></li>
 <li><a class="reference internal" href="#show-config">Show Config</a></li>
 <li><a class="reference internal" href="#size-config">Size Config</a></li>
@@ -1855,6 +1988,7 @@
 <li><a class="reference internal" href="#interactable-objects">Interactable Objects</a><ul>
 <li><a class="reference internal" href="#small-objects">Small Objects</a></li>
 <li><a class="reference internal" href="#furniture-objects">Furniture Objects</a></li>
+<li><a class="reference internal" href="#tool-objects">Tool Objects</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#primitive-objects">Primitive Objects</a></li>

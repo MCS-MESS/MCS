@@ -195,7 +195,7 @@
 
 
 <div class="viewcode-block" id="load_scene_json_file"><a class="viewcode-back" href="../api.html#machine_common_sense.load_scene_json_file">[docs]</a><span class="nd">@typeguard</span><span class="o">.</span><span class="n">typechecked</span>
-<span class="k">def</span> <span class="nf">load_scene_json_file</span><span class="p">(</span><span class="n">scene_json_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">load_scene_json_file</span><span class="p">(</span><span class="n">scene_json_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads the given JSON scene config file and returns its data.</span>
 
@@ -208,20 +208,15 @@
 <span class="sd">    -------</span>
 <span class="sd">    dict</span>
 <span class="sd">        The MCS scene configuration data from the given JSON file.</span>
-<span class="sd">    None or string</span>
-<span class="sd">        The error status (if any).</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    FileNotFoundError</span>
+<span class="sd">    ValueError</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">scene_json_file_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8-sig&#39;</span><span class="p">)</span> \
-                <span class="k">as</span> <span class="n">config_json_file_object</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_json_file_object</span><span class="p">),</span> <span class="kc">None</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">{},</span> <span class="s2">&quot;The given file &#39;&quot;</span> <span class="o">+</span> <span class="n">scene_json_file_path</span> <span class="o">+</span> \
-                    <span class="s2">&quot;&#39; does not contain valid JSON.&quot;</span>
-    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">{},</span> <span class="s2">&quot;The given file &#39;&quot;</span> <span class="o">+</span> <span class="n">scene_json_file_path</span> <span class="o">+</span> \
-            <span class="s2">&quot;&#39; cannot be found.&quot;</span></div>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">scene_json_file_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8-sig&#39;</span><span class="p">)</span> \
+            <span class="k">as</span> <span class="n">config_json_file_object</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_json_file_object</span><span class="p">)</span></div>
 </pre></div>
 
             <div class="clearer"></div>

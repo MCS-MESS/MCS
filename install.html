@@ -89,23 +89,23 @@
 <h2>Download Unity Release<a class="headerlink" href="#download-unity-release" title="Permalink to this headline">¶</a></h2>
 <p>Our Unity App is built for Linux or Mac. There is no Windows support currently.</p>
 <p>As of release 0.4.4, the latest Unity version will be downloaded for you automatically by the MCS package. We have also switched to using addressables for our Unity release, which increases the initial startup time for Unity application on the first run. If this all sounds fine, feel free to skip this section, but if you’d like to know more about addressables or are using a release prior to 0.4.4, please follow the instructions below:</p>
-<p>The links below are referencing version 0.5.0. For our previous releases, please see <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases">this page</a>.</p>
+<p>The links below are referencing version 0.5.1. For our previous releases, please see <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases">this page</a>.</p>
 <section id="linux-version">
 <h3>Linux Version:<a class="headerlink" href="#linux-version" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
-<li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.5.0/MCS-AI2-THOR-Unity-App-v0.5.0-linux.zip">Download and unzip the Linux ZIP</a> <em>Note that for versions prior to 0.4.4, the Unity Linux build and the data directory are in two separate zips.</em></p></li>
+<li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.5.1/MCS-AI2-THOR-Unity-App-v0.5.1-linux.zip">Download and unzip the Linux ZIP</a> <em>Note that for versions prior to 0.4.4, the Unity Linux build and the data directory are in two separate zips.</em></p></li>
 <li><p>Ensure that the Unity App, the Data Directory TAR, and the UnityPlayer.so file are all in the same directory.</p></li>
 <li><p>Untar the Data Directory:</p></li>
 </ol>
-<pre class="literal-block">tar -xzvf MCS-AI2-THOR-Unity-App-v0.5.0_Data.tar.gz</pre>
+<pre class="literal-block">tar -xzvf MCS-AI2-THOR-Unity-App-v0.5.1_Data.tar.gz</pre>
 <ol class="arabic simple" start="4">
 <li><p>Mark the Unity App as executable:</p></li>
 </ol>
-<pre class="literal-block">chmod a+x MCS-AI2-THOR-Unity-App-v0.5.0.x86_64</pre>
+<pre class="literal-block">chmod a+x MCS-AI2-THOR-Unity-App-v0.5.1.x86_64</pre>
 </section>
 <section id="mac-version">
 <h3>Mac Version:<a class="headerlink" href="#mac-version" title="Permalink to this headline">¶</a></h3>
-<p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.5.0/MCS-AI2-THOR-Unity-App-v0.5.0-mac.zip">Download and unzip the Mac ZIP</a></p>
+<p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.5.1/MCS-AI2-THOR-Unity-App-v0.5.1-mac.zip">Download and unzip the Mac ZIP</a></p>
 </section>
 <section id="addressables">
 <h3>Addressables<a class="headerlink" href="#addressables" title="Permalink to this headline">¶</a></h3>
@@ -118,7 +118,7 @@
 <section id="pass-unity-app-location-to-mcs">
 <h3>Pass Unity App Location to MCS<a class="headerlink" href="#pass-unity-app-location-to-mcs" title="Permalink to this headline">¶</a></h3>
 <p>After downloading the Unity app, you will need to reference the path using the <cite>unity_app_file_path</cite> property when using the MCS package (outlined on the <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> page). While the path to the Unity app on Linux is pretty straightforward, the path for the Mac version executable is actually within the Contents/ directory level of your download:</p>
-<pre class="literal-block">./MCS-AI2-THOR-Unity-App-v0.5.0.app/Contents/MacOS/MCS-AI2-THOR</pre>
+<pre class="literal-block">./MCS-AI2-THOR-Unity-App-v0.5.1.app/Contents/MacOS/MCS-AI2-THOR</pre>
 </section>
 </section>
 <section id="mcs-configuration-file">
@@ -126,6 +126,11 @@
 <p>To use a specific configuration, you can either pass in a file path or dictionary of values via the <cite>config_file_or_dict</cite> in the create_controller() method, or set the <cite>MCS_CONFIG_FILE_PATH</cite> environment variable to the path of your MCS configuration file (note that the configuration must be an INI file – see <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/blob/master/sample_config.ini">sample_config.ini</a> for an example).</p>
 <section id="config-file-properties">
 <h3>Config File Properties<a class="headerlink" href="#config-file-properties" title="Permalink to this headline">¶</a></h3>
+<section id="goal-reward">
+<h4>goal_reward<a class="headerlink" href="#goal-reward" title="Permalink to this headline">¶</a></h4>
+<p>(float, optional)</p>
+<p>Changes the postive reward recieved for achieving a goal. Default: 1</p>
+</section>
 <section id="history-enabled">
 <h4>history_enabled<a class="headerlink" href="#history-enabled" title="Permalink to this headline">¶</a></h4>
 <p>(boolean, optional)</p>
@@ -143,6 +148,16 @@
 </ul>
 <p>If no metadata level is set:
 - <cite>default</cite>: Fallback if no metadata level is specified. Only meant for use during development (evaluations will never be run this way). Includes metadata for visible and held objects in the scene, as well as camera info and properties corresponding to the player. Does not include depth maps or object masks.</p>
+</section>
+<section id="lava-penalty">
+<h4>lava_penalty<a class="headerlink" href="#lava-penalty" title="Permalink to this headline">¶</a></h4>
+<p>(float, optional)</p>
+<p>Changes the negative penalty recieved for every step on lava.  Default: 100</p>
+</section>
+<section id="steps-allowed-in-lava">
+<h4>steps_allowed_in_lava<a class="headerlink" href="#steps-allowed-in-lava" title="Permalink to this headline">¶</a></h4>
+<p>(int, optional)</p>
+<p>Number of steps allowed in lava before automatically calling end scene.  Default: 0</p>
 </section>
 <section id="noise-enabled">
 <h4>noise_enabled<a class="headerlink" href="#noise-enabled" title="Permalink to this headline">¶</a></h4>
@@ -163,6 +178,11 @@
 <h4>size<a class="headerlink" href="#size" title="Permalink to this headline">¶</a></h4>
 <p>(int, optional)</p>
 <p>Desired screen width. If value given, it must be more than <cite>450</cite>. If none given, screen width will default to <cite>600</cite>.</p>
+</section>
+<section id="step-penalty">
+<h4>step_penalty<a class="headerlink" href="#step-penalty" title="Permalink to this headline">¶</a></h4>
+<p>(float, optional)</p>
+<p>Changes the negative penalty recieved for every step. Default: 0.001</p>
 </section>
 <section id="video-enabled">
 <h4>video_enabled<a class="headerlink" href="#video-enabled" title="Permalink to this headline">¶</a></h4>
@@ -190,7 +210,7 @@
 <span class="n">controller</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">create_controller</span><span class="p">(</span><span class="n">config_file_or_dict</span><span class="o">=</span><span class="s1">&#39;path/to/config&#39;</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">scene_file</span> <span class="ow">in</span> <span class="n">scene_files</span><span class="p">:</span>
-    <span class="n">scene_data</span><span class="p">,</span> <span class="n">status</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">load_scene_json_file</span><span class="p">(</span><span class="n">scene_file</span><span class="p">)</span>
+    <span class="n">scene_data</span> <span class="o">=</span> <span class="n">mcs</span><span class="o">.</span><span class="n">load_scene_json_file</span><span class="p">(</span><span class="n">scene_file</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">print</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
@@ -243,12 +263,16 @@
 </li>
 <li><a class="reference internal" href="#mcs-configuration-file">MCS Configuration File</a><ul>
 <li><a class="reference internal" href="#config-file-properties">Config File Properties</a><ul>
+<li><a class="reference internal" href="#goal-reward">goal_reward</a></li>
 <li><a class="reference internal" href="#history-enabled">history_enabled</a></li>
 <li><a class="reference internal" href="#metadata">metadata</a></li>
+<li><a class="reference internal" href="#lava-penalty">lava_penalty</a></li>
+<li><a class="reference internal" href="#steps-allowed-in-lava">steps_allowed_in_lava</a></li>
 <li><a class="reference internal" href="#noise-enabled">noise_enabled</a></li>
 <li><a class="reference internal" href="#save-debug-images">save_debug_images</a></li>
 <li><a class="reference internal" href="#save-debug-json">save_debug_json</a></li>
 <li><a class="reference internal" href="#size">size</a></li>
+<li><a class="reference internal" href="#step-penalty">step_penalty</a></li>
 <li><a class="reference internal" href="#video-enabled">video_enabled</a></li>
 </ul>
 </li>

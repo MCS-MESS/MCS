@@ -61,6 +61,10 @@
 <span class="sd">        forces a PickupObject action with any parameters; and</span>
 <span class="sd">        (&quot;PickupObject&quot;, {&quot;objectId&quot;: &quot;a&quot;}) forces a PickupObject action with</span>
 <span class="sd">        the specific parameters objectId=a.</span>
+<span class="sd">        EndHabituation is a special case of the action_list where its</span>
+<span class="sd">        parameters will always be empty. When taking the EndHabituation</span>
+<span class="sd">        action, the MCS system may apply hidden displacement parameters to the</span>
+<span class="sd">        robot.</span>
 <span class="sd">        An action_list of None or an empty list means that all actions will</span>
 <span class="sd">        be available for the next step.</span>
 
@@ -81,25 +85,30 @@
 <span class="sd">        The player camera&#39;s aspect ratio. This will remain constant for the</span>
 <span class="sd">        whole scene.</span>
 <span class="sd">    camera_clipping_planes : (float, float)</span>
-<span class="sd">        The player camera&#39;s near and far clipping planes. This will remain</span>
-<span class="sd">        constant for the whole scene.</span>
+<span class="sd">        The player camera&#39;s near and far clipping planes, in meters. This will</span>
+<span class="sd">        remain constant for the whole scene. Default (0.01, 150)</span>
 <span class="sd">    camera_field_of_view : float</span>
 <span class="sd">        The player camera&#39;s field of view. This will remain constant for</span>
 <span class="sd">        the whole scene.</span>
 <span class="sd">    camera_height : float</span>
-<span class="sd">        The player camera&#39;s height.</span>
+<span class="sd">        The player camera&#39;s height, in meters.</span>
 <span class="sd">    depth_map_list : list of 2D numpy arrays</span>
 <span class="sd">        The list of 2-dimensional numpy arrays of depth float data from the</span>
 <span class="sd">        scene after the last action and physics simulation were run. This is</span>
 <span class="sd">        usually a list with 1 array, except for the output from start_scene</span>
 <span class="sd">        for a scene with a scripted Preview Phase (Preview Phase case details</span>
 <span class="sd">        TBD).</span>
-<span class="sd">        Each depth float in a 2-dimensional numpy array is a value between 0</span>
-<span class="sd">        and the camera&#39;s far clipping plane (default 15) correspondings to the</span>
-<span class="sd">        depth in simulation units at that pixel in the image.</span>
+<span class="sd">        Each 32-bit depth float in the 2-dimensional numpy array is a value</span>
+<span class="sd">        between the camera&#39;s near clipping plane (default 0.01) and the</span>
+<span class="sd">        camera&#39;s far clipping plane (default 150) corresponding to the depth,</span>
+<span class="sd">        in meters, at that pixel in the image.</span>
 <span class="sd">        Note that this list will be empty if the metadata level is &#39;none&#39;.</span>
 <span class="sd">    goal : GoalMetadata or None</span>
 <span class="sd">        The goal for the whole scene. Will be None in &quot;Exploration&quot; scenes.</span>
+<span class="sd">    haptic_feedback : dict</span>
+<span class="sd">        Haptic feedback sources for the agent. Values are true or false</span>
+<span class="sd">        depending on if the agent is touching the haptic feedback source.</span>
+<span class="sd">        The only current supported contact is &quot;on_lava&quot;</span>
 <span class="sd">    habituation_trial : int or None</span>
 <span class="sd">        The current habituation trial (as a positive integer), or None if the</span>
 <span class="sd">        scene is not currently in a habituation trial (meaning this scene is</span>
@@ -107,11 +116,17 @@
 <span class="sd">    head_tilt : float</span>
 <span class="sd">        How far your head is tilted up/down in degrees (between 90 and -90).</span>
 <span class="sd">        Changed by setting the &quot;horizon&quot; parameter in a &quot;RotateLook&quot; action.</span>
+<span class="sd">    holes : list of tuples</span>
+<span class="sd">        Coordinates of holes as (X, Z) float tuples. Will be set to &#39;None&#39; if</span>
+<span class="sd">        using a metadata level below the &#39;oracle&#39; level.</span>
 <span class="sd">    image_list : list of Pillow.Image objects</span>
 <span class="sd">        The list of images from the scene after the last action and physics</span>
 <span class="sd">        simulation were run. This is usually a list with 1 image, except for</span>
 <span class="sd">        the output from start_scene for a scene with a scripted Preview Phase.</span>
 <span class="sd">        (Preview Phase case details TBD).</span>
+<span class="sd">    lava : list of tuples</span>
+<span class="sd">        Coordinates of pools of lava as (X, Z) float tuples. Will be set to</span>
+<span class="sd">        &#39;None&#39; if using a metadata level below the &#39;oracle&#39; level.</span>
 <span class="sd">    object_list : list of ObjectMetadata objects</span>
 <span class="sd">        The list of metadata for all the visible interactive objects in the</span>
 <span class="sd">        scene. This list will be empty if using a metadata level below</span>
@@ -127,9 +142,9 @@
 <span class="sd">        Note that this list will be empty if the metadata level is &#39;none&#39;</span>
 <span class="sd">        or &#39;level1&#39;.</span>
 <span class="sd">    performer_radius: float</span>
-<span class="sd">        The radius of the performer.</span>
+<span class="sd">        The radius of the performer, in meters.</span>
 <span class="sd">    performer_reach: float</span>
-<span class="sd">        The max reach of the performer.</span>
+<span class="sd">        The max reach of the performer, in meters.</span>
 <span class="sd">    position : dict</span>
 <span class="sd">        The &quot;x&quot;, &quot;y&quot;, and &quot;z&quot; coordinates for your global position.</span>
 <span class="sd">        Will be set to &#39;None&#39; if using a metadata level below the</span>
@@ -145,6 +160,8 @@
 <span class="sd">    step_number : integer</span>
 <span class="sd">        The step number of your last action, recorded since you started the</span>
 <span class="sd">        current scene.</span>
+<span class="sd">    steps_in_lava : integer</span>
+<span class="sd">        The number of steps the agent has touched lava</span>
 <span class="sd">    physics_frames_per_second : float</span>
 <span class="sd">        The frames per second of the physics engine</span>
 <span class="sd">    structural_object_list : list of ObjectMetadata objects</span>
@@ -168,8 +185,11 @@
         <span class="n">depth_map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">goal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">habituation_trial</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">haptic_feedback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">head_tilt</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">holes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">image_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lava</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">object_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">object_mask_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">performer_radius</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
@@ -180,6 +200,7 @@
         <span class="n">reward</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">rotation</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
         <span class="n">step_number</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">steps_on_lava</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">structural_object_list</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_list</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">action_list</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">action_list</span>
@@ -197,8 +218,13 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">goal</span> <span class="o">=</span> <span class="n">GoalMetadata</span><span class="p">()</span> <span class="k">if</span> <span class="n">goal</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">goal</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">habituation_trial</span> <span class="o">=</span> <span class="n">habituation_trial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">haptic_feedback</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">{}</span> <span class="k">if</span> <span class="n">haptic_feedback</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">haptic_feedback</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">head_tilt</span> <span class="o">=</span> <span class="n">head_tilt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">holes</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">holes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">holes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_list</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">image_list</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">image_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lava</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">lava</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">lava</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">object_list</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">object_list</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">object_list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">object_mask_list</span> <span class="o">=</span> <span class="p">(</span>
             <span class="p">[]</span> <span class="k">if</span> <span class="n">object_mask_list</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">object_mask_list</span>
@@ -211,6 +237,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">reward</span> <span class="o">=</span> <span class="n">reward</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span> <span class="o">=</span> <span class="n">rotation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">step_number</span> <span class="o">=</span> <span class="n">step_number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps_on_lava</span> <span class="o">=</span> <span class="n">steps_on_lava</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">structural_object_list</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">]</span> <span class="k">if</span> <span class="n">structural_object_list</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">structural_object_list</span>
 
@@ -227,6 +254,7 @@
         <span class="sd">&quot;&quot;&quot;Return a deep copy of this StepMetadata with default depth_map_list,</span>
 <span class="sd">        image_list, and object_mask_list properties.&quot;&quot;&quot;</span>
         <span class="n">step_metadata_copy</span> <span class="o">=</span> <span class="n">StepMetadata</span><span class="p">()</span>
+        <span class="c1"># This class&#39;s __iter__ function will ignore specific properties.</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">step_metadata_copy</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">step_metadata_copy</span></div>
@@ -239,10 +267,14 @@
         <span class="k">yield</span> <span class="s1">&#39;camera_clipping_planes&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera_clipping_planes</span>
         <span class="k">yield</span> <span class="s1">&#39;camera_field_of_view&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera_field_of_view</span>
         <span class="k">yield</span> <span class="s1">&#39;camera_height&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera_height</span>
+        <span class="c1"># Intentionally no depth_map_list</span>
         <span class="k">yield</span> <span class="s1">&#39;goal&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">goal</span><span class="p">)</span>
         <span class="k">yield</span> <span class="s1">&#39;habituation_trial&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">habituation_trial</span>
+        <span class="k">yield</span> <span class="s1">&#39;haptic_feedback&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">haptic_feedback</span>
         <span class="k">yield</span> <span class="s1">&#39;head_tilt&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_tilt</span>
+        <span class="c1"># Intentionally no image_list</span>
         <span class="k">yield</span> <span class="s1">&#39;object_list&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_list_none</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_list</span><span class="p">)</span>
+        <span class="c1"># Intentionally no object_mask_list</span>
         <span class="k">yield</span> <span class="s1">&#39;performer_radius&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">performer_radius</span>
         <span class="k">yield</span> <span class="s1">&#39;performer_reach&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">performer_reach</span>
         <span class="k">yield</span> <span class="s1">&#39;physics_frames_per_second&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">physics_frames_per_second</span>
@@ -250,7 +282,8 @@
         <span class="k">yield</span> <span class="s1">&#39;return_status&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_status</span>
         <span class="k">yield</span> <span class="s1">&#39;reward&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reward</span>
         <span class="k">yield</span> <span class="s1">&#39;rotation&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span>
-        <span class="k">yield</span> <span class="s1">&#39;step_number&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_number</span>
+        <span class="k">yield</span> <span class="s1">&#39;step_number&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_number</span><span class="p">,</span>
+        <span class="k">yield</span> <span class="s1">&#39;steps_on_lava&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_on_lava</span><span class="p">,</span>
         <span class="k">yield</span> <span class="s1">&#39;structural_object_list&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_list_none</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">structural_object_list</span><span class="p">)</span></div>
 </pre></div>

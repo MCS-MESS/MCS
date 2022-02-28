@@ -56,6 +56,15 @@
 <span class="sd">    inputs must be greater than (0,0).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">INITIALIZE</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Initialize&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Initialization&quot;</span>
+    <span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialize the scene. Intended only for internal use.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">CLOSE_OBJECT</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;CloseObject&quot;</span><span class="p">,</span>
         <span class="s2">&quot;1&quot;</span><span class="p">,</span>
@@ -310,12 +319,12 @@
     <span class="n">PULL_OBJECT</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;PullObject&quot;</span><span class="p">,</span>
         <span class="s2">&quot;5&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Pull a nearby object. (objectId=string, rotation=float, &quot;</span> <span class="o">+</span>
-        <span class="s2">&quot;horizon=float, force=float (default:0.5), &quot;</span> <span class="o">+</span>
+        <span class="s2">&quot;Pull a nearby object. (objectId=string, force=float (default:0.5), &quot;</span> <span class="o">+</span>
         <span class="s2">&quot;objectImageCoordsX=float, objectImageCoordsY=float)&quot;</span>
     <span class="p">)</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Pull a nearby object.</span>
+<span class="sd">    Pull a nearby object by applying a physical force directly toward you on</span>
+<span class="sd">    the X/Z axis to the center point of the object.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -357,12 +366,12 @@
     <span class="n">PUSH_OBJECT</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;PushObject&quot;</span><span class="p">,</span>
         <span class="s2">&quot;6&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Push a nearby object. (objectId=string, rotation=float, &quot;</span> <span class="o">+</span>
-        <span class="s2">&quot;horizon=float, force=float (default:0.5), &quot;</span> <span class="o">+</span>
+        <span class="s2">&quot;Push a nearby object. (objectId=string, force=float (default:0.5), &quot;</span> <span class="o">+</span>
         <span class="s2">&quot;objectImageCoordsX=float, objectImageCoordsY=float)&quot;</span>
     <span class="p">)</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Push a nearby object.</span>
+<span class="sd">    Push a nearby object by applying a physical force directly away from you on</span>
+<span class="sd">    the X/Z axis to the center point of the object.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -459,6 +468,158 @@
 <span class="sd">        Unexpected error; please report immediately to development team.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">TORQUE_OBJECT</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;TorqueObject&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;8&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Apply torque to a nearby object. (objectId=string, &quot;</span> <span class="o">+</span>
+        <span class="s2">&quot;force=float(default:0.5), objectImageCoordsX=float, &quot;</span> <span class="o">+</span>
+        <span class="s2">&quot;objectImageCoordsY=float)&quot;</span>
+    <span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply torque to a nearby object.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    objectId : string, optional</span>
+<span class="sd">        The &quot;uuid&quot; of the target object. Required unless the</span>
+<span class="sd">        &quot;objectImageCoords&quot; properties are given.</span>
+<span class="sd">    objectImageCoordsX : float, optional</span>
+<span class="sd">        The X of a pixel coordinate on the target object based on</span>
+<span class="sd">        your current viewport. Can be used in place of the &quot;objectId&quot; property.</span>
+<span class="sd">        (See note under &quot;Action&quot; header regarding image coordinates.)</span>
+<span class="sd">    objectImageCoordsY : float, optional</span>
+<span class="sd">        The Y of a pixel coordinate on the target object based on</span>
+<span class="sd">        your current viewport. Can be used in place of the &quot;objectId&quot; property.</span>
+<span class="sd">        (See note under &quot;Action&quot; header regarding image coordinates.)</span>
+<span class="sd">    force : float</span>
+<span class="sd">        The amount of force, from -1 to 1, used to move the target object.</span>
+<span class="sd">        Default: 0.5</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    &quot;SUCCESSFUL&quot;</span>
+<span class="sd">        Action successful.</span>
+<span class="sd">    &quot;NOT_INTERACTABLE&quot;</span>
+<span class="sd">        If the object corresponding to the &quot;objectImageCoords&quot; vector is not an</span>
+<span class="sd">        interactable object.</span>
+<span class="sd">    &quot;NOT_OBJECT&quot;</span>
+<span class="sd">        If the object corresponding to the &quot;objectId&quot; (or object corresponding</span>
+<span class="sd">        to the &quot;objectImageCoords&quot; vector) is not an object.</span>
+<span class="sd">    &quot;NOT_MOVEABLE&quot;</span>
+<span class="sd">        If the object itself cannot be moved by a baby.</span>
+<span class="sd">    &quot;OBSTRUCTED&quot;</span>
+<span class="sd">        If you cannot move the object because your path is obstructed.</span>
+<span class="sd">    &quot;OUT_OF_REACH&quot;</span>
+<span class="sd">        If you cannot move the object because you are out of reach.</span>
+<span class="sd">    &quot;FAILED&quot;</span>
+<span class="sd">        Unexpected error; please report immediately to development team.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ROTATE_OBJECT</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;RotateObject&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;9&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Apply a rotation of 5 degrees to a nearby object. &quot;</span> <span class="o">+</span>
+        <span class="s2">&quot;(objectId=string, &quot;</span> <span class="o">+</span>
+        <span class="s2">&quot;clockwise=bool(default:True), objectImageCoordsX=float, &quot;</span> <span class="o">+</span>
+        <span class="s2">&quot;objectImageCoordsY=float)&quot;</span>
+    <span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply a rotation of 5 degrees to a nearby object.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    objectId : string, optional</span>
+<span class="sd">        The &quot;uuid&quot; of the target object. Required unless the</span>
+<span class="sd">        &quot;objectImageCoords&quot; properties are given.</span>
+<span class="sd">    objectImageCoordsX : float, optional</span>
+<span class="sd">        The X of a pixel coordinate on the target object based on</span>
+<span class="sd">        your current viewport. Can be used in place of the &quot;objectId&quot; property.</span>
+<span class="sd">        (See note under &quot;Action&quot; header regarding image coordinates.)</span>
+<span class="sd">    objectImageCoordsY : float, optional</span>
+<span class="sd">        The Y of a pixel coordinate on the target object based on</span>
+<span class="sd">        your current viewport. Can be used in place of the &quot;objectId&quot; property.</span>
+<span class="sd">        (See note under &quot;Action&quot; header regarding image coordinates.)</span>
+<span class="sd">    clockwise : bool</span>
+<span class="sd">        If the rotation should be clockwise.</span>
+<span class="sd">        Default: True</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    &quot;SUCCESSFUL&quot;</span>
+<span class="sd">        Action successful.</span>
+<span class="sd">    &quot;NOT_INTERACTABLE&quot;</span>
+<span class="sd">        If the object corresponding to the &quot;objectImageCoords&quot; vector is not an</span>
+<span class="sd">        interactable object.</span>
+<span class="sd">    &quot;NOT_OBJECT&quot;</span>
+<span class="sd">        If the object corresponding to the &quot;objectId&quot; (or object corresponding</span>
+<span class="sd">        to the &quot;objectImageCoords&quot; vector) is not an object.</span>
+<span class="sd">    &quot;NOT_MOVEABLE&quot;</span>
+<span class="sd">        If the object itself cannot be moved by a baby.</span>
+<span class="sd">    &quot;OBSTRUCTED&quot;</span>
+<span class="sd">        If you cannot move the object because your path is obstructed.</span>
+<span class="sd">    &quot;OUT_OF_REACH&quot;</span>
+<span class="sd">        If you cannot move the object because you are out of reach.</span>
+<span class="sd">    &quot;FAILED&quot;</span>
+<span class="sd">        Unexpected error; please report immediately to development team.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">MOVE_OBJECT</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;MoveObject&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Apply a movement of 0.1 meters to a nearby object. &quot;</span> <span class="o">+</span>
+        <span class="s2">&quot;(objectId=string, &quot;</span> <span class="o">+</span>
+        <span class="s2">&quot;lateral=int(default:0), &quot;</span> <span class="o">+</span>
+        <span class="s2">&quot;straight=int(default:1), &quot;</span> <span class="o">+</span>
+        <span class="s2">&quot;objectImageCoordsX=float, &quot;</span> <span class="o">+</span>
+        <span class="s2">&quot;objectImageCoordsY=float)&quot;</span>
+    <span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply a movement of 0.1 meters units to a nearby object.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    objectId : string, optional</span>
+<span class="sd">        The &quot;uuid&quot; of the target object. Required unless the</span>
+<span class="sd">        &quot;objectImageCoords&quot; properties are given.</span>
+<span class="sd">    objectImageCoordsX : float, optional</span>
+<span class="sd">        The X of a pixel coordinate on the target object based on</span>
+<span class="sd">        your current viewport. Can be used in place of the &quot;objectId&quot; property.</span>
+<span class="sd">        (See note under &quot;Action&quot; header regarding image coordinates.)</span>
+<span class="sd">    objectImageCoordsY : float, optional</span>
+<span class="sd">        The Y of a pixel coordinate on the target object based on</span>
+<span class="sd">        your current viewport. Can be used in place of the &quot;objectId&quot; property.</span>
+<span class="sd">        (See note under &quot;Action&quot; header regarding image coordinates.)</span>
+<span class="sd">    lateral : int</span>
+<span class="sd">        The x axis direction of movement on the object relative to the agent.</span>
+<span class="sd">        Can be -1, 0, 1. If only lateral is given,</span>
+<span class="sd">        straight will default to 0</span>
+<span class="sd">        Default: 0</span>
+<span class="sd">    straight : int</span>
+<span class="sd">        The x axis direction of movement on the object relative to the agent.</span>
+<span class="sd">        Can be -1, 0, 1. If only straight is given,</span>
+<span class="sd">        lateral will default to 0</span>
+<span class="sd">        Default: 1</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    &quot;SUCCESSFUL&quot;</span>
+<span class="sd">        Action successful.</span>
+<span class="sd">    &quot;NOT_INTERACTABLE&quot;</span>
+<span class="sd">        If the object corresponding to the &quot;objectImageCoords&quot; vector is not an</span>
+<span class="sd">        interactable object.</span>
+<span class="sd">    &quot;NOT_OBJECT&quot;</span>
+<span class="sd">        If the object corresponding to the &quot;objectId&quot; (or object corresponding</span>
+<span class="sd">        to the &quot;objectImageCoords&quot; vector) is not an object.</span>
+<span class="sd">    &quot;NOT_MOVEABLE&quot;</span>
+<span class="sd">        If the object itself cannot be moved by a baby.</span>
+<span class="sd">    &quot;OBSTRUCTED&quot;</span>
+<span class="sd">        If you cannot move the object because your path is obstructed.</span>
+<span class="sd">    &quot;OUT_OF_REACH&quot;</span>
+<span class="sd">        If you cannot move the object because you are out of reach.</span>
+<span class="sd">    &quot;FAILED&quot;</span>
+<span class="sd">        Unexpected error; please report immediately to development team.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">LOOK_UP</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;LookUp&quot;</span><span class="p">,</span>
         <span class="s2">&quot;i&quot;</span><span class="p">,</span>
@@ -532,8 +693,7 @@
         <span class="s2">&quot;h&quot;</span><span class="p">,</span>
         <span class="s2">&quot;Ends a habituation trial for the scene by blanking the screen &quot;</span> <span class="o">+</span>
         <span class="s2">&quot;for one action (and teleporting the agent if needed). Sometimes&quot;</span> <span class="o">+</span>
-        <span class="s2">&quot; needed depending on the task type. (xPosition=float, &quot;</span> <span class="o">+</span>
-        <span class="s2">&quot;zPosition=float, yRotation=float)&quot;</span>
+        <span class="s2">&quot; needed depending on the task type.&quot;</span>
     <span class="p">)</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Ends a habituation trial for the scene by blanking the screen for one</span>
@@ -545,19 +705,23 @@
 <span class="sd">    guarantee that using a position intersecting another object or outside</span>
 <span class="sd">    the room won&#39;t cause issues or errors.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    xPosition : float, optional</span>
-<span class="sd">        The global X position of the vector to teleport the agent to during</span>
-<span class="sd">        the blank screen. The Z position must also be specified for this to</span>
-<span class="sd">        work.</span>
-<span class="sd">    zPosition : float, optional</span>
-<span class="sd">        The global Z position of the vector to teleport the agent to during</span>
-<span class="sd">        the blank screen. The X position must also be specified for this to</span>
-<span class="sd">        work.</span>
-<span class="sd">    yRotation : float, optional</span>
-<span class="sd">        Degrees (global, not relative) to rotate the agent along the Y axis</span>
-<span class="sd">        during the blank screen.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    &quot;SUCCESSFUL&quot;</span>
+<span class="sd">        Action successful.</span>
+<span class="sd">    &quot;FAILED&quot;</span>
+<span class="sd">        Unexpected error; please report immediately to development team.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Pass should always be the last action in the enum.</span>
+    <span class="n">END_SCENE</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;EndScene&quot;</span><span class="p">,</span>
+        <span class="s2">&quot; &quot;</span><span class="p">,</span>
+        <span class="s2">&quot;There is no action available and end_scene needs to be called.&quot;</span>
+    <span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Call end_scene now there is no actions available.</span>
+<span class="sd">    Does nothing.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -657,6 +821,20 @@
             <span class="k">return</span> <span class="n">action</span><span class="p">,</span> <span class="kc">None</span>
 
         <span class="k">return</span> <span class="n">action</span><span class="p">,</span> <span class="n">params</span></div></div>
+
+
+<span class="n">FORCE_ACTIONS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Action</span><span class="o">.</span><span class="n">PUSH_OBJECT</span><span class="p">,</span>
+    <span class="n">Action</span><span class="o">.</span><span class="n">PULL_OBJECT</span><span class="p">,</span>
+    <span class="n">Action</span><span class="o">.</span><span class="n">TORQUE_OBJECT</span><span class="p">]</span>
+<span class="n">OBJECT_MOVE_ACTIONS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Action</span><span class="o">.</span><span class="n">CLOSE_OBJECT</span><span class="p">,</span>
+    <span class="n">Action</span><span class="o">.</span><span class="n">OPEN_OBJECT</span><span class="p">]</span>
+<span class="n">MOVE_ACTIONS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Action</span><span class="o">.</span><span class="n">MOVE_AHEAD</span><span class="p">,</span>
+    <span class="n">Action</span><span class="o">.</span><span class="n">MOVE_LEFT</span><span class="p">,</span>
+    <span class="n">Action</span><span class="o">.</span><span class="n">MOVE_RIGHT</span><span class="p">,</span>
+    <span class="n">Action</span><span class="o">.</span><span class="n">MOVE_BACK</span><span class="p">]</span>
 </pre></div>
 
             <div class="clearer"></div>
