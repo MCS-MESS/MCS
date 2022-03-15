@@ -149,6 +149,10 @@
 <span class="sd">        The &quot;x&quot;, &quot;y&quot;, and &quot;z&quot; coordinates for your global position.</span>
 <span class="sd">        Will be set to &#39;None&#39; if using a metadata level below the</span>
 <span class="sd">        &#39;oracle&#39; level.</span>
+<span class="sd">    resolved_object : string</span>
+<span class="sd">        The object that was selected based on objectImageCoords</span>
+<span class="sd">    resolved_receptacle_object_id : string</span>
+<span class="sd">        The receptacle that was selected based on receptacleObjectImageCoords</span>
 <span class="sd">    return_status : string</span>
 <span class="sd">        The return status from your last action. See</span>
 <span class="sd">        :mod:`Action &lt;machine_common_sense.Action&gt;`.</span>
@@ -196,6 +200,8 @@
         <span class="n">performer_reach</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
         <span class="n">physics_frames_per_second</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">resolved_object</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="n">resolved_receptacle</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
         <span class="n">return_status</span><span class="o">=</span><span class="n">ReturnStatus</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">reward</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">rotation</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
@@ -233,6 +239,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">performer_reach</span> <span class="o">=</span> <span class="n">performer_reach</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">physics_frames_per_second</span> <span class="o">=</span> <span class="n">physics_frames_per_second</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">position</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolved_object</span> <span class="o">=</span> <span class="n">resolved_object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolved_receptacle</span> <span class="o">=</span> <span class="n">resolved_receptacle</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">return_status</span> <span class="o">=</span> <span class="n">return_status</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reward</span> <span class="o">=</span> <span class="n">reward</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span> <span class="o">=</span> <span class="n">rotation</span>
@@ -279,6 +287,8 @@
         <span class="k">yield</span> <span class="s1">&#39;performer_reach&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">performer_reach</span>
         <span class="k">yield</span> <span class="s1">&#39;physics_frames_per_second&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">physics_frames_per_second</span>
         <span class="k">yield</span> <span class="s1">&#39;position&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span>
+        <span class="k">yield</span> <span class="s1">&#39;resolved_object&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolved_object</span>
+        <span class="k">yield</span> <span class="s1">&#39;resolved_receptacle&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolved_receptacle</span>
         <span class="k">yield</span> <span class="s1">&#39;return_status&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_status</span>
         <span class="k">yield</span> <span class="s1">&#39;reward&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reward</span>
         <span class="k">yield</span> <span class="s1">&#39;rotation&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span>

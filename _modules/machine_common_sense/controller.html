@@ -216,7 +216,7 @@
                               <span class="n">scene_config</span><span class="o">.</span><span class="n">goal</span><span class="o">.</span><span class="n">skip_preview_phase</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scene_config</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The `name` field in the scene &#39;</span> <span class="o">+</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;The `name` field in the scene &#39;</span>
                             <span class="s1">&#39;file cannot be empty.&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">is_file_writing_enabled</span><span class="p">()):</span>
@@ -556,7 +556,7 @@
                 <span class="n">subscriber</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="n">event_type</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">msg</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="n">f</span><span class="s2">&quot;Error in event with type=</span><span class="si">{event_type}</span><span class="s2">&quot;</span> <span class="o">+</span>
+                    <span class="n">f</span><span class="s2">&quot;Error in event with type=</span><span class="si">{event_type}</span><span class="s2">&quot;</span>
                     <span class="n">f</span><span class="s2">&quot; to subscriber={type(subscriber)}&quot;</span><span class="p">,</span>
                     <span class="n">exc_info</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span>
 
