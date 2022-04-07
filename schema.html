@@ -145,6 +145,10 @@
 <ul class="simple">
 <li><p><cite>id</cite> (string, required): The object’s unique ID.</p></li>
 <li><p><cite>type</cite> (string, required): The object’s type from the <a class="reference internal" href="#object-list"><span class="std std-ref">object list</span></a>.</p></li>
+<li><p><cite>actions</cite> (<a class="reference internal" href="#action-config"><span class="std std-ref">action config list</span></a>, optional): Specific animations to start at specific action steps. Available animations are based on the object’s type. Currently animations are only available for <a class="reference internal" href="#agents"><span class="std std-ref">agent</span></a> types. Default: none</p></li>
+<li><p><cite>agentSettings</cite> (<a class="reference internal" href="#agent-settings"><span class="std std-ref">agent settings config</span></a>, optional): Specific configuration settings for <a class="reference internal" href="#agents"><span class="std std-ref">agent</span></a> types. Default: none</p></li>
+<li><p>associatedWithAgent` (string, optional):  The agent holding this object. Objects with this property have the following restrictions — Must have a shape of ball, a bounding box scaled between 0.2 and 0.25, and a scale of (1,1,1). Default: “”</p></li>
+<li><p><cite>centerOfMass</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, optional): The object’s center of mass/gravity, if not the default. Default: none</p></li>
 <li><p><cite>centerOfMass</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, optional): The object’s center of mass/gravity, if not the default. Default: none</p></li>
 <li><p><cite>changeMaterials</cite> (<a class="reference internal" href="#change-materials-config"><span class="std std-ref">change_materials config</span></a> array, optional): The steps on which to change the material(s) (colors/textures) used on the object, and the new materials to use. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options. Default: <cite>[]</cite></p></li>
 <li><p><cite>forces</cite> (<a class="reference internal" href="#force-config"><span class="std std-ref">force config</span></a> array, optional): The steps on which to apply <a class="reference external" href="https://docs.unity3d.com/ScriptReference/Rigidbody.AddForce.html">force</a> to the object. The config <cite>vector</cite> describes the amount of force (in Newtons) to apply in each direction using the global coordinate system. Resets all existing forces on the object to 0 before applying the new force. Default: <cite>[]</cite></p></li>
@@ -199,6 +203,41 @@
 <h3>Goal Metadata Config<a class="headerlink" href="#goal-metadata-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>goal metadata config</strong> has the following properties:</p>
 <p>(Coming soon!)</p>
+</section>
+<section id="action-config">
+<h3>Action Config<a class="headerlink" href="#action-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>action config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>stepBegin</cite> (integer, required): The step on which the action should occur.  Must be non-negative.  A value of <cite>0</cite> means the action will occur during scene initialization.</p></li>
+<li><p><cite>stepEnd</cite> (integer, optional): The step on which the action should end. The animation will play infinitely if its isLoopAnimation is true. If stepEnd is not configured and isLoopAnimation is false then the animation will play once. For example, a jump animation with stepBegin of 2 and stepEnd of 4 will stop immediately at that stepEnd. However, you can set that jump to isLoopAnimation true and have its stepEnd be 104 so it will loop and stop at step 104. Must be non-negative.</p></li>
+<li><p><cite>id</cite> (string, required): The ID of the animation (action) to start. For a full list of available agent animations, please see <span class="xref std std-ref">Agent Animations</span>.</p></li>
+<li><p><cite>isLoopAnimation</cite> (bool, optional): Whether the newly set animation should loop after being played. If false, the agent animation will reset to idle after being played once. Default: <cite>false</cite></p></li>
+</ul>
+</section>
+<section id="agent-settings-config">
+<h3>Agent Settings Config<a class="headerlink" href="#agent-settings-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>agent settings config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>chest</cite> (integer, optional): The chest and shirt (or dress) to use for the specific agent. See <a class="reference internal" href="#chest-options"><span class="std std-ref">Chest Options</span></a> for the full list of available options. Default: <cite>0</cite></p></li>
+<li><p><cite>chestMaterial</cite> (integer, optional): The color/texture to use for the shirt of the specific agent. See <a class="reference internal" href="#chest-material-options"><span class="std std-ref">Chest Material Options</span></a> for the full list of available options. Default: <cite>0</cite></p></li>
+<li><p><cite>eyes</cite> (integer, optional): The eyes to use for the specific agent. See <a class="reference internal" href="#eye-options"><span class="std std-ref">Eye Options</span></a> for the full list of available options. Default: <cite>0</cite></p></li>
+<li><p><cite>feet</cite> (integer, optional): The feet and shoes to use for the specific agent. See <a class="reference internal" href="#feet-options"><span class="std std-ref">Feet Options</span></a> for the full list of available options. Default: <cite>0</cite></p></li>
+<li><p><cite>feetMaterial</cite> (integer, optional): The color/texture to use for the shoes of the specific agent. See <a class="reference internal" href="#feet-material-options"><span class="std std-ref">Feet Material Options</span></a> for the full list of available options. Default: <cite>0</cite></p></li>
+<li><p><cite>glasses</cite> (integer, optional): The glasses to use for the specific agent. The glasses are only visible if <cite>showGlasses</cite> is true. See <a class="reference internal" href="#glasses-options"><span class="std std-ref">Glasses Options</span></a> for the full list of available options. Default: <cite>0</cite></p></li>
+<li><p><cite>hair</cite> (integer, optional): The hair (and possibly hat, for some options) to use for the specific agent. See <a class="reference internal" href="#hair-options"><span class="std std-ref">Hair Options</span></a> for the full list of available options. Default: <cite>0</cite></p></li>
+<li><p><cite>hairMaterial</cite> (integer, optional): The color/texture to use for the hair of the specific agent. See <a class="reference internal" href="#hair-material-options"><span class="std std-ref">Hair Material Options</span></a> for the full list of available options. Default: <cite>0</cite></p></li>
+<li><p><cite>hatMaterial</cite> (integer, optional): The color/texture to use for the hat (if one is present) of the specific agent. See <a class="reference internal" href="#hair-material-options"><span class="std std-ref">Hair Material Options</span></a> for the full list of available options. Default: <cite>0</cite></p></li>
+<li><p><cite>hideHair</cite> (boolean, optional): Whether to hide hair on the specific agent. This ignores any configured <cite>hair</cite> option. Default: <cite>false</cite></p></li>
+<li><p><cite>isElder</cite> (boolean, optional): Whether to give the specific agent an elderly (wrinkly) face and skin. Default: <cite>false</cite></p></li>
+<li><p><cite>legs</cite> (integer, optional): The legs and pants/shorts/skirt to use for the specific agent. Please note that the legs may be overridden by some <cite>chest</cite> options. See <a class="reference internal" href="#legs-options"><span class="std std-ref">Legs Options</span></a> for the full list of available options. Default: <cite>0</cite></p></li>
+<li><p><cite>legsMaterial</cite> (integer, optional): The color/texture to use for the pants/shorts/skirt of the specific agent. See <a class="reference internal" href="#legs-material-options"><span class="std std-ref">Legs Material Options</span></a> for the full list of available options. Default: <cite>0</cite></p></li>
+<li><p><cite>showBeard</cite> (boolean, optional): Whether to show a beard on the specific agent. The agent type must be male. The beard’s color will match the <cite>hairMaterial</cite>. Default: <cite>false</cite></p></li>
+<li><p><cite>showGlasses</cite> (boolean, optional): Whether to show glasses on the specific agent. Default: <cite>false</cite></p></li>
+<li><p><cite>showTie</cite> (boolean, optional): Whether to show a tie on the specific agent. The <cite>chest</cite> option must also be compatible with a tie. Default: <cite>false</cite></p></li>
+<li><p><cite>skin</cite> (integer, optional): The skin to use for the specific agent. See <a class="reference internal" href="#skin-options"><span class="std std-ref">Skin Options</span></a> for the full list of available options. Default: <cite>0</cite></p></li>
+<li><p><cite>tie</cite> (integer, optional): The tie to use for the specific agent. A tie is only visible if <cite>showTie</cite> is true, and if the <cite>chest</cite> option is compatible with a tie. See <a class="reference internal" href="#tie-options"><span class="std std-ref">Tie Options</span></a> for the full list of available options. Default: <cite>0</cite></p></li>
+<li><p><cite>tieMaterial</cite> (integer, optional): The color/texture to use for the tie (if one is present) of the specific agent. See <a class="reference internal" href="#tie-material-options"><span class="std std-ref">Tie Material Options</span></a> for the full list of available options. Default: <cite>0</cite></p></li>
+</ul>
 </section>
 <section id="change-materials-config">
 <h3>Change Materials Config<a class="headerlink" href="#change-materials-config" title="Permalink to this headline">¶</a></h3>
@@ -1394,6 +1433,49 @@ greater than ‘low’.</p>
 </table>
 </section>
 </section>
+<section id="agents">
+<h3>Agents<a class="headerlink" href="#agents" title="Permalink to this headline">¶</a></h3>
+<p>These agents are used in scenes for the interactive tasks.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Object Type</p></th>
+<th class="head"><p>Default Mass</p></th>
+<th class="head"><p>Base Size</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><cite>“agent_female_01”</cite></p></td>
+<td><p>70</p></td>
+<td><p>x=0.5,y=1.6,z=0.5</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“agent_female_02”</cite></p></td>
+<td><p>70</p></td>
+<td><p>x=0.5,y=1.6,z=0.5</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“agent_female_04”</cite></p></td>
+<td><p>70</p></td>
+<td><p>x=0.5,y=1.6,z=0.5</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“agent_male_02”</cite></p></td>
+<td><p>80</p></td>
+<td><p>x=0.5,y=1.6,z=0.5</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>“agent_male_03”</cite></p></td>
+<td><p>80</p></td>
+<td><p>x=0.5,y=1.6,z=0.5</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>“agent_male_04”</cite></p></td>
+<td><p>80</p></td>
+<td><p>x=0.5,y=1.6,z=0.5</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="primitive-objects">
 <h3>Primitive Objects<a class="headerlink" href="#primitive-objects" title="Permalink to this headline">¶</a></h3>
 <p>The following objects have a default mass of 1, base size of (x=1, y=1, z=1), and no material restrictions. You can configure them with properties like <cite>physics</cite>, <cite>moveable</cite>, <cite>pickupable</cite>, or <cite>structure</cite>. These are NOT the internal Unity primitive 3D GameObjects.</p>
@@ -1946,6 +2028,615 @@ greater than ‘low’.</p>
 </ul>
 </section>
 </section>
+<section id="agent-settings">
+<h2>Agent Settings<a class="headerlink" href="#agent-settings" title="Permalink to this headline">¶</a></h2>
+<p>All options are inclusive. Please note that some options may be restricted to female or male.</p>
+<section id="chest-options">
+<h3>Chest Options<a class="headerlink" href="#chest-options" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Chest Option (Female)</p></th>
+<th class="head"><p>Chest Option (Male)</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td></td>
+<td><p>Long dress (ignores <cite>legs</cite>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td></td>
+<td><p>Tank top</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>0</p></td>
+<td><p>Long-sleeve formal button-down shirt (permits <cite>tie</cite>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>Short-sleeve formal button-down shirt (permits <cite>tie</cite>)</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>2</p></td>
+<td><p>Long-sleeve casual button-down shirt</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>3</p></td>
+<td><p>Short-sleeve casual button-down shirt</p></td>
+</tr>
+<tr class="row-even"><td><p>6</p></td>
+<td><p>4</p></td>
+<td><p>High-neck shirt</p></td>
+</tr>
+<tr class="row-odd"><td><p>7</p></td>
+<td><p>5</p></td>
+<td><p>Long-sleeve shirt</p></td>
+</tr>
+<tr class="row-even"><td><p>8</p></td>
+<td><p>6</p></td>
+<td><p>Short-sleeve shirt</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="chest-material-options">
+<h3>Chest Material Options<a class="headerlink" href="#chest-material-options" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Chest Option</p></th>
+<th class="head"><p>Material Options (Female)</p></th>
+<th class="head"><p>Material Options (Male)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Dress or tank top</p></td>
+<td><p>0 to 13</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Formal button-down shirt</p></td>
+<td><p>0 to 10</p></td>
+<td><p>0 to 9</p></td>
+</tr>
+<tr class="row-even"><td><p>Casual button-down shirt</p></td>
+<td><p>0 to 11</p></td>
+<td><p>0 to 10</p></td>
+</tr>
+<tr class="row-odd"><td><p>Other shirts</p></td>
+<td><p>0 to 14</p></td>
+<td><p>0 to 11</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="eye-options">
+<h3>Eye Options<a class="headerlink" href="#eye-options" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Eye Options</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0 to 3</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="feet-options">
+<h3>Feet Options<a class="headerlink" href="#feet-options" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Feet Option (Female)</p></th>
+<th class="head"><p>Feet Option (Male)</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>Formal shoe</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>Sports shoe</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td></td>
+<td><p>Formal shoe with heel</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="feet-material-options">
+<h3>Feet Material Options<a class="headerlink" href="#feet-material-options" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Feet Option</p></th>
+<th class="head"><p>Material Options</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Formal shoe</p></td>
+<td><p>0 to 11</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sports shoe</p></td>
+<td><p>0 to 9</p></td>
+</tr>
+<tr class="row-even"><td><p>Formal shoe with heel</p></td>
+<td><p>0 to 10</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="glasses-options">
+<h3>Glasses Options<a class="headerlink" href="#glasses-options" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Glasses Options</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0 to 10</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="hair-options">
+<h3>Hair Options<a class="headerlink" href="#hair-options" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Hair Material Options</p></th>
+<th class="head"><p>Hat?</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0 to 6</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p>7 to 9</p></td>
+<td><p>Yes</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="hair-material-options">
+<h3>Hair Material Options<a class="headerlink" href="#hair-material-options" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Hair Options</p></th>
+<th class="head"><p>Hair Material Options</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0 to 9, excluding 5</p></td>
+<td><p>0 (yellow), 1 (brown), 2 (black), or 3 (white)</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>0 (brown)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="hat-material-options">
+<h3>Hat Material Options<a class="headerlink" href="#hat-material-options" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Hair Option</p></th>
+<th class="head"><p>Hat Material Options</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>7</p></td>
+<td><p>0 to 11</p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>0 to 11</p></td>
+</tr>
+<tr class="row-even"><td><p>9</p></td>
+<td><p>0 to 5</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="legs-options">
+<h3>Legs Options<a class="headerlink" href="#legs-options" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Chest Option (Female)</p></th>
+<th class="head"><p>Chest Option (Male)</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td></td>
+<td><p>Leggings</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>Long pants</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>Short pants</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td></td>
+<td><p>Skirt</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="legs-material-options">
+<h3>Legs Material Options<a class="headerlink" href="#legs-material-options" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Legs Option</p></th>
+<th class="head"><p>Material Options</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Leggings and pants</p></td>
+<td><p>0 to 14</p></td>
+</tr>
+<tr class="row-odd"><td><p>Skirt</p></td>
+<td><p>0 to 13</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="skin-options">
+<h3>Skin Options<a class="headerlink" href="#skin-options" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Skin Option (Female)</p></th>
+<th class="head"><p>Skin Option (Male)</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>Light tone</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>Dark tone</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>Medium-light tone</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>3</p></td>
+<td><p>Medium-dark tone</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td></td>
+<td><p>Light tone, with makeup</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td></td>
+<td><p>Dark tone, with makeup</p></td>
+</tr>
+<tr class="row-even"><td><p>6</p></td>
+<td></td>
+<td><p>Medium-light tone, with makeup</p></td>
+</tr>
+<tr class="row-odd"><td><p>7</p></td>
+<td></td>
+<td><p>Medium-dark tone, with makeup</p></td>
+</tr>
+<tr class="row-even"><td><p>8</p></td>
+<td></td>
+<td><p>Light tone, with makeup</p></td>
+</tr>
+<tr class="row-odd"><td><p>9</p></td>
+<td></td>
+<td><p>Dark tone, with makeup</p></td>
+</tr>
+<tr class="row-even"><td><p>10</p></td>
+<td></td>
+<td><p>Medium-light tone, with makeup</p></td>
+</tr>
+<tr class="row-odd"><td><p>11</p></td>
+<td></td>
+<td><p>Medium-dark tone, with makeup</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="tie-options">
+<h3>Tie Options<a class="headerlink" href="#tie-options" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Tie Option</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>Bowtie</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>Long tie</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>Short tie</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="tie-material-options">
+<h3>Tie Material Options<a class="headerlink" href="#tie-material-options" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 100%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Tie Material Options</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0 to 9</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="agent-actions">
+<h2>Agent Actions<a class="headerlink" href="#agent-actions" title="Permalink to this headline">¶</a></h2>
+<section id="unrestricted-animations">
+<h3>Unrestricted Animations<a class="headerlink" href="#unrestricted-animations" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>amazed</p></li>
+<li><p>angry</p></li>
+<li><p>disgust</p></li>
+<li><p>happy</p></li>
+<li><p>sad</p></li>
+</ul>
+</section>
+<section id="elder-animations">
+<h3>Elder Animations<a class="headerlink" href="#elder-animations" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>TPE_clap</p></li>
+<li><p>TPE_cry</p></li>
+<li><p>TPE_freefall</p></li>
+<li><p>TPE_hitbackwards</p></li>
+<li><p>TPE_hitforward</p></li>
+<li><p>TPE_idle1</p></li>
+<li><p>TPE_idle2</p></li>
+<li><p>TPE_idle3</p></li>
+<li><p>TPE_idle4</p></li>
+<li><p>TPE_idle5</p></li>
+<li><p>TPE_idleafraid</p></li>
+<li><p>TPE_idleangry</p></li>
+<li><p>TPE_idlehappy</p></li>
+<li><p>TPE_idlesad</p></li>
+<li><p>TPE_jump</p></li>
+<li><p>TPE_land</p></li>
+<li><p>TPE_laugh</p></li>
+<li><p>TPE_lookback</p></li>
+<li><p>TPE_phone1</p></li>
+<li><p>TPE_phone2</p></li>
+<li><p>TPE_run</p></li>
+<li><p>TPE_runbackwards</p></li>
+<li><p>TPE_runIN</p></li>
+<li><p>TPE_runjumpFLY</p></li>
+<li><p>TPE_runjumpIN</p></li>
+<li><p>TPE_runjumpOUT</p></li>
+<li><p>TPE_runL</p></li>
+<li><p>TPE_runOUT</p></li>
+<li><p>TPE_runR</p></li>
+<li><p>TPE_scream</p></li>
+<li><p>TPE_sitdownIN</p></li>
+<li><p>TPE_sitdownOUT</p></li>
+<li><p>TPE_sitidle1</p></li>
+<li><p>TPE_sitidle2</p></li>
+<li><p>TPE_sitphone1</p></li>
+<li><p>TPE_sitphone2</p></li>
+<li><p>TPE_stairsDOWN</p></li>
+<li><p>TPE_stairsUP</p></li>
+<li><p>TPE_strafeL</p></li>
+<li><p>TPE_strafeR</p></li>
+<li><p>TPE_talk1</p></li>
+<li><p>TPE_talk2</p></li>
+<li><p>TPE_telloff</p></li>
+<li><p>TPE_turnL45</p></li>
+<li><p>TPE_turnL90</p></li>
+<li><p>TPE_turnR45</p></li>
+<li><p>TPE_turnR90</p></li>
+<li><p>TPE_walk</p></li>
+<li><p>TPE_walkbackwards</p></li>
+<li><p>TPE_wave</p></li>
+</ul>
+</section>
+<section id="female-animations">
+<h3>Female Animations<a class="headerlink" href="#female-animations" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>TPF_brake</p></li>
+<li><p>TPF_clap</p></li>
+<li><p>TPF_cry</p></li>
+<li><p>TPF_fallbackwardsFLY</p></li>
+<li><p>TPF_fallbackwardsIN</p></li>
+<li><p>TPF_fallbackwardsOUT</p></li>
+<li><p>TPF_fallforwardFLY</p></li>
+<li><p>TPF_fallforwardIN</p></li>
+<li><p>TPF_fallforwardOUT</p></li>
+<li><p>TPF_freefall</p></li>
+<li><p>TPF_hitbackwards</p></li>
+<li><p>TPF_hitforward</p></li>
+<li><p>TPF_idle1</p></li>
+<li><p>TPF_idle2</p></li>
+<li><p>TPF_idle3</p></li>
+<li><p>TPF_idle4</p></li>
+<li><p>TPF_idle5</p></li>
+<li><p>TPF_idleafraid</p></li>
+<li><p>TPF_idleangry</p></li>
+<li><p>TPF_idlehappy</p></li>
+<li><p>TPF_idlesad</p></li>
+<li><p>TPF_jump</p></li>
+<li><p>TPF_land</p></li>
+<li><p>TPF_laugh</p></li>
+<li><p>TPF_lookback</p></li>
+<li><p>TPF_phone1</p></li>
+<li><p>TPF_phone2</p></li>
+<li><p>TPF_run</p></li>
+<li><p>TPF_runbackwards</p></li>
+<li><p>TPF_runIN</p></li>
+<li><p>TPF_runjumpFLY</p></li>
+<li><p>TPF_runjumpIN</p></li>
+<li><p>TPF_runjumpOUT</p></li>
+<li><p>TPF_runL</p></li>
+<li><p>TPF_runOUT</p></li>
+<li><p>TPF_runR</p></li>
+<li><p>TPF_runstrafeL</p></li>
+<li><p>TPF_runstrafeR</p></li>
+<li><p>TPF_scream</p></li>
+<li><p>TPF_sitdownIN</p></li>
+<li><p>TPF_sitdownOUT</p></li>
+<li><p>TPF_sitidle1</p></li>
+<li><p>TPF_sitidle2</p></li>
+<li><p>TPF_sitphone1</p></li>
+<li><p>TPF_sitphone2</p></li>
+<li><p>TPF_stairsDOWN</p></li>
+<li><p>TPF_stairsUP</p></li>
+<li><p>TPF_static</p></li>
+<li><p>TPF_strafeL</p></li>
+<li><p>TPF_strafeR</p></li>
+<li><p>TPF_talk1</p></li>
+<li><p>TPF_talk2</p></li>
+<li><p>TPF_telloff</p></li>
+<li><p>TPF_turnL45</p></li>
+<li><p>TPF_turnL90</p></li>
+<li><p>TPF_turnR45</p></li>
+<li><p>TPF_turnR90</p></li>
+<li><p>TPF_walk</p></li>
+<li><p>TPF_walkbackwards</p></li>
+<li><p>TPF_wave</p></li>
+</ul>
+</section>
+<section id="male-animations">
+<h3>Male Animations<a class="headerlink" href="#male-animations" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>TPM_brake</p></li>
+<li><p>TPM_clap</p></li>
+<li><p>TPM_cry</p></li>
+<li><p>TPM_fallbackwardsFLY</p></li>
+<li><p>TPM_fallbackwardsIN</p></li>
+<li><p>TPM_fallbackwardsOUT</p></li>
+<li><p>TPM_fallforwardFLY</p></li>
+<li><p>TPM_fallforwardIN</p></li>
+<li><p>TPM_fallforwardOUT</p></li>
+<li><p>TPM_freefall</p></li>
+<li><p>TPM_hitbackwards</p></li>
+<li><p>TPM_hitforward</p></li>
+<li><p>TPM_idle1</p></li>
+<li><p>TPM_idle2</p></li>
+<li><p>TPM_idle3</p></li>
+<li><p>TPM_idle4</p></li>
+<li><p>TPM_idle5</p></li>
+<li><p>TPM_idleafraid</p></li>
+<li><p>TPM_idleangry</p></li>
+<li><p>TPM_idlehappy</p></li>
+<li><p>TPM_idlesad</p></li>
+<li><p>TPM_jump</p></li>
+<li><p>TPM_land</p></li>
+<li><p>TPM_laugh</p></li>
+<li><p>TPM_lookback</p></li>
+<li><p>TPM_phone1</p></li>
+<li><p>TPM_phone2</p></li>
+<li><p>TPM_run</p></li>
+<li><p>TPM_runbackwards</p></li>
+<li><p>TPM_runIN</p></li>
+<li><p>TPM_runjumpFLY</p></li>
+<li><p>TPM_runjumpIN</p></li>
+<li><p>TPM_runjumpOUT</p></li>
+<li><p>TPM_runL</p></li>
+<li><p>TPM_runOUT</p></li>
+<li><p>TPM_runR</p></li>
+<li><p>TPM_runstrafeL</p></li>
+<li><p>TPM_runstrafeR</p></li>
+<li><p>TPM_scream</p></li>
+<li><p>TPM_sitdownIN</p></li>
+<li><p>TPM_sitdownOUT</p></li>
+<li><p>TPM_sitidle1</p></li>
+<li><p>TPM_sitidle2</p></li>
+<li><p>TPM_sitphone1</p></li>
+<li><p>TPM_sitphone2</p></li>
+<li><p>TPM_stairsDOWN</p></li>
+<li><p>TPM_stairsUP</p></li>
+<li><p>TPM_static</p></li>
+<li><p>TPM_strafeL</p></li>
+<li><p>TPM_strafeR</p></li>
+<li><p>TPM_talk1</p></li>
+<li><p>TPM_talk2</p></li>
+<li><p>TPM_telloff</p></li>
+<li><p>TPM_turnL45</p></li>
+<li><p>TPM_turnL90</p></li>
+<li><p>TPM_turnR45</p></li>
+<li><p>TPM_turnR90</p></li>
+<li><p>TPM_walk</p></li>
+<li><p>TPM_walkbackwards</p></li>
+<li><p>TPM_wave</p></li>
+</ul>
+</section>
+</section>
 </section>
 
 
@@ -1963,6 +2654,8 @@ greater than ‘low’.</p>
 <li><a class="reference internal" href="#object-config">Object Config</a></li>
 <li><a class="reference internal" href="#goal-config">Goal Config</a></li>
 <li><a class="reference internal" href="#goal-metadata-config">Goal Metadata Config</a></li>
+<li><a class="reference internal" href="#action-config">Action Config</a></li>
+<li><a class="reference internal" href="#agent-settings-config">Agent Settings Config</a></li>
 <li><a class="reference internal" href="#change-materials-config">Change Materials Config</a></li>
 <li><a class="reference internal" href="#force-config">Force Config</a></li>
 <li><a class="reference internal" href="#grid-config">Grid Config</a></li>
@@ -1991,6 +2684,7 @@ greater than ‘low’.</p>
 <li><a class="reference internal" href="#tool-objects">Tool Objects</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#agents">Agents</a></li>
 <li><a class="reference internal" href="#primitive-objects">Primitive Objects</a></li>
 <li><a class="reference internal" href="#other-objects">Other Objects</a></li>
 <li><a class="reference internal" href="#deprecated-objects">Deprecated Objects</a></li>
@@ -2013,6 +2707,30 @@ greater than ‘low’.</p>
 <li><a class="reference internal" href="#sofa-3-materials">Sofa 3 Materials</a></li>
 <li><a class="reference internal" href="#wall-materials">Wall Materials</a></li>
 <li><a class="reference internal" href="#wood-materials">Wood Materials</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#agent-settings">Agent Settings</a><ul>
+<li><a class="reference internal" href="#chest-options">Chest Options</a></li>
+<li><a class="reference internal" href="#chest-material-options">Chest Material Options</a></li>
+<li><a class="reference internal" href="#eye-options">Eye Options</a></li>
+<li><a class="reference internal" href="#feet-options">Feet Options</a></li>
+<li><a class="reference internal" href="#feet-material-options">Feet Material Options</a></li>
+<li><a class="reference internal" href="#glasses-options">Glasses Options</a></li>
+<li><a class="reference internal" href="#hair-options">Hair Options</a></li>
+<li><a class="reference internal" href="#hair-material-options">Hair Material Options</a></li>
+<li><a class="reference internal" href="#hat-material-options">Hat Material Options</a></li>
+<li><a class="reference internal" href="#legs-options">Legs Options</a></li>
+<li><a class="reference internal" href="#legs-material-options">Legs Material Options</a></li>
+<li><a class="reference internal" href="#skin-options">Skin Options</a></li>
+<li><a class="reference internal" href="#tie-options">Tie Options</a></li>
+<li><a class="reference internal" href="#tie-material-options">Tie Material Options</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#agent-actions">Agent Actions</a><ul>
+<li><a class="reference internal" href="#unrestricted-animations">Unrestricted Animations</a></li>
+<li><a class="reference internal" href="#elder-animations">Elder Animations</a></li>
+<li><a class="reference internal" href="#female-animations">Female Animations</a></li>
+<li><a class="reference internal" href="#male-animations">Male Animations</a></li>
 </ul>
 </li>
 </ul>

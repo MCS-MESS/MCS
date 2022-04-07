@@ -51,6 +51,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    uuid : string</span>
 <span class="sd">        The unique ID of this object, used with some actions.</span>
+<span class="sd">    associated_with_agent: str</span>
+<span class="sd">        The agent holding this object.</span>
 <span class="sd">    dimensions : list of dicts</span>
 <span class="sd">        The dimensions of this object in the environment&#39;s 3D global</span>
 <span class="sd">        coordinate system as a list of 8 points (dicts with &quot;x&quot;, &quot;y&quot;, and &quot;z&quot;).</span>
@@ -71,11 +73,17 @@
 <span class="sd">        coordinate system.</span>
 <span class="sd">    held : boolean</span>
 <span class="sd">        Whether you are holding this object.</span>
+<span class="sd">    is_open : boolean</span>
+<span class="sd">        Whether the object is open or not</span>
+<span class="sd">    locked: boolean</span>
+<span class="sd">        Whether the object is locked</span>
 <span class="sd">    mass : float</span>
 <span class="sd">        Haptic feedback. The mass of this object.</span>
 <span class="sd">    material_list : list of strings</span>
 <span class="sd">        Haptic feedback. The material(s) of this object.</span>
 <span class="sd">        See :mod:`Material &lt;machine_common_sense.Material&gt;`.</span>
+<span class="sd">    openable : boolean</span>
+<span class="sd">        Whether the object can be opened</span>
 <span class="sd">    position : dict</span>
 <span class="sd">        The &quot;x&quot;, &quot;y&quot;, and &quot;z&quot; coordinates for the global position of the</span>
 <span class="sd">        center of this object&#39;s 3D model.</span>
@@ -87,6 +95,12 @@
 <span class="sd">        StepMetadata&#39;s &quot;object_mask_list&quot;.</span>
 <span class="sd">    shape : string</span>
 <span class="sd">        This object&#39;s shape in plain English.</span>
+<span class="sd">    simulation_agent_held_object: str</span>
+<span class="sd">        The object associated held for the simulation agent that the performer</span>
+<span class="sd">        can retrieve through the InteractWithAgent method.</span>
+<span class="sd">    simulation_agent_is_holding_held_object: str</span>
+<span class="sd">        Whether this simulation agent is currently holding its</span>
+<span class="sd">        associated held object.</span>
 <span class="sd">    state_list : list of strings</span>
 <span class="sd">        This object&#39;s state(s) from the current step in the scene. Sometimes</span>
 <span class="sd">        used by objects with scripted behavior in passive scenes.</span>
@@ -94,12 +108,6 @@
 <span class="sd">        This object&#39;s colors, derived from its textures, in plain English.</span>
 <span class="sd">    visible : boolean</span>
 <span class="sd">        Whether you can see this object in your camera viewport.</span>
-<span class="sd">    is_open : boolean</span>
-<span class="sd">        Whether the object is open or not</span>
-<span class="sd">    openable : boolean</span>
-<span class="sd">        Whether the object can be opened</span>
-<span class="sd">    locked: boolean</span>
-<span class="sd">        Whether the object is locked</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
@@ -122,7 +130,10 @@
         <span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">is_open</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">openable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">locked</span><span class="o">=</span><span class="kc">False</span>
+        <span class="n">locked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">associated_with_agent</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">simulation_agent_held_object</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">simulation_agent_is_holding_held_object</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="o">=</span> <span class="n">uuid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">dimensions</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">dimensions</span>
@@ -147,6 +158,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">is_open</span> <span class="o">=</span> <span class="n">is_open</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">openable</span> <span class="o">=</span> <span class="n">openable</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">locked</span> <span class="o">=</span> <span class="n">locked</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">associated_with_agent</span> <span class="o">=</span> <span class="n">associated_with_agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simulation_agent_held_object</span> <span class="o">=</span> <span class="n">simulation_agent_held_object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simulation_agent_is_holding_held_object</span> <span class="o">=</span> \
+            <span class="n">simulation_agent_is_holding_held_object</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Stringifier</span><span class="o">.</span><span class="n">class_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -172,7 +187,11 @@
         <span class="k">yield</span> <span class="s1">&#39;visible&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">visible</span>
         <span class="k">yield</span> <span class="s1">&#39;is_open&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_open</span>
         <span class="k">yield</span> <span class="s1">&#39;openable&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">openable</span>
-        <span class="k">yield</span> <span class="s1">&#39;locked&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">locked</span></div>
+        <span class="k">yield</span> <span class="s1">&#39;locked&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">locked</span>
+        <span class="k">yield</span> <span class="s1">&#39;associated_with_agent&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">associated_with_agent</span>
+        <span class="k">yield</span> <span class="s1">&#39;simulation_agent_held_object&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulation_agent_held_object</span>
+        <span class="k">yield</span> <span class="s1">&#39;simulation_agent_is_holding_held_object&#39;</span><span class="p">,</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">simulation_agent_is_holding_held_object</span></div>
 </pre></div>
 
             <div class="clearer"></div>

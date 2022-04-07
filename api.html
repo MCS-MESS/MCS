@@ -207,6 +207,43 @@ Does nothing.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt id="machine_common_sense.Action.INTERACT_WITH_AGENT">
+<code class="sig-name descname">INTERACT_WITH_AGENT</code><em class="property"> = 'InteractWithAgent'</em><a class="headerlink" href="#machine_common_sense.Action.INTERACT_WITH_AGENT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interact with an agent. If that agent has an object, it will hold
+out the object for you to pickup; otherwise, the agent will look sad.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>objectId</strong> (<em>string</em><em>, </em><em>optional</em>) – The “uuid” of the target object. Required unless the
+“objectImageCoords” properties are given.</p></li>
+<li><p><strong>objectImageCoordsX</strong> (<em>float</em><em>, </em><em>optional</em>) – The X of a pixel coordinate on the target object based on
+your current viewport. Can be used in place of the “objectId” property.
+(See note under “Action” header regarding image coordinates.)</p></li>
+<li><p><strong>objectImageCoordsY</strong> (<em>float</em><em>, </em><em>optional</em>) – The Y of a pixel coordinate on the target object based on
+your current viewport. Can be used in place of the “objectId” property.
+(See note under “Action” header regarding image coordinates.)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
+<li><p><em>”NOT_INTERACTABLE”</em> – If the object corresponding to the “objectImageCoords” vector is not an
+interactable object.</p></li>
+<li><p><em>”NOT_OBJECT”</em> – If the object corresponding to the “objectId” (or object corresponding
+to the “objectImageCoords” vector) is not an object.</p></li>
+<li><p><em>”NOT_AGENT”</em> – If the object being interacted with is not a simulation agent</p></li>
+<li><p><em>”AGENT_CURRENTLY_INTERACTING_WTIH_PERFORMER”</em> – If the object being interacted with is a simulation agent already
+interacting with the performer</p></li>
+<li><p><em>”OBSTRUCTED”</em> – If you cannot move the object because your path is obstructed.</p></li>
+<li><p><em>”OUT_OF_REACH”</em> – If you cannot move the object because you are out of reach.</p></li>
+<li><p><em>”FAILED”</em> – Unexpected error; please report immediately to development team.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt id="machine_common_sense.Action.LOOK_DOWN">
 <code class="sig-name descname">LOOK_DOWN</code><em class="property"> = 'LookDown'</em><a class="headerlink" href="#machine_common_sense.Action.LOOK_DOWN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate your viewport down (add 10 degrees to head tilt).</p>
@@ -885,6 +922,8 @@ followed by the test trial, depicting either an expected or unexpected
 agent behavior. All nine of these trials happen within the same “scene”.
 These trials will demand a “common sense” understanding of agents, their
 behaviors, and their interactions with objects in the environment.</p>
+<p>This goal category is only used for the <strong>passive/VoE agent tasks</strong>. All
+interactive agent tasks will use the <cite>retrieval</cite> goal category.</p>
 <p class="rubric">Notes</p>
 <p>You are required to call <cite>controller.end_scene()</cite> at the end of each scene
 with a continuous plausibility <cite>rating</cite>, from 0.0 (completely implausible)
@@ -915,12 +954,12 @@ where you would submit any retrospective reporting on a per step basis via
 <code class="sig-name descname">RETRIEVAL</code><em class="property"> = 'retrieval'</em><a class="headerlink" href="#machine_common_sense.GoalCategory.RETRIEVAL" title="Permalink to this definition">¶</a></dt>
 <dd><p>In a trial that has a retrieval goal, you must find and pickup a target
 object. This may involve exploring the scene, avoiding obstacles,
-interacting with objects (like closed containers), and (future evaluations)
-tracking moving objects. These trials will demand a “common sense”
-understanding of self navigation (how to move and rotate yourself within a
-scene and around obstacles), object interaction (how objects work,
-including opening containers), and (future evaluations) the basic physics
-of movement (kinematics, gravity, friction, etc.).</p>
+interacting with objects (like closed containers) or agents, and tracking
+moving objects. These trials will demand a “common sense” understanding of
+self navigation (how to move and rotate yourself within a scene and around
+obstacles), object interaction (how objects work, including opening
+containers), the basic physics of movement (kinematics, gravity, friction,
+etc.), and agency (identifying people and using them to achieve a goal).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1102,12 +1141,13 @@ Material enum.</p>
 
 <dl class="py class">
 <dt id="machine_common_sense.ObjectMetadata">
-<em class="property">class </em><code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">ObjectMetadata</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">dimensions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">direction</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">distance</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">distance_in_steps</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">distance_in_world</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">held</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">mass</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">material_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">position</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rotation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">segment_color</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">shape</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">state_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">texture_color_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visible</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">is_open</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">openable</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">locked</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/object_metadata.html#ObjectMetadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.ObjectMetadata" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">ObjectMetadata</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">dimensions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">direction</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">distance</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">distance_in_steps</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">distance_in_world</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">held</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">mass</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">material_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">position</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rotation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">segment_color</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">shape</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">state_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">texture_color_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visible</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">is_open</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">openable</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">locked</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">associated_with_agent</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">simulation_agent_held_object</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">simulation_agent_is_holding_held_object</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/object_metadata.html#ObjectMetadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.ObjectMetadata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines metadata for an object in the MCS 3D environment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>uuid</strong> (<em>string</em>) – The unique ID of this object, used with some actions.</p></li>
+<li><p><strong>associated_with_agent</strong> (<em>str</em>) – The agent holding this object.</p></li>
 <li><p><strong>dimensions</strong> (<em>list of dicts</em>) – The dimensions of this object in the environment’s 3D global
 coordinate system as a list of 8 points (dicts with “x”, “y”, and “z”).</p></li>
 <li><p><strong>direction</strong> (<em>dict</em>) – The direction vector of “x”, “y”, and “z” degrees between your position
@@ -1122,9 +1162,12 @@ actions) on the 2D X/Z movement grid.</p></li>
 <li><p><strong>distance_in_world</strong> (<em>float</em>) – The distance from you to this object in the environment’s 3D global
 coordinate system.</p></li>
 <li><p><strong>held</strong> (<em>boolean</em>) – Whether you are holding this object.</p></li>
+<li><p><strong>is_open</strong> (<em>boolean</em>) – Whether the object is open or not</p></li>
+<li><p><strong>locked</strong> (<em>boolean</em>) – Whether the object is locked</p></li>
 <li><p><strong>mass</strong> (<em>float</em>) – Haptic feedback. The mass of this object.</p></li>
 <li><p><strong>material_list</strong> (<em>list of strings</em>) – Haptic feedback. The material(s) of this object.
 See <a class="reference internal" href="#machine_common_sense.Material" title="machine_common_sense.Material"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Material</span></code></a>.</p></li>
+<li><p><strong>openable</strong> (<em>boolean</em>) – Whether the object can be opened</p></li>
 <li><p><strong>position</strong> (<em>dict</em>) – The “x”, “y”, and “z” coordinates for the global position of the
 center of this object’s 3D model.</p></li>
 <li><p><strong>rotation</strong> (<em>dict</em>) – This object’s rotation angles around the “x”, “y”, and “z” axes
@@ -1132,13 +1175,14 @@ in degrees.</p></li>
 <li><p><strong>segment_color</strong> (<em>dict</em>) – The “r”, “g”, and “b” pixel values of this object in images from the
 StepMetadata’s “object_mask_list”.</p></li>
 <li><p><strong>shape</strong> (<em>string</em>) – This object’s shape in plain English.</p></li>
+<li><p><strong>simulation_agent_held_object</strong> (<em>str</em>) – The object associated held for the simulation agent that the performer
+can retrieve through the InteractWithAgent method.</p></li>
+<li><p><strong>simulation_agent_is_holding_held_object</strong> (<em>str</em>) – Whether this simulation agent is currently holding its
+associated held object.</p></li>
 <li><p><strong>state_list</strong> (<em>list of strings</em>) – This object’s state(s) from the current step in the scene. Sometimes
 used by objects with scripted behavior in passive scenes.</p></li>
 <li><p><strong>texture_color_list</strong> (<em>list of strings</em>) – This object’s colors, derived from its textures, in plain English.</p></li>
 <li><p><strong>visible</strong> (<em>boolean</em>) – Whether you can see this object in your camera viewport.</p></li>
-<li><p><strong>is_open</strong> (<em>boolean</em>) – Whether the object is open or not</p></li>
-<li><p><strong>openable</strong> (<em>boolean</em>) – Whether the object can be opened</p></li>
-<li><p><strong>locked</strong> (<em>boolean</em>) – Whether the object is locked</p></li>
 </ul>
 </dd>
 </dl>

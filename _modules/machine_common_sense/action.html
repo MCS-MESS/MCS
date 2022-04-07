@@ -620,6 +620,57 @@
 <span class="sd">        Unexpected error; please report immediately to development team.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">INTERACT_WITH_AGENT</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;InteractWithAgent&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Interact with an agent. If that agent has an object, &quot;</span>
+        <span class="s2">&quot;it will hold out the object for you to pickup; &quot;</span>
+        <span class="s2">&quot;otherwise, the agent will look sad.&quot;</span>
+        <span class="s2">&quot;(objectId=string, &quot;</span>
+        <span class="s2">&quot;objectImageCoordsX=float, &quot;</span>
+        <span class="s2">&quot;objectImageCoordsY=float)&quot;</span>
+    <span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interact with an agent. If that agent has an object, it will hold</span>
+<span class="sd">    out the object for you to pickup; otherwise, the agent will look sad.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    objectId : string, optional</span>
+<span class="sd">        The &quot;uuid&quot; of the target object. Required unless the</span>
+<span class="sd">        &quot;objectImageCoords&quot; properties are given.</span>
+<span class="sd">    objectImageCoordsX : float, optional</span>
+<span class="sd">        The X of a pixel coordinate on the target object based on</span>
+<span class="sd">        your current viewport. Can be used in place of the &quot;objectId&quot; property.</span>
+<span class="sd">        (See note under &quot;Action&quot; header regarding image coordinates.)</span>
+<span class="sd">    objectImageCoordsY : float, optional</span>
+<span class="sd">        The Y of a pixel coordinate on the target object based on</span>
+<span class="sd">        your current viewport. Can be used in place of the &quot;objectId&quot; property.</span>
+<span class="sd">        (See note under &quot;Action&quot; header regarding image coordinates.)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    &quot;SUCCESSFUL&quot;</span>
+<span class="sd">        Action successful.</span>
+<span class="sd">    &quot;NOT_INTERACTABLE&quot;</span>
+<span class="sd">        If the object corresponding to the &quot;objectImageCoords&quot; vector is not an</span>
+<span class="sd">        interactable object.</span>
+<span class="sd">    &quot;NOT_OBJECT&quot;</span>
+<span class="sd">        If the object corresponding to the &quot;objectId&quot; (or object corresponding</span>
+<span class="sd">        to the &quot;objectImageCoords&quot; vector) is not an object.</span>
+<span class="sd">    &quot;NOT_AGENT&quot;</span>
+<span class="sd">        If the object being interacted with is not a simulation agent</span>
+<span class="sd">    &quot;AGENT_CURRENTLY_INTERACTING_WTIH_PERFORMER&quot;</span>
+<span class="sd">        If the object being interacted with is a simulation agent already</span>
+<span class="sd">        interacting with the performer</span>
+<span class="sd">    &quot;OBSTRUCTED&quot;</span>
+<span class="sd">        If you cannot move the object because your path is obstructed.</span>
+<span class="sd">    &quot;OUT_OF_REACH&quot;</span>
+<span class="sd">        If you cannot move the object because you are out of reach.</span>
+<span class="sd">    &quot;FAILED&quot;</span>
+<span class="sd">        Unexpected error; please report immediately to development team.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">LOOK_UP</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;LookUp&quot;</span><span class="p">,</span>
         <span class="s2">&quot;i&quot;</span><span class="p">,</span>

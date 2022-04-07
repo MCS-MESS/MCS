@@ -229,6 +229,9 @@
 <span class="sd">    These trials will demand a &quot;common sense&quot; understanding of agents, their</span>
 <span class="sd">    behaviors, and their interactions with objects in the environment.</span>
 
+<span class="sd">    This goal category is only used for the **passive/VoE agent tasks**. All</span>
+<span class="sd">    interactive agent tasks will use the `retrieval` goal category.</span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    You are required to call `controller.end_scene()` at the end of each scene</span>
@@ -260,12 +263,12 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    In a trial that has a retrieval goal, you must find and pickup a target</span>
 <span class="sd">    object. This may involve exploring the scene, avoiding obstacles,</span>
-<span class="sd">    interacting with objects (like closed containers), and (future evaluations)</span>
-<span class="sd">    tracking moving objects. These trials will demand a &quot;common sense&quot;</span>
-<span class="sd">    understanding of self navigation (how to move and rotate yourself within a</span>
-<span class="sd">    scene and around obstacles), object interaction (how objects work,</span>
-<span class="sd">    including opening containers), and (future evaluations) the basic physics</span>
-<span class="sd">    of movement (kinematics, gravity, friction, etc.).</span>
+<span class="sd">    interacting with objects (like closed containers) or agents, and tracking</span>
+<span class="sd">    moving objects. These trials will demand a &quot;common sense&quot; understanding of</span>
+<span class="sd">    self navigation (how to move and rotate yourself within a scene and around</span>
+<span class="sd">    obstacles), object interaction (how objects work, including opening</span>
+<span class="sd">    containers), the basic physics of movement (kinematics, gravity, friction,</span>
+<span class="sd">    etc.), and agency (identifying people and using them to achieve a goal).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
