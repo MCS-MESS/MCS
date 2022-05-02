@@ -125,8 +125,9 @@
 <span class="sd">        the output from start_scene for a scene with a scripted Preview Phase.</span>
 <span class="sd">        (Preview Phase case details TBD).</span>
 <span class="sd">    lava : list of tuples</span>
-<span class="sd">        Coordinates of pools of lava as (X, Z) float tuples. Will be set to</span>
-<span class="sd">        &#39;None&#39; if using a metadata level below the &#39;oracle&#39; level.</span>
+<span class="sd">        Coordinates of pools of lava as (X1, Z1, X2, Z2) float tuples, where</span>
+<span class="sd">        X1/Z1 is the top-left corner and X2/Z2 is the bottom-right conrer. Will</span>
+<span class="sd">        be set to &#39;None&#39; if using a metadata level below the &#39;oracle&#39; level.</span>
 <span class="sd">    object_list : list of ObjectMetadata objects</span>
 <span class="sd">        The list of metadata for all the visible interactive objects in the</span>
 <span class="sd">        scene. This list will be empty if using a metadata level below</span>

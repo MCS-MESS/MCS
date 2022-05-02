@@ -89,23 +89,23 @@
 <h2>Download Unity Release<a class="headerlink" href="#download-unity-release" title="Permalink to this headline">¶</a></h2>
 <p>Our Unity App is built for Linux or Mac. There is no Windows support currently.</p>
 <p>As of release 0.4.4, the latest Unity version will be downloaded for you automatically by the MCS package. We have also switched to using addressables for our Unity release, which increases the initial startup time for Unity application on the first run. If this all sounds fine, feel free to skip this section, but if you’d like to know more about addressables or are using a release prior to 0.4.4, please follow the instructions below:</p>
-<p>The links below are referencing version 0.5.3. For our previous releases, please see <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases">this page</a>.</p>
+<p>The links below are referencing version 0.5.4. For our previous releases, please see <a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases">this page</a>.</p>
 <section id="linux-version">
 <h3>Linux Version:<a class="headerlink" href="#linux-version" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
-<li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.5.3/MCS-AI2-THOR-Unity-App-v0.5.3-linux.zip">Download and unzip the Linux ZIP</a> <em>Note that for versions prior to 0.4.4, the Unity Linux build and the data directory are in two separate zips.</em></p></li>
+<li><p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.5.4/MCS-AI2-THOR-Unity-App-v0.5.4-linux.zip">Download and unzip the Linux ZIP</a> <em>Note that for versions prior to 0.4.4, the Unity Linux build and the data directory are in two separate zips.</em></p></li>
 <li><p>Ensure that the Unity App, the Data Directory TAR, and the UnityPlayer.so file are all in the same directory.</p></li>
 <li><p>Untar the Data Directory:</p></li>
 </ol>
-<pre class="literal-block">tar -xzvf MCS-AI2-THOR-Unity-App-v0.5.3_Data.tar.gz</pre>
+<pre class="literal-block">tar -xzvf MCS-AI2-THOR-Unity-App-v0.5.4_Data.tar.gz</pre>
 <ol class="arabic simple" start="4">
 <li><p>Mark the Unity App as executable:</p></li>
 </ol>
-<pre class="literal-block">chmod a+x MCS-AI2-THOR-Unity-App-v0.5.3.x86_64</pre>
+<pre class="literal-block">chmod a+x MCS-AI2-THOR-Unity-App-v0.5.4.x86_64</pre>
 </section>
 <section id="mac-version">
 <h3>Mac Version:<a class="headerlink" href="#mac-version" title="Permalink to this headline">¶</a></h3>
-<p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.5.3/MCS-AI2-THOR-Unity-App-v0.5.3-mac.zip">Download and unzip the Mac ZIP</a></p>
+<p><a class="reference external" href="https://github.com/NextCenturyCorporation/MCS/releases/download/0.5.4/MCS-AI2-THOR-Unity-App-v0.5.4-mac.zip">Download and unzip the Mac ZIP</a></p>
 </section>
 <section id="addressables">
 <h3>Addressables<a class="headerlink" href="#addressables" title="Permalink to this headline">¶</a></h3>
@@ -118,7 +118,7 @@
 <section id="pass-unity-app-location-to-mcs">
 <h3>Pass Unity App Location to MCS<a class="headerlink" href="#pass-unity-app-location-to-mcs" title="Permalink to this headline">¶</a></h3>
 <p>After downloading the Unity app, you will need to reference the path using the <cite>unity_app_file_path</cite> property when using the MCS package (outlined on the <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> page). While the path to the Unity app on Linux is pretty straightforward, the path for the Mac version executable is actually within the Contents/ directory level of your download:</p>
-<pre class="literal-block">./MCS-AI2-THOR-Unity-App-v0.5.3.app/Contents/MacOS/MCS-AI2-THOR</pre>
+<pre class="literal-block">./MCS-AI2-THOR-Unity-App-v0.5.4.app/Contents/MacOS/MCS-AI2-THOR</pre>
 </section>
 </section>
 <section id="mcs-configuration-file">

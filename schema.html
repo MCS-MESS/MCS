@@ -134,6 +134,7 @@
 <li><p><cite>restrictOpenDoors</cite> (bool, optional): If there are multiple doors in a scene, only allow for one door to ever be opened.</p></li>
 <li><p><cite>roomDimensions</cite> (Vector3, optional): Specify the size of the room, not including the thickness of walls, floor, and ceiling.  If omitted or set to 0, 0, 0, the default will be used.  Note: There is a maximum visibility which for objects and structures beyond will not be rendered.  Use caution when creating rooms where the maximum distance exceeds this maximum visibility.  The maximum visibility is 15 meters. Default: 10, 3, 10.</p></li>
 <li><p><cite>roomMaterials</cite> (<a class="reference internal" href="#room-material-config"><span class="std std-ref">room material config</span></a>, optional): The materials for each individual wall.  For any individual wall not provided, or all outer walls if object is not provided, they will use ‘wallMaterial’ property.</p></li>
+<li><p><cite>partitionFloor</cite> (<a class="reference internal" href="#floor-partition-config"><span class="std std-ref">floor partition config</span></a>, optional): Settings to partition the floor in specific ways. Overrides the <cite>floorTextures</cite>, <cite>holes</cite>, and <cite>lava</cite> configurations. Default: none</p></li>
 <li><p><cite>version</cite> (int, optional): The version of this scene configuration. Default: the latest version</p></li>
 <li><p><cite>wallProperties</cite> (<a class="reference internal" href="#physics-config"><span class="std std-ref">physics config</span></a>, optional): Enable custom friction, bounciness, and/or drag on the walls. Default: see <a class="reference internal" href="#physics-config"><span class="std std-ref">physics config</span></a>.</p></li>
 <li><p><cite>wallMaterial</cite> (string, optional): The material (color/texture) for the room’s four outer walls. See the <a class="reference internal" href="#material-list"><span class="std std-ref">material list</span></a> for options. Default (v0.0.3+): <cite>“AI2-THOR/Materials/Walls/DrywallBeige”</cite></p></li>
@@ -146,6 +147,7 @@
 <li><p><cite>id</cite> (string, required): The object’s unique ID.</p></li>
 <li><p><cite>type</cite> (string, required): The object’s type from the <a class="reference internal" href="#object-list"><span class="std std-ref">object list</span></a>.</p></li>
 <li><p><cite>actions</cite> (<a class="reference internal" href="#action-config"><span class="std std-ref">action config list</span></a>, optional): Specific animations to start at specific action steps. Available animations are based on the object’s type. Currently animations are only available for <a class="reference internal" href="#agents"><span class="std std-ref">agent</span></a> types. Default: none</p></li>
+<li><p><cite>agentMovement</cite> (<span class="xref std std-ref">agent movement config</span>, optional): The movement sequence for an individual <a class="reference internal" href="#agents"><span class="std std-ref">agent</span></a>. Default: none</p></li>
 <li><p><cite>agentSettings</cite> (<a class="reference internal" href="#agent-settings"><span class="std std-ref">agent settings config</span></a>, optional): Specific configuration settings for <a class="reference internal" href="#agents"><span class="std std-ref">agent</span></a> types. Default: none</p></li>
 <li><p>associatedWithAgent` (string, optional):  The agent holding this object. Objects with this property have the following restrictions — Must have a shape of ball, a bounding box scaled between 0.2 and 0.25, and a scale of (1,1,1). Default: “”</p></li>
 <li><p><cite>centerOfMass</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, optional): The object’s center of mass/gravity, if not the default. Default: none</p></li>
@@ -208,10 +210,27 @@
 <h3>Action Config<a class="headerlink" href="#action-config" title="Permalink to this headline">¶</a></h3>
 <p>Each <strong>action config</strong> has the following properties:</p>
 <ul class="simple">
-<li><p><cite>stepBegin</cite> (integer, required): The step on which the action should occur.  Must be non-negative.  A value of <cite>0</cite> means the action will occur during scene initialization.</p></li>
-<li><p><cite>stepEnd</cite> (integer, optional): The step on which the action should end. The animation will play infinitely if its isLoopAnimation is true. If stepEnd is not configured and isLoopAnimation is false then the animation will play once. For example, a jump animation with stepBegin of 2 and stepEnd of 4 will stop immediately at that stepEnd. However, you can set that jump to isLoopAnimation true and have its stepEnd be 104 so it will loop and stop at step 104. Must be non-negative.</p></li>
+<li><p><cite>stepBegin</cite> (integer, required): The step on which the action should occur.  Must be non-negative.  A value of <cite>0</cite> means the action will occur during scene initialization. If the step begin occurs while the agent is interacting and there is no step end or the step end is after the agent interaction is complete, the animation will play after the interaction is complete. If the agent is moving, triggering an action will pause the agents movement until the action is complete either by finishing the animation or by reaching its step end. If it is a loop animation with no step end the agent will no longer move and endlessly perform its action. The exception to this is if the step begin of the movement configuration is after the step begin of the action. In that case the movement will begin and halt the action.</p></li>
+<li><p><cite>stepEnd</cite> (integer, optional): The step on which the action should end. Must be non-negative. The animation will play infinitely if its isLoopAnimation is true. If stepEnd is not configured and isLoopAnimation is false then the animation will play once. For example, a jump animation with stepBegin of 2 and stepEnd of 4 will stop immediately at that stepEnd. However, you can set that jump to isLoopAnimation true and have its stepEnd be 104 so it will loop and stop at step 104. Triggering a step end while interacting with the agent will end the animation once the interaction is complete.</p></li>
 <li><p><cite>id</cite> (string, required): The ID of the animation (action) to start. For a full list of available agent animations, please see <span class="xref std std-ref">Agent Animations</span>.</p></li>
 <li><p><cite>isLoopAnimation</cite> (bool, optional): Whether the newly set animation should loop after being played. If false, the agent animation will reset to idle after being played once. Default: <cite>false</cite></p></li>
+</ul>
+</section>
+<section id="sequence-config">
+<h3>Sequence Config<a class="headerlink" href="#sequence-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>sequence config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>animation</cite> (string, required): The animation to play while the agent moves to the next end point</p></li>
+<li><p><cite>endPoint</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a>, required): The end point of this part of the movement path</p></li>
+</ul>
+</section>
+<section id="agent-movement-config">
+<h3>Agent Movement Config<a class="headerlink" href="#agent-movement-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>agent movement config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>stepBegin</cite> (integer, required): The step on which the action should occur.  Must be non-negative.  A value of <cite>0</cite> means the action will occur during scene initialization. If the step begin of the movement configuration is after the step begin of a currently playing action the movement will begin and immediately stop the action. If a step begin is triggered while the agent is interacting, the agent will begin its movement after the interaction is complete. If a step begin is triggered while the agent is interacting, but an action’s step begin was also triggered during the interaction at a later step, the action will play first then agent will begin its movement.</p></li>
+<li><p><cite>repeat</cite> (bool, required): Whether the movement sequence should repeat after reaching the end. If true, once the last point is reached, the agent will move from its last end point to the first end point automatically. This means the last configured end point in the sequence does NOT need to be equal to the first end point for repeating to work. Once the first point is automatically reached, the agent will continue the sequence from the beginning.</p></li>
+<li><p><cite>sequence</cite> (<a class="reference internal" href="#vector-config"><span class="std std-ref">vector config</span></a> array, required): The sequence that the agent will follow. Only x and z coordinates are necessary. If a y is given it will be ignored.</p></li>
 </ul>
 </section>
 <section id="agent-settings-config">
@@ -245,6 +264,14 @@
 <ul class="simple">
 <li><p><cite>stepBegin</cite> (integer, required): The step on which the action should occur.  Must be non-negative.  A value of <cite>0</cite> means the action will occur during scene initialization.</p></li>
 <li><p><cite>materials</cite> (string array, required): The new materials for the object.</p></li>
+</ul>
+</section>
+<section id="floor-partition-config">
+<h3>Floor Partition Config<a class="headerlink" href="#floor-partition-config" title="Permalink to this headline">¶</a></h3>
+<p>Each <strong>floor partition config</strong> has the following properties:</p>
+<ul class="simple">
+<li><p><cite>leftHalf</cite> (float, optional): Percentage of the left half of the room to set as lava. Max value of <cite>1</cite>. Default: <cite>0</cite></p></li>
+<li><p><cite>rightHalf</cite> (float, optional): Percentage of the right half of the room to set as lava. Max value of <cite>1</cite>. Default: <cite>0</cite></p></li>
 </ul>
 </section>
 <section id="force-config">
@@ -2655,8 +2682,11 @@ greater than ‘low’.</p>
 <li><a class="reference internal" href="#goal-config">Goal Config</a></li>
 <li><a class="reference internal" href="#goal-metadata-config">Goal Metadata Config</a></li>
 <li><a class="reference internal" href="#action-config">Action Config</a></li>
+<li><a class="reference internal" href="#sequence-config">Sequence Config</a></li>
+<li><a class="reference internal" href="#agent-movement-config">Agent Movement Config</a></li>
 <li><a class="reference internal" href="#agent-settings-config">Agent Settings Config</a></li>
 <li><a class="reference internal" href="#change-materials-config">Change Materials Config</a></li>
+<li><a class="reference internal" href="#floor-partition-config">Floor Partition Config</a></li>
 <li><a class="reference internal" href="#force-config">Force Config</a></li>
 <li><a class="reference internal" href="#grid-config">Grid Config</a></li>
 <li><a class="reference internal" href="#lip-gaps-config">Lip Gaps Config</a></li>
