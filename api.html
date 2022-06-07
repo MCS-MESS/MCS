@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Python API &#8212; Machine Common Sense  documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
@@ -49,10 +49,6 @@
   <section id="python-api">
 <h1>Python API<a class="headerlink" href="#python-api" title="Permalink to this headline">¶</a></h1>
 <table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#machine_common_sense.create_controller" title="machine_common_sense.create_controller"><code class="xref py py-obj docutils literal notranslate"><span class="pre">machine_common_sense.create_controller</span></code></a>([…])</p></td>
 <td><p>Creates and returns a new MCS Controller object.</p></td>
@@ -107,7 +103,7 @@ inputs must be greater than (0,0).</p>
 <code class="sig-name descname">CLOSE_OBJECT</code><em class="property"> = 'CloseObject'</em><a class="headerlink" href="#machine_common_sense.Action.CLOSE_OBJECT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Close a nearby object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>objectId</strong> (<em>string</em><em>, </em><em>optional</em>) – The “uuid” of the target object. Required unless the
 “objectImageCoords” properties are given.</p></li>
@@ -121,7 +117,7 @@ your current viewport. Can be used in place of the “objectId” property.
 (completely closed). Default: 1</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”IS_CLOSED_COMPLETELY”</em> – If the object is completely closed.</p></li>
@@ -147,10 +143,10 @@ receptacle object.</p></li>
 <code class="sig-name descname">DROP_OBJECT</code><em class="property"> = 'DropObject'</em><a class="headerlink" href="#machine_common_sense.Action.DROP_OBJECT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Drop an object you are holding.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>objectId</strong> (<em>string</em><em>, </em><em>optional</em>) – The “uuid” of the held object. Defaults to the first held object.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”NOT_HELD”</em> – If you cannot put down the object corresponding to the “objectId”
@@ -174,7 +170,7 @@ teleport parameters here for applicable cases. We cannot currently
 guarantee that using a position intersecting another object or outside
 the room won’t cause issues or errors.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”FAILED”</em> – Unexpected error; please report immediately to development team.</p></li>
@@ -190,7 +186,7 @@ the room won’t cause issues or errors.</p>
 <dd><p>Call end_scene now there is no actions available.
 Does nothing.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”FAILED”</em> – Unexpected error; please report immediately to development team.</p></li>
@@ -212,7 +208,7 @@ Does nothing.</p>
 <dd><p>Interact with an agent. If that agent has an object, it will hold
 out the object for you to pickup; otherwise, the agent will look sad.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>objectId</strong> (<em>string</em><em>, </em><em>optional</em>) – The “uuid” of the target object. Required unless the
 “objectImageCoords” properties are given.</p></li>
@@ -224,7 +220,7 @@ your current viewport. Can be used in place of the “objectId” property.
 (See note under “Action” header regarding image coordinates.)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”NOT_INTERACTABLE”</em> – If the object corresponding to the “objectImageCoords” vector is not an
@@ -248,7 +244,7 @@ interacting with the performer</p></li>
 <code class="sig-name descname">LOOK_DOWN</code><em class="property"> = 'LookDown'</em><a class="headerlink" href="#machine_common_sense.Action.LOOK_DOWN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate your viewport down (add 10 degrees to head tilt).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”CANNOT_ROTATE”</em> – Failed because you cannot look down/up more than +/- 90 degrees.</p></li>
@@ -264,7 +260,7 @@ interacting with the performer</p></li>
 <code class="sig-name descname">LOOK_UP</code><em class="property"> = 'LookUp'</em><a class="headerlink" href="#machine_common_sense.Action.LOOK_UP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate your view up (subtract 10 degrees from head tilt).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”CANNOT_ROTATE”</em> – Failed because you cannot look down/up more than +/- 90 degrees.</p></li>
@@ -280,7 +276,7 @@ interacting with the performer</p></li>
 <code class="sig-name descname">MOVE_AHEAD</code><em class="property"> = 'MoveAhead'</em><a class="headerlink" href="#machine_common_sense.Action.MOVE_AHEAD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move yourself forward based on your current viewport.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”OBSTRUCTED”</em> – If you cannot move forward because your path is obstructed.</p></li>
@@ -296,7 +292,7 @@ interacting with the performer</p></li>
 <code class="sig-name descname">MOVE_BACK</code><em class="property"> = 'MoveBack'</em><a class="headerlink" href="#machine_common_sense.Action.MOVE_BACK" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move yourself backward based on your current viewport.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”OBSTRUCTED”</em> – If you cannot move backward because your path is obstructed.</p></li>
@@ -312,7 +308,7 @@ interacting with the performer</p></li>
 <code class="sig-name descname">MOVE_LEFT</code><em class="property"> = 'MoveLeft'</em><a class="headerlink" href="#machine_common_sense.Action.MOVE_LEFT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move yourself left based on your current viewport.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”OBSTRUCTED”</em> – If you cannot move left because your path is obstructed.</p></li>
@@ -328,7 +324,7 @@ interacting with the performer</p></li>
 <code class="sig-name descname">MOVE_OBJECT</code><em class="property"> = 'MoveObject'</em><a class="headerlink" href="#machine_common_sense.Action.MOVE_OBJECT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply a movement of 0.1 meters units to a nearby object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>objectId</strong> (<em>string</em><em>, </em><em>optional</em>) – The “uuid” of the target object. Required unless the
 “objectImageCoords” properties are given.</p></li>
@@ -348,7 +344,7 @@ lateral will default to 0
 Default: 1</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”NOT_INTERACTABLE”</em> – If the object corresponding to the “objectImageCoords” vector is not an
@@ -370,7 +366,7 @@ to the “objectImageCoords” vector) is not an object.</p></li>
 <code class="sig-name descname">MOVE_RIGHT</code><em class="property"> = 'MoveRight'</em><a class="headerlink" href="#machine_common_sense.Action.MOVE_RIGHT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move yourself right based on your current viewport.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”OBSTRUCTED”</em> – If you cannot move right because your path is obstructed.</p></li>
@@ -386,7 +382,7 @@ to the “objectImageCoords” vector) is not an object.</p></li>
 <code class="sig-name descname">OPEN_OBJECT</code><em class="property"> = 'OpenObject'</em><a class="headerlink" href="#machine_common_sense.Action.OPEN_OBJECT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Open a nearby object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>objectId</strong> (<em>string</em><em>, </em><em>optional</em>) – The “uuid” of the target object. Required unless the
 “objectImageCoords” properties are given.</p></li>
@@ -400,7 +396,7 @@ your current viewport. Can be used in place of the “objectId” property.
 (completely opened). Default: 1</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”IS_OPENED_COMPLETELY”</em> – If the object is completely opened.</p></li>
@@ -426,7 +422,7 @@ receptacle object.</p></li>
 <code class="sig-name descname">PASS</code><em class="property"> = 'Pass'</em><a class="headerlink" href="#machine_common_sense.Action.PASS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do nothing.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”FAILED”</em> – Unexpected error; please report immediately to development team.</p></li>
@@ -443,7 +439,7 @@ receptacle object.</p></li>
 reaching out your hand in front of you, opening your fingers, and grabbing
 the object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>objectId</strong> (<em>string</em><em>, </em><em>optional</em>) – The “uuid” of the target object. Required unless the
 “objectImageCoords” properties are given.</p></li>
@@ -455,7 +451,7 @@ your current viewport. Can be used in place of the “objectId” property.
 (See note under “Action” header regarding image coordinates.)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”HAND_IS_FULL”</em> – If you cannot pick up the object because your hand is full.</p></li>
@@ -479,7 +475,7 @@ to the “objectImageCoords” vector) is not an object.</p></li>
 <dd><p>Pull a nearby object by applying a physical force directly toward you on
 the X/Z axis to the center point of the object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>objectId</strong> (<em>string</em><em>, </em><em>optional</em>) – The “uuid” of the target object. Required unless the
 “objectImageCoords” properties are given.</p></li>
@@ -493,7 +489,7 @@ your current viewport. Can be used in place of the “objectId” property.
 Default: 0.5</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”NOT_INTERACTABLE”</em> – If the object corresponding to the “objectImageCoords” vector is not an
@@ -516,7 +512,7 @@ to the “objectImageCoords” vector) is not an object.</p></li>
 <dd><p>Push a nearby object by applying a physical force directly away from you on
 the X/Z axis to the center point of the object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>objectId</strong> (<em>string</em><em>, </em><em>optional</em>) – The “uuid” of the target object. Required unless the
 “objectImageCoords” properties are given.</p></li>
@@ -530,7 +526,7 @@ your current viewport. Can be used in place of the “objectId” property.
 Default: 0.5</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”NOT_INTERACTABLE”</em> – If the object corresponding to the “objectImageCoords” vector is not an
@@ -554,7 +550,7 @@ to the “objectImageCoords” vector) is not an object.</p></li>
 receptacle is an object that can hold other objects, like a block, box,
 drawer, shelf, or table.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>objectId</strong> (<em>string</em><em>, </em><em>optional</em>) – The “uuid” of the held object. Defaults to the first held object.</p></li>
 <li><p><strong>receptacleObjectId</strong> (<em>string</em><em>, </em><em>optional</em>) – The “uuid” of the target receptacle. Required unless the
@@ -569,7 +565,7 @@ on your current viewport. Can be used in place of the
 (See note under “Action” header regarding image coordinates.)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”NOT_HELD”</em> – If you cannot put down the object corresponding to the “objectId”
@@ -597,7 +593,7 @@ receptacle.</p></li>
 <code class="sig-name descname">ROTATE_LEFT</code><em class="property"> = 'RotateLeft'</em><a class="headerlink" href="#machine_common_sense.Action.ROTATE_LEFT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate your viewport left by 10 degrees.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”FAILED”</em> – Unexpected error; please report immediately to development team.</p></li>
@@ -612,7 +608,7 @@ receptacle.</p></li>
 <code class="sig-name descname">ROTATE_OBJECT</code><em class="property"> = 'RotateObject'</em><a class="headerlink" href="#machine_common_sense.Action.ROTATE_OBJECT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply a rotation of 5 degrees to a nearby object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>objectId</strong> (<em>string</em><em>, </em><em>optional</em>) – The “uuid” of the target object. Required unless the
 “objectImageCoords” properties are given.</p></li>
@@ -626,7 +622,7 @@ your current viewport. Can be used in place of the “objectId” property.
 Default: True</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”NOT_INTERACTABLE”</em> – If the object corresponding to the “objectImageCoords” vector is not an
@@ -648,7 +644,7 @@ to the “objectImageCoords” vector) is not an object.</p></li>
 <code class="sig-name descname">ROTATE_RIGHT</code><em class="property"> = 'RotateRight'</em><a class="headerlink" href="#machine_common_sense.Action.ROTATE_RIGHT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate your viewport right by 10 degrees.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”FAILED”</em> – Unexpected error; please report immediately to development team.</p></li>
@@ -663,7 +659,7 @@ to the “objectImageCoords” vector) is not an object.</p></li>
 <code class="sig-name descname">TORQUE_OBJECT</code><em class="property"> = 'TorqueObject'</em><a class="headerlink" href="#machine_common_sense.Action.TORQUE_OBJECT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply torque to a nearby object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>objectId</strong> (<em>string</em><em>, </em><em>optional</em>) – The “uuid” of the target object. Required unless the
 “objectImageCoords” properties are given.</p></li>
@@ -677,7 +673,7 @@ your current viewport. Can be used in place of the “objectId” property.
 Default: 0.5</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>“SUCCESSFUL”</em> – Action successful.</p></li>
 <li><p><em>”NOT_INTERACTABLE”</em> – If the object corresponding to the “objectImageCoords” vector is not an
@@ -700,10 +696,10 @@ to the “objectImageCoords” vector) is not an object.</p></li>
 <dd><p>Transforms the given input string into an action string
 and parameter dict.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>input_value</strong> (<em>string</em>) – The input value.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><em>string</em> – The action string, or None if the given input had an error
 transforming the action string.</p></li>
@@ -724,7 +720,7 @@ transforming parameters.</p></li>
 library.</p>
 <p><a class="reference external" href="https://ai2thor.allenai.org/ithor/documentation/">https://ai2thor.allenai.org/ithor/documentation/</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>unity_app_file_path</strong> (<em>str</em>) – </p></li>
 <li><p><strong>config</strong> (<em>ConfigManager</em>) – </p></li>
@@ -738,7 +734,7 @@ library.</p>
 start_scene() will do nothing. Calling end_scene() twice with
 the same scene will throw an exception.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>rating</strong> (<em>float</em><em>, </em><em>optional</em>) – The plausibility rating to classify a passive / VoE scene as either
 plausible or implausible. Not used for any interactive scenes. For
@@ -830,10 +826,10 @@ world, etc. (default None)</p>
 <dd><p>Returns the current metadata level set in the config. If none
 specified, returns ‘default’.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A string containing the current metadata level.</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>string</p>
 </dd>
 </dl>
@@ -852,15 +848,15 @@ given ID from the scene configuration data, if any.</p>
 <dd><p>Starts a new scene using the given scene configuration data dict and
 returns the scene output data object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config_data</strong> (<em>SceneConfiguration</em><em> or </em><em>dict that can be serialized to</em>) – SceneConfiguration
 The MCS scene configuration data for the scene to start.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The output data object from the start of the scene (the output from
 an “Initialize” action).</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#machine_common_sense.StepMetadata" title="machine_common_sense.StepMetadata">StepMetadata</a></p>
 </dd>
 </dl>
@@ -871,21 +867,21 @@ an “Initialize” action).</p>
 <code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">action</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>machine_common_sense.step_metadata.StepMetadata<span class="p">]</span><a class="reference internal" href="_modules/machine_common_sense/controller.html#Controller.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.Controller.step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs the given action within the current scene.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>action</strong> (<em>string</em>) – A selected action string from the list of available actions.</p></li>
 <li><p><strong>**kwargs</strong> – Zero or more key-and-value parameters for the action.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The MCS output data object from after the selected action and the
 physics simulation were run. Returns None if you have passed the
 “last_step” of this scene.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#machine_common_sense.StepMetadata" title="machine_common_sense.StepMetadata">StepMetadata</a></p>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ValueError</strong> – If values are outside acceptable ranges or unable to: convert to a number.</p>
 </dd>
 </dl>
@@ -961,7 +957,7 @@ obstacles), object interaction (how objects work, including opening
 containers), the basic physics of movement (kinematics, gravity, friction,
 etc.), and agency (identifying people and using them to achieve a goal).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>target.id</strong> (<em>string</em>) – The objectId of the target object to retrieve.
 Will only be available at <cite>oracle</cite> metadata level.</p></li>
@@ -979,7 +975,7 @@ visualization interface.</p></li>
 <em class="property">class </em><code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">GoalMetadata</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">action_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">category</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">description</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">habituation_total</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">last_preview_phase_step</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">last_step</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">steps_allowed_in_lava</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/goal_metadata.html#GoalMetadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.GoalMetadata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines metadata for a goal in the MCS 3D environment.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Variables</dt>
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>action_list</strong> (<em>list of lists of</em><em> (</em><em>string</em><em>, </em><em>dict</em><em>) </em><em>tuples</em><em>, or </em><em>None</em>) – <p>The list of all actions that are available for the scene at each step
 (outer list). Each inner list is the list of all actions that are
@@ -1125,13 +1121,13 @@ a list of actions tuples by default.</p>
 <dd><p>Returns whether the given string can be successfully converted into an
 Material enum.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>enum_string</strong> – The string to be converted into an Material enum.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>boolean</p>
 </dd>
 </dl>
@@ -1144,7 +1140,7 @@ Material enum.</p>
 <em class="property">class </em><code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">ObjectMetadata</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">dimensions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">direction</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">distance</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">distance_in_steps</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">distance_in_world</span><span class="o">=</span><span class="default_value">- 1.0</span></em>, <em class="sig-param"><span class="n">held</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">mass</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">material_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">position</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">rotation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">segment_color</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">shape</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">state_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">texture_color_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">visible</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">is_open</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">openable</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">locked</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">associated_with_agent</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">simulation_agent_held_object</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">simulation_agent_is_holding_held_object</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/object_metadata.html#ObjectMetadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.ObjectMetadata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines metadata for an object in the MCS 3D environment.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Variables</dt>
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>uuid</strong> (<em>string</em>) – The unique ID of this object, used with some actions.</p></li>
 <li><p><strong>associated_with_agent</strong> (<em>str</em>) – The agent holding this object.</p></li>
@@ -1203,7 +1199,7 @@ used by objects with scripted behavior in passive scenes.</p></li>
 <em class="property">static </em><code class="sig-name descname">calculate_reward</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/machine_common_sense/reward.html#Reward.calculate_reward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.Reward.calculate_reward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine if the agent achieved the goal.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>goal</strong> – GoalMetadata</p></li>
 <li><p><strong>objects</strong> – Dict</p></li>
@@ -1215,10 +1211,10 @@ used by objects with scripted behavior in passive scenes.</p></li>
 <li><p><strong>goal_reward</strong> – float</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>reward is 1 if goal achieved, 0 otherwise</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
 </dd>
 </dl>
@@ -1246,10 +1242,10 @@ used by objects with scripted behavior in passive scenes.</p></li>
 </div></blockquote>
 <p>to add extra data.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>step_metadata</strong> – MCS step metadata output</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Serialized version of step metadata in MsgPack format.</p>
 </dd>
 </dl>
@@ -1262,7 +1258,7 @@ used by objects with scripted behavior in passive scenes.</p></li>
 <em class="property">class </em><code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">StepMetadata</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">action_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">camera_aspect_ratio</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">camera_clipping_planes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">camera_field_of_view</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">camera_height</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">depth_map_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">goal</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">habituation_trial</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">haptic_feedback</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">head_tilt</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">holes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">image_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">lava</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">object_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">object_mask_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">performer_radius</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">performer_reach</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">physics_frames_per_second</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">position</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">resolved_object</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">resolved_receptacle</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">return_status</span><span class="o">=</span><span class="default_value">'UNDEFINED'</span></em>, <em class="sig-param"><span class="n">reward</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">rotation</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">step_number</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">steps_on_lava</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">structural_object_list</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/step_metadata.html#StepMetadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.StepMetadata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Defines output metadata from an action step in the MCS 3D environment.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Variables</dt>
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>action_list</strong> (<em>list of</em><em> (</em><em>string</em><em>, </em><em>dict</em><em>) </em><em>tuples</em>) – <p>The list of all actions that are available for the next step.
 Each action is returned as a tuple containing the action string and
@@ -1381,16 +1377,16 @@ which is why this is seperate from serialization</p>
 <em class="property">static </em><code class="sig-name descname">class_to_str</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_class</span></em>, <em class="sig-param"><span class="n">depth</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/stringifier.html#Stringifier.class_to_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.Stringifier.class_to_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transforms the given class into a string.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_value</strong> – The input class.</p></li>
 <li><p><strong>depth</strong> (<em>int</em><em>, </em><em>optional</em>) – The indent depth (default 0).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
@@ -1402,13 +1398,13 @@ which is why this is seperate from serialization</p>
 <dd><p>Transforms the given list of ObjectMetadata objects into a
 list of strings.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>object_list</strong> (<em>list of ObjectMetadata objects</em>) – The input list.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of strings</p>
 </dd>
 </dl>
@@ -1419,16 +1415,16 @@ list of strings.</p>
 <em class="property">static </em><code class="sig-name descname">value_to_str</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_value</span></em>, <em class="sig-param"><span class="n">depth</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/stringifier.html#Stringifier.value_to_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.Stringifier.value_to_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transforms the given value into a string.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_value</strong> – The input value.</p></li>
 <li><p><strong>depth</strong> (<em>int</em><em>, </em><em>optional</em>) – The indent depth (default 0).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
@@ -1439,13 +1435,13 @@ list of strings.</p>
 <em class="property">static </em><code class="sig-name descname">vector_to_string</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vector</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense/stringifier.html#Stringifier.vector_to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.Stringifier.vector_to_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transforms the given vector into a string.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>vector</strong> (<em>dict</em>) – The input vector.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
@@ -1480,7 +1476,7 @@ or throw an exception if it cannot be found.</p>
 <dd><p>Creates and returns a new MCS Controller object.  Should only be called
 After a run and before a scene is changed.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>controller</strong> (<a class="reference internal" href="#machine_common_sense.Controller" title="machine_common_sense.Controller"><em>Controller</em></a>) – The currently used controller that the config should be changed
 on.</p></li>
@@ -1497,7 +1493,7 @@ not to save history files (default None)</p></li>
 <code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">create_controller</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_file_or_dict</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>Dict<span class="p">, </span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">unity_app_file_path</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">unity_cache_version</span><span class="p">:</span> <span class="n">str</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/machine_common_sense.html#create_controller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.create_controller" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates and returns a new MCS Controller object.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>config_file_or_dict</strong> (<em>str</em><em> or </em><em>dict</em><em>, </em><em>required</em>) – <p>Can be a path to configuration file to read in or a dictionary
 of various properties, such as metadata level and whether or
@@ -1524,10 +1520,10 @@ If not provided, the version matching the MCS code will be used.
 (default None)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The MCS Controller object.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#machine_common_sense.Controller" title="machine_common_sense.Controller">Controller</a></p>
 </dd>
 </dl>
@@ -1541,7 +1537,7 @@ default configuration will be applied.  See python logging
 documentation for details.</p>
 <p><a class="reference external" href="https://docs.python.org/3/library/logging.config.html#logging-config-dictschema">https://docs.python.org/3/library/logging.config.html#logging-config-dictschema</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>log_config</strong> (<em>dict</em><em>, </em><em>optional</em>) – A dictionary the contains the logging configuration.  If None, a
 default configuration will be used</p></li>
@@ -1559,16 +1555,16 @@ configuration without code changes.  Default, log.config.user.py</p></li>
 <code class="sig-prename descclassname">machine_common_sense.</code><code class="sig-name descname">load_scene_json_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scene_json_file_path</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Dict<a class="reference internal" href="_modules/machine_common_sense.html#load_scene_json_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#machine_common_sense.load_scene_json_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads the given JSON scene config file and returns its data.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>config_json_file_path</strong> (<em>str</em>) – The file path to your MCS JSON scene configuration file.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The MCS scene configuration data from the given JSON file.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>FileNotFoundError</strong> – </p></li>
 <li><p><strong>ValueError</strong> – </p></li>
