@@ -233,6 +233,7 @@ class Controller():
         self._publish_event(
             EventType.ON_START_SCENE, start_scene_payload)
 
+        output.class_masks = step_output.class_masks
         return output
 
     def _convert_scene_config(self, config_data) -> SceneConfiguration:
@@ -347,7 +348,8 @@ class Controller():
         self._publish_event(
             EventType.ON_AFTER_STEP,
             AfterStepPayload(**payload))
-
+        
+        output.class_masks = step_output.class_masks
         return output
 
     @typeguard.typechecked
