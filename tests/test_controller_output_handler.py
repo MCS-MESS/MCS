@@ -73,6 +73,13 @@ class TestControllerOutputHandler(unittest.TestCase):
                 "resolvedReceptacle": '',
                 "clippingPlaneFar": 150,
                 "clippingPlaneNear": 0,
+                "colors": [{
+                    "name": "thing1",
+                    "color": [0, 1, 2]
+                }, {
+                    "name": "thing2",
+                    "color": [3, 4, 5]
+                }],
                 "fov": 42.5,
                 "lastActionStatus": "SUCCESSFUL",
                 "lastActionSuccess": True,
@@ -488,27 +495,37 @@ class TestControllerOutputHandler(unittest.TestCase):
         ], lava=[
             Vector2dInt(x=3, z=3), Vector2dInt(x=7, z=5), Vector2dInt(x=4, z=6)
         ]))
-        (res, actual) = coh.handle_output(mock_event, GoalMetadata(), 0, 1)
+        goal = GoalMetadata(metadata={
+            'target': {'id': 'target_id_1'},
+            'targets': [{'id': 'target_id_2'}, {'id': 'target_id_3'}]
+        }, triggered_by_target_sequence=['chest_1', 'chest_3'])
+        (res, actual) = coh.handle_output(mock_event, goal, 0, 1)
 
         self.assertEqual(actual.action_list, GoalMetadata.DEFAULT_ACTIONS)
         self.assertEqual(actual.camera_aspect_ratio, (600, 400))
         self.assertEqual(actual.camera_clipping_planes, (0, 150))
         self.assertEqual(actual.camera_field_of_view, 42.5)
         self.assertEqual(actual.camera_height, 0.1234)
-        self.assertEqual(str(actual.goal), str(mcs.GoalMetadata()))
+        self.assertEqual(actual.goal.metadata, goal.metadata)
+        self.assertEqual(actual.goal.triggered_by_target_sequence,
+                         goal.triggered_by_target_sequence)
         self.assertEqual(actual.habituation_trial, None)
         self.assertEqual(actual.head_tilt, 12.34)
         self.assertEqual(actual.holes, [(0, 0), (1, 2), (9, 8)])
         self.assertEqual(actual.lava, [
             (2.5, 2.5, 3.5, 3.5), (6.5, 4.5, 7.5, 5.5), (3.5, 5.5, 4.5, 6.5)
         ])
-        self.assertEqual(actual.position, {'x': 0.12, 'y': -0.23, 'z': 4.5})
+        self.assertEqual(actual.position, None)
         self.assertEqual(actual.resolved_object, 'testResolvedId')
         self.assertEqual(actual.resolved_receptacle, '')
         self.assertEqual(actual.rotation, 2.222)
         self.assertEqual(
             actual.return_status,
             mcs.ReturnStatus.SUCCESSFUL.value)
+        self.assertEqual(actual.segmentation_colors, [
+            {'objectId': 'thing1', 'r': 0, 'g': 1, 'b': 2},
+            {'objectId': 'thing2', 'r': 3, 'g': 4, 'b': 5}
+        ])
         self.assertEqual(actual.step_number, 0)
 
         self.assertEqual(len(actual.object_list), 1)
@@ -627,13 +644,22 @@ class TestControllerOutputHandler(unittest.TestCase):
         ], lava=[
             Vector2dInt(x=3, z=3), Vector2dInt(x=7, z=5), Vector2dInt(x=4, z=6)
         ]))
-        (res, actual) = coh.handle_output(mock_event, GoalMetadata(), 0, 1)
+        goal = GoalMetadata(metadata={
+            'target': {'id': 'target_id_1'},
+            'targets': [{'id': 'target_id_2'}, {'id': 'target_id_3'}]
+        }, triggered_by_target_sequence=['chest_1', 'chest_3'])
+        (res, actual) = coh.handle_output(mock_event, goal, 0, 1)
 
         self.assertEqual(actual.action_list, GoalMetadata.DEFAULT_ACTIONS)
         self.assertEqual(actual.camera_aspect_ratio, (600, 400))
         self.assertEqual(actual.camera_clipping_planes, (0, 150))
         self.assertEqual(actual.camera_field_of_view, 42.5)
         self.assertEqual(actual.camera_height, 0.1234)
+        self.assertEqual(actual.goal.metadata, {
+            'target': {},
+            'targets': [],
+        })
+        self.assertEqual(actual.goal.triggered_by_target_sequence, None)
         self.assertEqual(actual.habituation_trial, None)
         self.assertEqual(actual.head_tilt, 12.34)
         self.assertEqual(actual.position, None)
@@ -643,6 +669,7 @@ class TestControllerOutputHandler(unittest.TestCase):
         self.assertEqual(
             actual.return_status,
             mcs.ReturnStatus.SUCCESSFUL.value)
+        self.assertEqual(actual.segmentation_colors, [])
         self.assertEqual(actual.step_number, 0)
         self.assertEqual(actual.holes, None)
         self.assertEqual(actual.lava, None)
@@ -683,14 +710,22 @@ class TestControllerOutputHandler(unittest.TestCase):
         ], lava=[
             Vector2dInt(x=3, z=3), Vector2dInt(x=7, z=5), Vector2dInt(x=4, z=6)
         ]))
-        (res, actual) = coh.handle_output(mock_event, GoalMetadata(), 0, 1)
+        goal = GoalMetadata(metadata={
+            'target': {'id': 'target_id_1'},
+            'targets': [{'id': 'target_id_2'}, {'id': 'target_id_3'}]
+        }, triggered_by_target_sequence=['chest_1', 'chest_3'])
+        (res, actual) = coh.handle_output(mock_event, goal, 0, 1)
 
         self.assertEqual(actual.action_list, GoalMetadata.DEFAULT_ACTIONS)
         self.assertEqual(actual.camera_aspect_ratio, (600, 400))
         self.assertEqual(actual.camera_clipping_planes, (0, 150))
         self.assertEqual(actual.camera_field_of_view, 42.5)
         self.assertEqual(actual.camera_height, 0.1234)
-        self.assertEqual(str(actual.goal), str(mcs.GoalMetadata()))
+        self.assertEqual(actual.goal.metadata, {
+            'target': {},
+            'targets': [],
+        })
+        self.assertEqual(actual.goal.triggered_by_target_sequence, None)
         self.assertEqual(actual.habituation_trial, None)
         self.assertEqual(actual.head_tilt, 12.34)
         self.assertEqual(actual.position, None)
@@ -700,6 +735,7 @@ class TestControllerOutputHandler(unittest.TestCase):
         self.assertEqual(
             actual.return_status,
             mcs.ReturnStatus.SUCCESSFUL.value)
+        self.assertEqual(actual.segmentation_colors, [])
         self.assertEqual(actual.step_number, 0)
         self.assertEqual(actual.holes, None)
         self.assertEqual(actual.lava, None)
@@ -728,14 +764,22 @@ class TestControllerOutputHandler(unittest.TestCase):
         ], lava=[
             Vector2dInt(x=3, z=3), Vector2dInt(x=7, z=5), Vector2dInt(x=4, z=6)
         ]))
-        (res, actual) = coh.handle_output(mock_event, GoalMetadata(), 0, 1)
+        goal = GoalMetadata(metadata={
+            'target': {'id': 'target_id_1'},
+            'targets': [{'id': 'target_id_2'}, {'id': 'target_id_3'}]
+        }, triggered_by_target_sequence=['chest_1', 'chest_3'])
+        (res, actual) = coh.handle_output(mock_event, goal, 0, 1)
 
         self.assertEqual(actual.action_list, GoalMetadata.DEFAULT_ACTIONS)
         self.assertEqual(actual.camera_aspect_ratio, (600, 400))
         self.assertEqual(actual.camera_clipping_planes, (0, 150))
         self.assertEqual(actual.camera_field_of_view, 42.5)
         self.assertEqual(actual.camera_height, 0.1234)
-        self.assertEqual(str(actual.goal), str(mcs.GoalMetadata()))
+        self.assertEqual(actual.goal.metadata, {
+            'target': {},
+            'targets': [],
+        })
+        self.assertEqual(actual.triggered_by_sequence_incorrect, None)
         self.assertEqual(actual.habituation_trial, None)
         self.assertEqual(actual.head_tilt, 12.34)
         self.assertEqual(actual.position, None)
@@ -745,6 +789,7 @@ class TestControllerOutputHandler(unittest.TestCase):
         self.assertEqual(
             actual.return_status,
             mcs.ReturnStatus.SUCCESSFUL.value)
+        self.assertEqual(actual.segmentation_colors, [])
         self.assertEqual(actual.step_number, 0)
 
         # Correct object metadata properties tested elsewhere
@@ -773,13 +818,20 @@ class TestControllerOutputHandler(unittest.TestCase):
         ], lava=[
             Vector2dInt(x=3, z=3), Vector2dInt(x=7, z=5), Vector2dInt(x=4, z=6)
         ]))
-        (actual, res) = coh.handle_output(mock_event, GoalMetadata(), 0, 1)
+        goal = GoalMetadata(metadata={
+            'target': {'id': 'target_id_1'},
+            'targets': [{'id': 'target_id_2'}, {'id': 'target_id_3'}]
+        }, triggered_by_target_sequence=['chest_1', 'chest_3'])
+        (actual, res) = coh.handle_output(mock_event, goal, 0, 1)
 
         self.assertEqual(actual.action_list, GoalMetadata.DEFAULT_ACTIONS)
         self.assertEqual(actual.camera_aspect_ratio, (600, 400))
         self.assertEqual(actual.camera_clipping_planes, (0, 150))
         self.assertEqual(actual.camera_field_of_view, 42.5)
         self.assertEqual(actual.camera_height, 0.1234)
+        self.assertEqual(actual.goal.metadata, goal.metadata)
+        self.assertEqual(actual.goal.triggered_by_target_sequence,
+                         goal.triggered_by_target_sequence)
         self.assertEqual(actual.habituation_trial, None)
         self.assertEqual(actual.head_tilt, 12.34)
         self.assertEqual(actual.position, {'x': 0.12, 'y': -0.23, 'z': 4.5})
@@ -789,6 +841,10 @@ class TestControllerOutputHandler(unittest.TestCase):
         self.assertEqual(
             actual.return_status,
             mcs.ReturnStatus.SUCCESSFUL.value)
+        self.assertEqual(actual.segmentation_colors, [
+            {'objectId': 'thing1', 'r': 0, 'g': 1, 'b': 2},
+            {'objectId': 'thing2', 'r': 3, 'g': 4, 'b': 5}
+        ])
         self.assertEqual(actual.step_number, 0)
         self.assertEqual(actual.holes, [(0, 0), (1, 2), (9, 8)])
         self.assertEqual(actual.lava, [
@@ -830,13 +886,20 @@ class TestControllerOutputHandler(unittest.TestCase):
         ], lava=[
             Vector2dInt(x=3, z=3), Vector2dInt(x=7, z=5), Vector2dInt(x=4, z=6)
         ]))
-        (res, actual) = coh.handle_output(mock_event, GoalMetadata(), 0, 1)
+        goal = GoalMetadata(metadata={
+            'target': {'id': 'target_id_1'},
+            'targets': [{'id': 'target_id_2'}, {'id': 'target_id_3'}]
+        }, triggered_by_target_sequence=['chest_1', 'chest_3'])
+        (res, actual) = coh.handle_output(mock_event, goal, 0, 1)
 
         self.assertEqual(actual.action_list, GoalMetadata.DEFAULT_ACTIONS)
         self.assertEqual(actual.camera_aspect_ratio, (600, 400))
         self.assertEqual(actual.camera_clipping_planes, (0, 150))
         self.assertEqual(actual.camera_field_of_view, 42.5)
         self.assertEqual(actual.camera_height, 0.1234)
+        self.assertEqual(actual.goal.metadata, goal.metadata)
+        self.assertEqual(actual.goal.triggered_by_target_sequence,
+                         goal.triggered_by_target_sequence)
         self.assertEqual(actual.habituation_trial, None)
         self.assertEqual(actual.head_tilt, 12.34)
         self.assertEqual(actual.position, {'x': 0.12, 'y': -0.23, 'z': 4.5})
@@ -846,6 +909,10 @@ class TestControllerOutputHandler(unittest.TestCase):
         self.assertEqual(
             actual.return_status,
             mcs.ReturnStatus.SUCCESSFUL.value)
+        self.assertEqual(actual.segmentation_colors, [
+            {'objectId': 'thing1', 'r': 0, 'g': 1, 'b': 2},
+            {'objectId': 'thing2', 'r': 3, 'g': 4, 'b': 5}
+        ])
         self.assertEqual(actual.step_number, 0)
         self.assertEqual(actual.holes, [(0, 0), (1, 2), (9, 8)])
         self.assertEqual(actual.lava, [

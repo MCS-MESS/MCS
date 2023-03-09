@@ -104,6 +104,8 @@ class StepMetadata:
         The radius of the performer, in meters.
     performer_reach: float
         The max reach of the performer, in meters.
+    physics_frames_per_second : float
+        The frames per second of the physics engine
     position : dict
         The "x", "y", and "z" coordinates for your global position.
         Will be set to 'None' if using a metadata level below the
@@ -117,16 +119,30 @@ class StepMetadata:
         :mod:`Action <machine_common_sense.Action>`.
     reward : integer
         Reward is 1 on successful completion of a task, 0 otherwise.
+    room_dimensions : dict
+        The "x", "y", and "z" dimensions of the current scene.
+        Will be set to 'None' if using a metadata level below the
+        'oracle' level.
     rotation : float
         Your current rotation angle in degrees. Will be set to 'None'
         if using a metadata level below the 'oracle' level.
+    segmentation_colors : list of dicts
+        The colors for all objects in the instance segmentation images
+        (in `object_mask_list`), each represented as a dict containing an
+        "objectId" string property and "r", "g", and "b" int properties for the
+        corresponding red, green, and blue values. The ceiling has an objectId
+        of "ceiling"; exterior room walls have objectIds of "wall_back",
+        "wall_front", "wall_left", and "wall_right"; floor sections have
+        objectIds starting with "floor " and then the texture name (since
+        different areas of the floor can have different textures); holes have
+        objectIds of "hole"; hole walls have objectIds of "hole wall"; and
+        lava areas have objectIds of "lava".
+        Will be empty if using a metadata level below the 'oracle' level.
     step_number : integer
         The step number of your last action, recorded since you started the
         current scene.
     steps_in_lava : integer
         The number of steps the agent has touched lava
-    physics_frames_per_second : float
-        The frames per second of the physics engine
     structural_object_list : list of ObjectMetadata objects
         The list of metadata for all the visible structural objects (like
         walls, occluders, and ramps) in the scene. This list will be empty
@@ -136,6 +152,8 @@ class StepMetadata:
         (occluder_wall_<uuid> and occluder_pole_<uuid>), and ramps are
         composed of between one and three objects (depending on the type
         of ramp), with corresponding object IDs.
+    triggered_by_sequence_incorrect : bool
+        If the the sequence to trigger a placer holding the target is incorrect
     """
 
     def __init__(
@@ -163,10 +181,13 @@ class StepMetadata:
         resolved_receptacle='',
         return_status=ReturnStatus.UNDEFINED.value,
         reward=0,
+        room_dimensions=None,
         rotation=0.0,
+        segmentation_colors=None,
         step_number=0,
         steps_on_lava=0,
-        structural_object_list=None
+        structural_object_list=None,
+        triggered_by_sequence_incorrect=False
     ):
         self.action_list = [] if action_list is None else action_list
         self.camera_aspect_ratio = (
@@ -202,11 +223,18 @@ class StepMetadata:
         self.resolved_receptacle = resolved_receptacle
         self.return_status = return_status
         self.reward = reward
+        self.room_dimensions = (
+            {} if room_dimensions is None else room_dimensions
+        )
         self.rotation = rotation
+        self.segmentation_colors = (
+            [] if segmentation_colors is None else segmentation_colors
+        )
         self.step_number = step_number
         self.steps_on_lava = steps_on_lava
         self.structural_object_list = [
         ] if structural_object_list is None else structural_object_list
+        self.triggered_by_sequence_incorrect = triggered_by_sequence_incorrect
 
     def __str__(self):
         return Stringifier.class_to_str(self)
@@ -239,7 +267,9 @@ class StepMetadata:
         yield 'habituation_trial', self.habituation_trial
         yield 'haptic_feedback', self.haptic_feedback
         yield 'head_tilt', self.head_tilt
+        yield 'holes', self.head_tilt
         # Intentionally no image_list
+        yield 'lava', self.head_tilt
         yield 'object_list', self.check_list_none(self.object_list)
         # Intentionally no object_mask_list
         yield 'performer_radius', self.performer_radius
@@ -249,9 +279,13 @@ class StepMetadata:
         yield 'resolved_object', self.resolved_object
         yield 'resolved_receptacle', self.resolved_receptacle
         yield 'return_status', self.return_status
+        yield 'room_dimensions', self.room_dimensions
         yield 'reward', self.reward
         yield 'rotation', self.rotation
-        yield 'step_number', self.step_number,
-        yield 'steps_on_lava', self.steps_on_lava,
+        yield 'segmentation_colors', self.segmentation_colors
+        yield 'step_number', self.step_number
+        yield 'steps_on_lava', self.steps_on_lava
         yield 'structural_object_list', self.check_list_none(
             self.structural_object_list)
+        yield 'triggered_by_sequence_incorrect', \
+            self.triggered_by_sequence_incorrect

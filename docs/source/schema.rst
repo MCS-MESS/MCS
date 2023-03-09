@@ -90,13 +90,15 @@ Each **scene config** has the following properties:
 - `name` (string, required): A unique name for the scene used for our logs. Default: the filename
 - `objects` (:ref:`object config <Object Config>` array, optional): The objects for the scene. Default: `[]`
 - `performerStart` (:ref:`transform config <Transform Config>`, optional): The starting position and rotation of the performer (the "player"). Only the `position.x`, `position.z`, `rotation.x` (head tilt), and `rotation.y` properties are used. Default: `{ "position": { "x": 0, "z": 0 }, "rotation": { "y": 0 } }`
-- `restrictOpenDoors` (bool, optional): If there are multiple doors in a scene, only allow for one door to ever be opened.
+- `restrictOpenDoors` (bool, optional): If there are multiple doors in a scene, only allow one door to ever be opened. Default: `false`
+- `restrictOpenObjects` (bool, optional): If there are multiple openable objects in a scene, including containers and doors, only allow one of them to ever be opened. Default: `false`
 - `roomDimensions` (Vector3, optional): Specify the size of the room, not including the thickness of walls, floor, and ceiling.  If omitted or set to 0, 0, 0, the default will be used.  Note: There is a maximum visibility which for objects and structures beyond will not be rendered.  Use caution when creating rooms where the maximum distance exceeds this maximum visibility.  The maximum visibility is 15 meters. Default: 10, 3, 10.
 - `roomMaterials` (:ref:`room material config <Room Material Config>`, optional): The materials for each individual wall.  For any individual wall not provided, or all outer walls if object is not provided, they will use 'wallMaterial' property.
 - `partitionFloor` (:ref:`floor partition config <Floor Partition Config>`, optional): Settings to partition the floor in specific ways. Overrides the `floorTextures`, `holes`, and `lava` configurations. Default: none
 - `version` (int, optional): The version of this scene configuration. Default: the latest version
 - `wallProperties` (:ref:`physics config <Physics Config>`, optional): Enable custom friction, bounciness, and/or drag on the walls. Default: see :ref:`physics config <Physics Config>`.
 - `wallMaterial` (string, optional): The material (color/texture) for the room's four outer walls. See the :ref:`material list <Material List>` for options. Default (v0.0.3+): `"AI2-THOR/Materials/Walls/DrywallBeige"`
+- `toggleLights` (:ref:`step begin and end config config <Step Begin And End Config>` array, optional): The steps at which the lights in the scene should be turned off and back on. Default: `[]`
 
 Object Config
 *************
@@ -115,6 +117,7 @@ Each **object config** has the following properties:
 - `forces` (:ref:`force config <Force Config>` array, optional): The steps on which to apply `force <https://docs.unity3d.com/ScriptReference/Rigidbody.AddForce.html>`_ to the object. The config `vector` describes the amount of force (in Newtons) to apply in each direction using the global coordinate system. Resets all existing forces on the object to 0 before applying the new force. Default: `[]`
 - `ghosts` (:ref:`step begin and end config config <Step Begin And End Config>` array, optional): TBD
 - `hides` (:ref:`single step config <Single Step Config>` array, optional): The steps on which to hide the object, completely removing its existence from the scene until it is shown again (see the `shows` property). Useful if you want to have impossible events (spontaneous disappearance). Default: `[]`
+- `lidAttachment` :ref:`lid config <Lid Config>`, optional): If set this object will attach to the `lidAttachmentObjId` at the `stepBegin`. Default: none
 - `kinematic` (boolean, optional): If true, the object will ignore all forces including gravity. See Unity's `isKinematic property <https://docs.unity3d.com/ScriptReference/Rigidbody-isKinematic.html>`_. Usually paired with `structure`. Default: `false`
 - `locationParent` (string, optional): The `id` of another object in the scene. If given, this object's `shows.position` and `shows.rotation` will both start from the position and rotation of the `locationParent` object rather than from `0`. Default: none
 - `mass` (float, optional): The mass of the object, which affects the physics simulation. Default: `1`
@@ -255,6 +258,14 @@ Each **grid config** has the following properties:
 - `x` (integer)
 - `z` (integer)
 
+Lid Config
+*************
+
+Each **lid config** has the following properties:
+
+- `stepBegin` (integer, required): The step the lid will attach to the object specified by the `lidAttachmentObjId`.  Must be non-negative.  A value of `0` means the action will occur during scene initialization.
+- `lidAttachmentObjId` (string, required): The id of the object that the lid will attach to.
+
 Lip Gaps Config
 **************
 
@@ -295,6 +306,7 @@ Each **move config** has the following properties:
 - `vector` (:ref:`vector config <Vector Config>`, required): The coordinates to describe the movement. Default: `{ "x": 0, "y": 0, "z": 0 }`
 - `repeat` (bool, optional): Whether to indefinitely repeat this action. Will wait `stepWait` number of steps after `stepEnd`, then will execute this action for `stepEnd - stepBegin + 1` number of steps, then repeat. Default: `false`
 - `stepWait` (integer, optional): If `repeat` is `true`, the number of steps to wait after the `stepEnd` before repeating this action. Default: `0`
+- `globalSpace` (bool, optional): If `true` the object will move using a global orientaion space and ignore the object's rotation. If false the object will move in local space oriented on the object's rotation. Default: `false`
 
 Platform Lips Config
 **************
@@ -437,6 +449,7 @@ All of the following object types have the `pickupable` attribute by default.
       - Openable
       - Materials
       - Base Size
+      - Facing
       - Details
     * - `"apple_1"`
       - apple
@@ -445,6 +458,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - none
       - x=0.111,y=0.12,z=0.122
+      -
       - 
     * - `"apple_2"`
       - apple
@@ -453,6 +467,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - none
       - x=0.117,y=0.121,z=0.116
+      -
       - 
     * - `"ball"`
       - ball
@@ -461,7 +476,26 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`rubber <Rubber Materials>`, :ref:`wood <Wood Materials>`
       - x=1,y=1,z=1
+      -
       - 
+    * - `"barrel_1"`
+      - barrel
+      - 5
+      - X
+      - X
+      - :ref:`wood <Wood Materials>`
+      - x=0.86,y=0.8,z=0.86
+      - Forward
+      - Cylindrical wooden barrel
+    * - `"barrel_2"`
+      - barrel
+      - 5
+      - X
+      - X
+      - :ref:`wood <Wood Materials>`
+      - x=0.73,y=0.93,z=0.95
+      - Forward
+      - Cylindrical wooden barrel
     * - `"block_blank_blue_cube"`
       - blank block cube
       - 0.66
@@ -469,6 +503,7 @@ All of the following object types have the `pickupable` attribute by default.
       -
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
+      -
       -
     * - `"block_blank_blue_cylinder"`
       - blank block cylinder
@@ -478,6 +513,7 @@ All of the following object types have the `pickupable` attribute by default.
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
       -
+      -
     * - `"block_blank_red_cube"`
       - blank block cube
       - 0.66
@@ -485,6 +521,7 @@ All of the following object types have the `pickupable` attribute by default.
       -
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
+      -
       -
     * - `"block_blank_red_cylinder"` 
       - blank block cylinder 
@@ -494,6 +531,7 @@ All of the following object types have the `pickupable` attribute by default.
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
       -
+      -
     * - `"block_blank_wood_cube"`
       - blank block cube 
       - 0.66
@@ -501,6 +539,7 @@ All of the following object types have the `pickupable` attribute by default.
       -
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
+      -
       -
     * - `"block_blank_wood_cylinder"` 
       - blank block cylinder 
@@ -510,6 +549,7 @@ All of the following object types have the `pickupable` attribute by default.
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
       -
+      -
     * - `"block_blank_yellow_cube"` 
       - blank block cube
       - 0.66
@@ -517,6 +557,7 @@ All of the following object types have the `pickupable` attribute by default.
       -
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
+      -
       -
     * - `"block_blank_yellow_cylinder"`
       - blank block cylinder 
@@ -526,6 +567,7 @@ All of the following object types have the `pickupable` attribute by default.
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
       -
+      -
     * - `"block_blue_letter_a"`
       - letter block cube
       - 0.66
@@ -533,6 +575,7 @@ All of the following object types have the `pickupable` attribute by default.
       -
       - :ref:`block_letter_number <Block Materials (Letter/Number)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
+      -
       -
     * - `"block_blue_letter_b"` 
       - letter block cube 
@@ -542,6 +585,7 @@ All of the following object types have the `pickupable` attribute by default.
       - :ref:`block_letter_number <Block Materials (Letter/Number)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
       -
+      -
     * - `"block_blue_letter_c"`
       - letter block cube 
       - 0.66
@@ -549,6 +593,7 @@ All of the following object types have the `pickupable` attribute by default.
       -
       - :ref:`block_letter_number <Block Materials (Letter/Number)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
+      -
       -
     * - `"block_blue_letter_d"`
       - letter block cube 
@@ -558,6 +603,7 @@ All of the following object types have the `pickupable` attribute by default.
       - :ref:`block_letter_number <Block Materials (Letter/Number)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
       -
+      -
     * - `"block_blue_letter_m"`
       - letter block cube 
       - 0.66
@@ -565,6 +611,7 @@ All of the following object types have the `pickupable` attribute by default.
       -
       - :ref:`block_letter_number <Block Materials (Letter/Number)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
+      -
       -
     * - `"block_blue_letter_s"`
       - letter block cube 
@@ -574,6 +621,7 @@ All of the following object types have the `pickupable` attribute by default.
       - :ref:`block_letter_number <Block Materials (Letter/Number)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
       -
+      -
     * - `"block_yellow_number_1"`
       - number block cube 
       - 0.66
@@ -581,6 +629,7 @@ All of the following object types have the `pickupable` attribute by default.
       -
       - :ref:`block_letter_number <Block Materials (Letter/Number)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
+      -
       -
     * - `"block_yellow_number_2"`
       - number block cube 
@@ -590,6 +639,7 @@ All of the following object types have the `pickupable` attribute by default.
       - :ref:`block_letter_number <Block Materials (Letter/Number)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
       -
+      -
     * - `"block_yellow_number_3"`
       - number block cube 
       - 0.66
@@ -597,6 +647,7 @@ All of the following object types have the `pickupable` attribute by default.
       -
       - :ref:`block_letter_number <Block Materials (Letter/Number)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
+      -
       -
     * - `"block_yellow_number_4"`
       - number block cube 
@@ -606,6 +657,7 @@ All of the following object types have the `pickupable` attribute by default.
       - :ref:`block_letter_number <Block Materials (Letter/Number)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
       -
+      -
     * - `"block_yellow_number_5"`
       - number block cube 
       - 0.66
@@ -613,6 +665,7 @@ All of the following object types have the `pickupable` attribute by default.
       -
       - :ref:`block_letter_number <Block Materials (Letter/Number)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
+      -
       -
     * - `"block_yellow_number_6"`
       - number block cube 
@@ -622,6 +675,7 @@ All of the following object types have the `pickupable` attribute by default.
       - :ref:`block_letter_number <Block Materials (Letter/Number)>`, :ref:`wood <Wood Materials>`
       - x=0.1,y=0.1,z=0.1
       -
+      -
     * - `"bowl_3"`
       - bowl
       - 0.25
@@ -629,6 +683,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
       - x=0.175,y=0.116,z=0.171
+      -
       - 
     * - `"bowl_4"`
       - bowl
@@ -637,6 +692,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
       - x=0.209,y=0.059,z=0.206
+      -
       - 
     * - `"bowl_6"`
       - bowl
@@ -645,7 +701,26 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
       - x=0.198,y=0.109,z=0.201
+      -
       - 
+    * - `"bobcat"`
+      - bobcat
+      - 0.5
+      - 
+      - 
+      - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.13,y=0.061,z=0.038
+      - Right
+      - Toy bobcat construction vehicle
+    * - `"bus_1"`
+      - bus
+      - 0.5
+      - 
+      - 
+      - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.28,y=0.28,z=0.52
+      - Forward
+      - Toy Bus
     * - `"car_1"`
       - car
       - 0.5
@@ -653,23 +728,98 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
       - x=0.075,y=0.065,z=0.14
+      - Forward
       - Toy sedan
+    * - `"car_2"`
+      - car
+      - 0.5
+      - 
+      - 
+      - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.25,y=0.2,z=0.41
+      - Forward
+      - Toy car
+    * - `"car_3"`
+      - car
+      - 0.5
+      - 
+      - 
+      - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.134,y=0.052,z=0.036
+      - Right
+      - Toy car
+    * - `"cart_2"`
+      - cart
+      - 0.5
+      - 
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`
+      - x=0.42,y=0.7,z=0.51
+      - Forward
+      - 
     * - `"case_1"`
       - case
       - 5
       - X
       - X
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`
-      - x=0.71,y=0.19,z=0.42
+      - x=0.71,y=0.19,z=0.54
+      - Forward
       - Suitcase. Same as suitcase_1
+    * - `"case_2"`
+      - case
+      - 5
+      - X
+      - X
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`
+      - x=0.78,y=0.16,z=0.58
+      - Forward
+      - Suitcase
     * - `"case_3"`
       - case
       - 5
       - X
       - X
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`
-      - x=0.81,y=0.21,z=0.56
+      - x=0.81,y=0.21,z=0.78
+      - Forward
       - Suitcase
+    * - `"case_4"`
+      - case
+      - 5
+      - X
+      - X
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`
+      - x=1.68,y=1.12,z=1.98
+      - Forward
+      - Suitcase
+    * - `"case_5"`
+      - case
+      - 5
+      - X
+      - X
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`
+      - x=1.18,y=0.94,z=1.94
+      - Forward
+      - Suitcase
+    * - `"crate_1"`
+      - crate
+      - 5
+      - X
+      - X
+      - :ref:`wood <Wood Materials>`
+      - x=0.8,y=0.8,z=0.98
+      - Forward
+      - Cuboid wooden crate
+    * - `"crate_2"`
+      - crate
+      - 5
+      - X
+      - X
+      - :ref:`wood <Wood Materials>`
+      - x=0.72,y=0.64,z=0.72
+      - Forward
+      - Cuboid wooden crate
     * - `"crayon_black"`
       - crayon
       - 0.125
@@ -677,6 +827,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - none
       - x=0.01,y=0.085,z=0.01
+      - Forward
       - 
     * - `"crayon_blue"`
       - crayon
@@ -685,6 +836,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - none
       - x=0.01,y=0.085,z=0.01
+      -
       - 
     * - `"crayon_green"`
       - crayon
@@ -693,6 +845,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - none
       - x=0.01,y=0.085,z=0.01
+      -
       - 
     * - `"crayon_pink"`
       - crayon
@@ -701,6 +854,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - none
       - x=0.01,y=0.085,z=0.01
+      -
       - 
     * - `"crayon_red"`
       - crayon
@@ -709,6 +863,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - none
       - x=0.01,y=0.085,z=0.01
+      -
       - 
     * - `"crayon_yellow"`
       - crayon
@@ -717,6 +872,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - none
       - x=0.01,y=0.085,z=0.01
+      -
       - 
     * - `"cup_2"`
       - cup
@@ -725,6 +881,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
       - x=0.105,y=0.135,z=0.104
+      -
       - 
     * - `"cup_3"`
       - cup
@@ -733,6 +890,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
       - x=0.123,y=0.149,z=0.126
+      -
       - 
     * - `"cup_6"`
       - cup
@@ -741,6 +899,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
       - x=0.106,y=0.098,z=0.106
+      -
       - 
     * - `"dog_on_wheels"`
       - dog
@@ -749,7 +908,17 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
       - x=0.355,y=0.134,z=0.071
+      - Forward
+      - Toy dog on wheels
+    * - `"dog_on_wheels_2"`
+      - dog
+      - 0.5
       - 
+      - 
+      - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.5,y=1.12,z=1.44
+      - Forward
+      - Toy dog on wheels
     * - `"duck_on_wheels"`
       - duck
       - 0.5
@@ -757,6 +926,43 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
       - x=0.21,y=0.17,z=0.065
+      - Right
+      - Toy duck on wheels
+    * - `"duck_on_wheels_2"`
+      - duck
+      - 0.5
+      - 
+      - 
+      - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.224,y=0.176,z=0.06
+      - Right
+      - Toy duck on wheels
+    * - `"jeep"`
+      - jeep
+      - 0.5
+      - 
+      - 
+      - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.06,y=0.057,z=0.098
+      - Forward
+      - Toy car
+    * - `"military_case_1"`
+      - case
+      - 5
+      - X
+      - X
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`
+      - x=0.66,y=0.82,z=0.62
+      - Forward
+      - 
+    * - `"military_case_2"`
+      - case
+      - 5
+      - X
+      - X
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`
+      - x=0.8,y=0.44,z=0.7
+      - Forward
       - 
     * - `"pacifier"`
       - pacifier
@@ -765,6 +971,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - none
       - x=0.07,y=0.04,z=0.05
+      -
       - 
     * - `"plate_1"`
       - plate
@@ -773,6 +980,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
       - x=0.208,y=0.117,z=0.222
+      -
       - 
     * - `"plate_3"`
       - plate
@@ -781,6 +989,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
       - x=0.304,y=0.208,z=0.305
+      -
       - 
     * - `"plate_4"`
       - plate
@@ -789,6 +998,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
       - x=0.202,y=0.113,z=0.206
+      -
       - 
     * - `"racecar_red"`
       - car
@@ -797,7 +1007,26 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
       - x=0.07,y=0.06,z=0.15
+      - Forward
       - Toy racecar
+    * - `"roller"`
+      - roller
+      - 0.5
+      - 
+      - 
+      - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.102,y=0.062,z=0.047
+      - Right
+      - Toy roller construction vehicle
+    * - `"skateboard"`
+      - skateboard
+      - 1
+      - 
+      - 
+      - none
+      - x=0.24,y=0.17,z=0.76
+      - Forward
+      - 
     * - `"soccer_ball"`
       - ball
       - 0.5
@@ -805,6 +1034,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - none
       - x=0.22,y=0.22,z=0.22
+      -
       - (*)
     * - `"suitcase_1"`
       - case 
@@ -813,7 +1043,62 @@ All of the following object types have the `pickupable` attribute by default.
       - X
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`
       - x=0.71,y=0.19,z=0.42
+      - Forward
       - Same as case_1
+    * - `"tank_1"`
+      - tank
+      - 0.5
+      - 
+      - 
+      - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.09,y=0.065,z=0.24
+      - Forward
+      - Toy tank
+    * - `"tank_2"`
+      - tank
+      - 0.5
+      - 
+      - 
+      - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.065,y=0.067,z=0.17
+      - Forward
+      - Toy tank
+    * - `"toolbox_1"`
+      - toolbox
+      - 5
+      - X
+      - X
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`
+      - x=0.51,y=0.29,z=0.48
+      - Forward
+      - Toolbox
+    * - `"toolbox_2"`
+      - toolbox
+      - 5
+      - X
+      - X
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`
+      - x=0.58,y=0.33,z=0.44
+      - Forward
+      - Toolbox
+    * - `"toolbox_3"`
+      - toolbox
+      - 5
+      - X
+      - X
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`
+      - x=0.15,y=0.1,z=0.136
+      - Forward
+      - Toolbox
+    * - `"toolbox_4"`
+      - toolbox
+      - 5
+      - X
+      - X
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`
+      - x=0.13,y=0.036,z=0.116
+      - Forward
+      - Toolbox
     * - `"train_1"`
       - train
       - 0.5
@@ -821,7 +1106,17 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
       - x=0.16,y=0.2,z=0.23
+      - Forward
+      - Toy train
+    * - `"train_2"`
+      - train
+      - 0.5
       - 
+      - 
+      - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.09,y=0.064,z=0.036
+      - Right
+      - Toy train
     * - `"trolley_1"`
       - trolley
       - 0.5
@@ -829,7 +1124,8 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
       - x=0.16,y=0.2,z=0.23
-      - 
+      - Forward
+      - Toy trolley
     * - `"trophy"`
       - trophy
       - 0.5
@@ -837,6 +1133,7 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - none
       - x=0.19,y=0.3,z=0.14
+      -
       - 
     * - `"truck_1"`
       - truck
@@ -845,7 +1142,35 @@ All of the following object types have the `pickupable` attribute by default.
       - 
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
       - x=0.2,y=0.18,z=0.25
+      - Forward
+      - Toy truck
+    * - `"truck_2"`
+      - truck
+      - 0.5
       - 
+      - 
+      - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.14,y=0.2,z=0.28
+      - Forward
+      - Toy truck
+    * - `"truck_3"`
+      - truck
+      - 0.5
+      - 
+      - 
+      - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.33,y=0.345,z=0.61
+      - Forward
+      - Toy truck
+    * - `"truck_4"`
+      - truck
+      - 0.5
+      - 
+      - 
+      - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.25,y=0.26,z=0.4
+      - Forward
+      - Toy truck
     * - `"turtle_on_wheels"`
       - turtle
       - 
@@ -853,7 +1178,8 @@ All of the following object types have the `pickupable` attribute by default.
       - 0.5
       - :ref:`block_blank <Block Materials (Blank)>`, :ref:`flat <Flat Materials>`, :ref:`wood <Wood Materials>`
       - x=0.24,y=0.14,z=0.085
-      - 
+      - Right
+      - Toy turtle on wheels
 
 Furniture Objects
 -----------------
@@ -870,6 +1196,132 @@ Furniture Objects
       - Materials
       - Base Size
       - Details
+    * - `"antique_armchair_1"`
+      - sofa chair
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`leather armchair <Leather Armchair Materials>`
+      - x=0.35,y=0.45,z=0.33
+      - 
+    * - `"antique_chair_1"`
+      - chair
+      - 10
+      - X
+      - X
+      - 
+      - :ref:`wood <Wood Materials>`
+      - x=0.76,y=1.26,z=0.64
+      - 
+    * - `"antique_sofa_1"`
+      - sofa
+      - 20
+      - X
+      - X
+      - 
+      - :ref:`wood <Wood Materials>`
+      - x=2,y=1.4,z=0.68
+      - 
+    * - `"antique_table_1"`
+      - table
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`wood <Wood Materials>`
+      - x=0.77,y=0.48,z=0.77
+      - 
+    * - `"bed_1"`
+      - bed
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`wood <Wood Materials>`
+      - x=1.3,y=1.02,z=2.11
+      - 
+    * - `"bed_2"`
+      - bed
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`wood <Wood Materials>`
+      - x=1.54,y=1.1,z=2.43
+      - 
+    * - `"bed_3"`
+      - bed
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`wood <Wood Materials>`
+      - x=1.48,y=0.73,z=2.11
+      - 
+    * - `"bed_4"`
+      - bed
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`wood <Wood Materials>`
+      - x=1.95,y=1.75,z=2.28
+      - Bunk bed
+    * - `"bed_5"`
+      - bed
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`wood <Wood Materials>`
+      - x=1.26,y=1.04,z=2.37
+      - 
+    * - `"bed_6"`
+      - bed
+      - 50
+      - 
+      -
+      - 
+      - :ref:`wood <Wood Materials>`
+      - x=1.15,y=2.2,z=2.53
+      - Elevated bed
+    * - `"bed_7"`
+      - bed
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`wood <Wood Materials>`
+      - x=1.08,y=1.23,z=2.02
+      - 
+    * - `"bed_8"`
+      - bed
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`wood <Wood Materials>`
+      - x=0.88,y=0.7,z=1.7
+      - 
+    * - `"bed_9"`
+      - bed
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`wood <Wood Materials>`
+      - x=1,y=1,z=2
+      - 
+    * - `"bed_10"`
+      - bed
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`wood <Wood Materials>`
+      - x=1.25,y=0.94,z=2.17
+      - 
     * - `"bookcase_1_shelf"`
       - bookcase
       - 10
@@ -987,6 +1439,96 @@ Furniture Objects
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`
       - x=0.54,y=0.88,z=0.44
       - 
+    * - `"chair_5"`
+      - chair
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.49,y=0.86,z=0.58
+      - 
+    * - `"chair_6"`
+      - chair
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.51,y=0.98,z=0.54
+      - 
+    * - `"chair_7"`
+      - chair
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.42,y=0.8,z=0.63
+      - 
+    * - `"chair_8"`
+      - chair
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.55,y=0.78,z=0.54
+      - 
+    * - `"chair_9"`
+      - chair
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.49,y=0.95,z=0.52
+      - 
+    * - `"chair_10"`
+      - chair
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.48,y=0.91,z=0.54
+      - 
+    * - `"chair_11"`
+      - chair
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.72,y=1.38,z=0.78
+      - 
+    * - `"chair_12"`
+      - chair
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`plastic <Plastic Materials>`
+      - x=0.6,y=0.84,z=0.76
+      - 
+    * - `"chair_13"`
+      - stool
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.42,y=0.74,z=0.4
+      - 
+    * - `"chair_14"`
+      - stool
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.5,y=0.8,z=0.5
+      - 
     * - `"changing_table"`
       - changing table
       - 100
@@ -997,41 +1539,86 @@ Furniture Objects
       - x=1.1,y=0.96,z=0.58
       - 
     * - `"chest_1"`
-      - box
+      - chest
       - 15
       - 
       - X
       - X
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
       - x=0.83,y=0.42,z=0.55
-      - Rectangular box
+      - Chest with rectangular lid
     * - `"chest_2"`
-      - box
+      - chest
       - 15
       - 
       - X
       - X
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
       - x=0.52,y=0.42,z=0.31
-      - Domed chest
+      - Chest with domed lid
     * - `"chest_3"`
-      - box
+      - chest
       - 15
       - 
       - X
       - X
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
       - x=0.46,y=0.26,z=0.32
-      - Rectangular box
+      - Chest with rectangular lid
+    * - `"chest_4"`
+      - chest
+      - 15
+      - 
+      - X
+      - X
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.72,y=0.35,z=0.6
+      - Chest with rounded lid
+    * - `"chest_5"`
+      - chest
+      - 15
+      - 
+      - X
+      - X
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.46,y=0.28,z=0.52
+      - Chest with rounded lid
+    * - `"chest_6"`
+      - chest
+      - 15
+      - 
+      - X
+      - X
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.5,y=0.36,z=0.74
+      - Chest with trapezoidal lid
+    * - `"chest_7"`
+      - chest
+      - 15
+      - 
+      - X
+      - X
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.59,y=0.49,z=0.78
+      - Chest with fancy lid
     * - `"chest_8"`
-      - box
+      - chest
       - 15
       - 
       - X
       - X
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
       - x=0.42,y=0.32,z=0.36
-      - Domed chest
+      - Chest with domed lid
+    * - `"chest_9"`
+      - chest
+      - 15
+      - 
+      - X
+      - X
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.84,y=0.41,z=0.68
+      - Chest with trapezoidal lid
     * - `"crib"`
       - crib
       - 25
@@ -1041,6 +1628,42 @@ Furniture Objects
       - :ref:`wood <Wood Materials>`
       - x=0.65,y=0.9,z=1.25
       - 
+    * - `"desk_1"`
+      - desk
+      - 20
+      - 
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=1,y=1,z=1
+      - Square desk with 3 sides
+    * - `"desk_2"`
+      - desk
+      - 15
+      - 
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=1,y=1,z=1
+      - Square desk with 2 sides and 1 leg
+    * - `"desk_3"`
+      - desk
+      - 20
+      - 
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=1.5,y=1,z=1.5
+      - Circular desk with 3 sides
+    * - `"desk_4"`
+      - desk
+      - 30
+      - 
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=1,y=2,z=1
+      - Square desk with 3 sides on bottom and top
     * - `"shelf_1"`
       - shelf
       - 10
@@ -1086,6 +1709,60 @@ Furniture Objects
       - :ref:`sofa_3 <Sofa 3 Materials>`
       - x=2.4,y=1.25,z=0.95
       - 
+    * - `"sofa_4"`
+      - sofa
+      - 100
+      - 
+      - X
+      - 
+      - :ref:`sofa_thorkea <Sofa THORKEA Materials>`
+      - x=1.59,y=0.84,z=1.01
+      - 
+    * - `"sofa_5"`
+      - sofa
+      - 100
+      - 
+      - X
+      - 
+      - :ref:`sofa_thorkea <Sofa THORKEA Materials>`
+      - x=1.86,y=0.9,z=1
+      - 
+    * - `"sofa_6"`
+      - sofa
+      - 100
+      - 
+      - X
+      - 
+      - :ref:`sofa_thorkea <Sofa THORKEA Materials>`
+      - x=1.69,y=0.72,z=0.92
+      - 
+    * - `"sofa_7"`
+      - sofa
+      - 100
+      - 
+      - X
+      - 
+      - :ref:`sofa_thorkea <Sofa THORKEA Materials>`
+      - x=1.61,y=0.85,z=0.93
+      - 
+    * - `"sofa_8"`
+      - sofa
+      - 100
+      - 
+      - X
+      - 
+      - :ref:`sofa_8 <Sofa 8 Materials>`
+      - x=2.78,y=0.86,z=1.1
+      - 
+    * - `"sofa_9"`
+      - sofa
+      - 100
+      - 
+      - X
+      - 
+      - :ref:`sofa_9 <Sofa 9 Materials>`
+      - x=2.54,y=1.62,z=1.52
+      - 
     * - `"sofa_chair_1"`
       - sofa chair
       - 50
@@ -1112,6 +1789,60 @@ Furniture Objects
       - 
       - :ref:`sofa_3 <Sofa 3 Materials>`
       - x=1.425,y=1.25,z=0.95
+      - 
+    * - `"sofa_chair_4"`
+      - sofa chair
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`armchair_thorkea <Armchair THORKEA Materials>`
+      - x=1,y=0.86,z=0.87
+      - 
+    * - `"sofa_chair_5"`
+      - sofa chair
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`armchair_thorkea <Armchair THORKEA Materials>`
+      - x=0.96,y=0.92,z=1
+      - 
+    * - `"sofa_chair_6"`
+      - sofa chair
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`armchair_thorkea <Armchair THORKEA Materials>`
+      - x=0.67,y=0.64,z=0.67
+      - 
+    * - `"sofa_chair_7"`
+      - sofa chair
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`armchair_thorkea <Armchair THORKEA Materials>`
+      - x=0.69,y=0.68,z=0.63
+      - 
+    * - `"sofa_chair_8"`
+      - sofa chair
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`sofa_chair_8 <Sofa Chair 8 Materials>`
+      - x=2.18,y=1.24,z=1.6
+      - 
+    * - `"sofa_chair_9"`
+      - sofa chair
+      - 50
+      - 
+      - X
+      - 
+      - :ref:`sofa_9 <Sofa 9 Materials>`
+      - x=1.38,y=1.46,z=1.36
       - 
     * - `"table_1"`
       - table
@@ -1194,6 +1925,96 @@ Furniture Objects
       - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
       - x=1,y=0.5,z=1
       - Rectangular table with X legs
+    * - `"table_13"`
+      - table
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.58,y=0.62,z=0.59
+      - Short circular table
+    * - `"table_14"`
+      - table
+      - 10
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.53,y=0.59,z=0.53
+      - Short rectangular table
+    * - `"table_15"`
+      - table
+      - 15
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=1.33,y=0.9,z=0.79
+      - Rectangular table
+    * - `"table_16"`
+      - table
+      - 10
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=1.06,y=0.83,z=1.05
+      - Circular table
+    * - `"table_17"`
+      - table
+      - 10
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=1.16,y=0.82,z=0.75
+      - Rectangular table
+    * - `"table_18"`
+      - table
+      - 15
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=1.57,y=0.91,z=0.87
+      - Rectangular table
+    * - `"table_19"`
+      - table
+      - 10
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.92,y=0.54,z=0.49
+      - Rectangular table
+    * - `"table_20"`
+      - table
+      - 10
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.96,y=0.64,z=0.93
+      - Rectangular table
+    * - `"table_26"`
+      - table
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`metal <Metal Materials>`, :ref:`plastic <Plastic Materials>`, :ref:`wood <Wood Materials>`
+      - x=0.65,y=0.68,z=0.75
+      - Square table
+    * - `"table_27"`
+      - table
+      - 5
+      - X
+      - X
+      - 
+      - :ref:`plastic <Plastic Materials>`
+      - x=1.2,y=0.7,z=1.2
+      - Circular plastic table
     * - `"tv_2"`
       - television
       - 5
@@ -1296,8 +2117,14 @@ These agents are used in scenes for the interactive tasks.
     * - `"agent_female_02"`
       - 70
       - x=0.5,y=1.6,z=0.5
+    * - `"agent_female_03"`
+      - 70
+      - x=0.5,y=1.6,z=0.5
     * - `"agent_female_04"`
       - 70
+      - x=0.5,y=1.6,z=0.5
+    * - `"agent_male_01"`
+      - 80
       - x=0.5,y=1.6,z=0.5
     * - `"agent_male_02"`
       - 80
@@ -1312,7 +2139,7 @@ These agents are used in scenes for the interactive tasks.
 Primitive Objects
 *****************
 
-The following objects have a default mass of 1, base size of (x=1, y=1, z=1), and no material restrictions. You can configure them with properties like `physics`, `moveable`, `pickupable`, or `structure`. These are NOT the internal Unity primitive 3D GameObjects.
+The following objects have a default mass of 1, base size of (x=1, y=1, z=1), and no material restrictions. By default, each primitive object's center Y position is 0, which will position it halfway inside the ground. You can configure them with properties like `physics`, `moveable`, `pickupable`, or `structure`. These are NOT the internal Unity primitive 3D GameObjects.
 
 - `"circle_frustum"`
 - `"cone"`
@@ -1335,22 +2162,55 @@ The following objects have a default mass of 1 and no material restrictions. You
 
     * - Object Type
       - Base Size
+      - Default Center Y Position
+    * - `"double_cone"`
+      - (x=1,y=1,z=1)
+      - 0
     * - `"cube_hollow_narrow"`
       - (x=1,y=1,z=1)
+      - 0.5
     * - `"cube_hollow_wide"`
       - (x=1,y=1,z=1)
+      - 0.5
+    * - `"dumbbell_1"`
+      - (x=1,y=1,z=1)
+      - 0
+    * - `"dumbbell_2"`
+      - (x=1,y=1,z=1)
+      - 0
     * - `"hash"`
       - (x=1,y=1,z=1)
+      - 0.5
     * - `"letter_l_narrow"`
       - (x=0.5,y=1,z=0.5)
+      - 0
     * - `"letter_l_wide"`
       - (x=1,y=1,z=0.5)
+      - 0
     * - `"letter_l_wide_tall"`
       - (x=1,y=2,z=0.5)
+      - 0
     * - `"letter_x"`
       - (x=1,y=1,z=1)
+      - 0.5
     * - `"lock_wall"`
       - (x=1,y=1,z=1)
+      - 0
+    * - `"rollable_1"`
+      - (x=1,y=1,z=1)
+      - 0
+    * - `"rollable_2"`
+      - (x=1,y=1,z=1)
+      - 0
+    * - `"rollable_3"`
+      - (x=1,y=1,z=1)
+      - 0
+    * - `"rollable_4"`
+      - (x=1,y=1,z=1)
+      - 0
+    * - `"tie_fighter"`
+      - (x=1,y=1,z=1)
+      - 0
 
 Deprecated Objects
 ******************
@@ -1453,6 +2313,18 @@ In Unity, "Materials" are the colors and textures applied to objects in the 3D s
 For our training and evaluation datasets, we normally use the materials under "Walls", "Ceramics", "Fabrics", and "Woods" for the ceiling and the walls, and the materials under "Ceramics", "Fabrics", and "Woods" for the floors.
 
 The following materials are currently available:
+
+Armchair THORKEA Materials
+****************
+
+Specific textures for `sofa_chair_4`, `sofa_chair_5`, `sofa_chair_6`, AND `sofa_chair_7` only.
+
+- `"AI2-THOR/Objects/Physics/SimObjsPhysics/THORKEA Objects/THORKEA_Assets_Furniture/Armchair/Materials/THORKEA_Armchair_Ekemas_Fabric_Mat"`
+- `"AI2-THOR/Objects/Physics/SimObjsPhysics/THORKEA Objects/THORKEA_Assets_Furniture/Armchair/Materials/THORKEA_Armchair_Ektorp_Fabric_Mat"`
+- `"AI2-THOR/Objects/Physics/SimObjsPhysics/THORKEA Objects/THORKEA_Assets_Furniture/Armchair/Materials/THORKEA_Armchair_Emmabo_Fabric_Mat"`
+- `"AI2-THOR/Objects/Physics/SimObjsPhysics/THORKEA Objects/THORKEA_Assets_Furniture/Armchair/Materials/THORKEA_Armchair_Karlstad_Fabric_Mat"`
+- `"AI2-THOR/Objects/Physics/SimObjsPhysics/THORKEA Objects/THORKEA_Assets_Furniture/Armchair/Materials/THORKEA_Armchair_Overalt_Fabric_Mat"`
+- `"AI2-THOR/Objects/Physics/SimObjsPhysics/THORKEA Objects/THORKEA_Assets_Furniture/Armchair/Materials/THORKEA_Armchair_Tullsta_Fabric_Mat"`
 
 Block Materials (Blank)
 ***********************
@@ -1580,6 +2452,25 @@ Custom-made textures that are completely flat colors.
 - `"Custom/Materials/White"`
 - `"Custom/Materials/Yellow"`
 
+Leather Materials
+*****************
+
+- `"AI2-THOR/Materials/Fabrics/Leather"`
+- `"AI2-THOR/Materials/Fabrics/Leather2"`
+- `"AI2-THOR/Materials/Fabrics/Leather3"`
+- `"AI2-THOR/Materials/Fabrics/Leather 2"`
+
+Leather Armchair Materials
+**************************
+
+Specific textures for `antique_armchair_1` only.
+
+- `"UnityAssetStore/Leather_Chair/Assets/Materials/Leather_Chair_NEW_1"`
+- `"UnityAssetStore/Leather_Chair/Assets/Materials/Leather_Chair_NEW_2"`
+- `"UnityAssetStore/Leather_Chair/Assets/Materials/Leather_Chair_NEW_3"`
+- `"UnityAssetStore/Leather_Chair/Assets/Materials/Leather_Chair_NEW_4"`
+- `"UnityAssetStore/Leather_Chair/Assets/Materials/Leather_Chair_normal_OLD"`
+
 Metal Materials
 ***************
 
@@ -1620,7 +2511,9 @@ Specific textures for `sofa_1` only.
 
 - `"AI2-THOR/Materials/Fabrics/Sofa1_Blue"`
 - `"AI2-THOR/Materials/Fabrics/Sofa1_Brown"`
+- `"AI2-THOR/Materials/Fabrics/Sofa1_Gold"`
 - `"AI2-THOR/Materials/Fabrics/Sofa1_Red"`
+- `"AI2-THOR/Materials/Fabrics/Sofa1_Salmon"`
 - `"AI2-THOR/Materials/Fabrics/Sofa1_White"`
 
 Sofa Chair 1 Materials
@@ -1631,6 +2524,8 @@ Specific textures for `sofa_chair_1` only.
 - `"AI2-THOR/Materials/Fabrics/SofaChair1_Black"`
 - `"AI2-THOR/Materials/Fabrics/SofaChair1_Blue"`
 - `"AI2-THOR/Materials/Fabrics/SofaChair1_Brown"`
+- `"AI2-THOR/Materials/Fabrics/SofaChair1_Red"`
+- `"AI2-THOR/Materials/Fabrics/SofaChair1_Salmon"`
 - `"AI2-THOR/Materials/Fabrics/SofaChair1_White"`
 
 Sofa 2 Materials
@@ -1648,9 +2543,50 @@ Sofa 3 Materials
 Specific textures for `sofa_3` AND `sofa_chair_3` only.
 
 - `"AI2-THOR/Materials/Fabrics/Sofa3_Blue"`
+- `"AI2-THOR/Materials/Fabrics/Sofa3_Blue_Light"`
 - `"AI2-THOR/Materials/Fabrics/Sofa3_Brown"`
+- `"AI2-THOR/Materials/Fabrics/Sofa3_Brown_Pattern"`
 - `"AI2-THOR/Materials/Fabrics/Sofa3_Green_Dark"`
+- `"AI2-THOR/Materials/Fabrics/Sofa3_Green_Pattern"`
 - `"AI2-THOR/Materials/Fabrics/Sofa3_Red"`
+- `"AI2-THOR/Materials/Fabrics/Sofa3_White_Pattern"`
+
+Sofa 8 Materials
+****************
+
+Specific textures for `sofa_8` only.
+
+- `"Assets/Addressables/MCS/UnityAssetStore/Furniture/Source/Materials/3Seat_BaseColor"`
+- `"Assets/Addressables/MCS/UnityAssetStore/Furniture/Source/Materials/3SeatDirt_BaseColor"`
+- `"Assets/Addressables/MCS/UnityAssetStore/Furniture/Source/Materials/3Seat2_BaseColor"`
+- `"Assets/Addressables/MCS/UnityAssetStore/Furniture/Source/Materials/3Seat2D_BaseColor"`
+
+Sofa Chair 8 Materials
+****************
+
+Specific textures for `sofa_chair_8` only.
+
+- `"Assets/Addressables/MCS/UnityAssetStore/Furniture/Source/Materials/fotel2_BaseColor"`
+- `"Assets/Addressables/MCS/UnityAssetStore/Furniture/Source/Materials/fotel2D_BaseColor"`
+
+Sofa 9 Materials
+****************
+
+Specific textures for `sofa_9` AND `sofa_chair_9` only.
+
+- `"Assets/Addressables/MCS/UnityAssetStore/Furniture/Source/Materials/2Seat_BaseColor"`
+- `"Assets/Addressables/MCS/UnityAssetStore/Furniture/Source/Materials/2SeatD_BaseColor"`
+
+Sofa THORKEA Materials
+****************
+
+Specific textures for `sofa_4`, `sofa_5`, `sofa_6`, AND `sofa_7` only.
+
+- `"AI2-THOR/Objects/Physics/SimObjsPhysics/THORKEA Objects/THORKEA_Assets_Furniture/Sofa/Materials/THORKEA_Sofa_Alrid_Fabric_Mat"`
+- `"AI2-THOR/Objects/Physics/SimObjsPhysics/THORKEA Objects/THORKEA_Assets_Furniture/Sofa/Materials/THORKEA_Sofa_Ektorp_Fabric_Mat"`
+- `"AI2-THOR/Objects/Physics/SimObjsPhysics/THORKEA Objects/THORKEA_Assets_Furniture/Sofa/Materials/THORKEA_Sofa_Kramfors_Fabric_Mat"`
+- `"AI2-THOR/Objects/Physics/SimObjsPhysics/THORKEA Objects/THORKEA_Assets_Furniture/Sofa/Materials/THORKEA_Sofa_Solsta_Fabric_Mat"`
+- `"AI2-THOR/Objects/Physics/SimObjsPhysics/THORKEA Objects/THORKEA_Assets_Furniture/Sofa/Materials/THORKEA_Sofa_Vreta_Fabric_Mat"`
 
 Wall Materials
 **************
@@ -1762,13 +2698,13 @@ Chest Options
       - Short-sleeve casual button-down shirt
     * - 6
       - 4
-      - High-neck shirt
+      - High-neck no-button shirt
     * - 7
       - 5
-      - Long-sleeve shirt
+      - Long-sleeve no-button shirt
     * - 8
       - 6
-      - Short-sleeve shirt
+      - Short-sleeve no-button shirt
 
 Chest Material Options
 **********************
@@ -1891,8 +2827,8 @@ Legs Options
 .. list-table::
     :header-rows: 1
 
-    * - Chest Option (Female)
-      - Chest Option (Male)
+    * - Legs Option (Female)
+      - Legs Option (Male)
       - Description
     * - 0
       -
@@ -1931,40 +2867,46 @@ Skin Options
       - Description
     * - 0
       - 0
-      - Light tone
+      - Medium-light tone
     * - 1
       - 1
-      - Dark tone
+      - Darkest tone
     * - 2
       - 2
-      - Medium-light tone
+      - Medium-dark tone
     * - 3
       - 3
-      - Medium-dark tone
+      - Dark tone
+    * - 12
+      - 4
+      - Lightest tone
+    * - 13
+      - 5
+      - Light tone
     * - 4
       -
-      - Light tone, with makeup
+      - Medium-light tone, with makeup
     * - 5
       -
-      - Dark tone, with makeup
+      - Darkest tone, with makeup
     * - 6
       -
-      - Medium-light tone, with makeup
+      - Medium-dark tone, with makeup
     * - 7
       -
-      - Medium-dark tone, with makeup
+      - Dark tone, with makeup
     * - 8
       -
-      - Light tone, with makeup
+      - Medium-light tone, with makeup
     * - 9
       -
-      - Dark tone, with makeup
+      - Darkest tone, with makeup
     * - 10
       -
-      - Medium-light tone, with makeup
+      - Medium-dark tone, with makeup
     * - 11
       -
-      - Medium-dark tone, with makeup
+      - Dark tone, with makeup
 
 Tie Options
 ***********
@@ -2001,6 +2943,8 @@ Unrestricted Animations
 - disgust
 - happy
 - sad
+- Point_start
+- Point_hold
 
 Elder Animations
 ****************

@@ -74,32 +74,46 @@ class TestParameter(unittest.TestCase):
 
     def test_initialization_wrap_step(self):
         wrapped_step = self.parameter_converter.wrap_step(
-            action='Initialize', sceneConfig=self.sc)
+            output_folder="path",
+            action='Initialize',
+            goal_object_ids=[],
+            sceneConfig=self.sc)
         # sceneConfig does not get removed
         self.assertIsNotNone(wrapped_step.get('sceneConfig'))
 
     def test_initialization_build_ai2thor_step(self):
         wrapped_step, params = self.parameter_converter.build_ai2thor_step(
-            action='Initialize', sceneConfig=self.sc)
+            output_path="path",
+            action='Initialize',
+            goal_object_ids=[],
+            sceneConfig=self.sc)
         # sceneConfig gets removed
         self.assertIsNone(wrapped_step.get('sceneConfig'))
 
     def test_wrap_step_action(self):
         actual = self.parameter_converter.wrap_step(
+            output_folder="path",
             action="TestAction",
             numberProperty=1234,
+            goal_object_ids=[],
             stringProperty="test_property")
         expected = {
             "action": "TestAction",
             "continuous": True,
+            "disablePosition": True,
+            "goalObjectIds": [],
             "gridSize": 0.1,
             "logs": True,
             "numberProperty": 1234,
+            "onlyReturnObjectGoal": False,
             "renderDepthImage": False,
             "renderObjectImage": False,
             "snapToGrid": False,
             "stringProperty": "test_property",
-            "consistentColors": False
+            "consistentColors": False,
+            "recordTopDown": False,
+            "topDownImagePath": "path"
+
         }
         self.assertEqual(actual, expected)
 
@@ -107,68 +121,301 @@ class TestParameter(unittest.TestCase):
         config = ConfigManager(config_file_or_dict={'metadata': 'oracle'})
         parameter_converter = Parameter(config)
         actual = parameter_converter.wrap_step(
+            output_folder="path",
             action="TestAction",
             numberProperty=1234,
+            goal_object_ids=[],
             stringProperty="test_property")
         # Changed depth and object because oracle should result in both being
         # true.
         expected = {
             "action": "TestAction",
             "continuous": True,
+            "disablePosition": False,
+            "goalObjectIds": [],
             "gridSize": 0.1,
             "logs": True,
             "numberProperty": 1234,
+            "onlyReturnObjectGoal": False,
             "renderDepthImage": True,
             "renderObjectImage": True,
             "snapToGrid": False,
             "stringProperty": "test_property",
-            "consistentColors": True
+            "consistentColors": True,
+            "recordTopDown": False,
+            "topDownImagePath": "path"
         }
         self.assertEqual(actual, expected)
 
-    def test_wrap_step_metadata_level2(self):
-        config = ConfigManager(config_file_or_dict={'metadata': 'level2'})
+    def test_wrap_step_metadata_oracle_disable_parameters(self):
+        config = ConfigManager(
+            config_file_or_dict={
+                'metadata': 'oracle',
+                'only_return_goal_object': True,
+                'disable_position': True,
+                'disable_depth_maps': True,
+                'disable_object_masks': True})
         parameter_converter = Parameter(config)
         actual = parameter_converter.wrap_step(
+            output_folder="path",
             action="TestAction",
             numberProperty=1234,
+            goal_object_ids=[],
             stringProperty="test_property")
-        # Changed depth and object because oracle should result in both being
-        # true.
         expected = {
             "action": "TestAction",
+            "consistentColors": True,
             "continuous": True,
+            "disablePosition": True,
+            "goalObjectIds": [],
             "gridSize": 0.1,
             "logs": True,
             "numberProperty": 1234,
+            "onlyReturnObjectGoal": True,
+            "renderDepthImage": False,
+            "renderObjectImage": False,
+            "recordTopDown": False,
+            "snapToGrid": False,
+            "stringProperty": "test_property",
+            "topDownImagePath": "path"
+        }
+        self.assertEqual(actual, expected)
+
+    def test_wrap_step_metadata_oracle_enable_parameters(self):
+        config = ConfigManager(
+            config_file_or_dict={
+                'metadata': 'oracle',
+                'only_return_goal_object': False,
+                'disable_position': False,
+                'disable_depth_maps': False,
+                'disable_object_masks': False})
+        parameter_converter = Parameter(config)
+        actual = parameter_converter.wrap_step(
+            output_folder="path",
+            action="TestAction",
+            numberProperty=1234,
+            goal_object_ids=[],
+            stringProperty="test_property")
+        expected = {
+            "action": "TestAction",
+            "continuous": True,
+            "disablePosition": False,
+            "goalObjectIds": [],
+            "gridSize": 0.1,
+            "logs": True,
+            "numberProperty": 1234,
+            "onlyReturnObjectGoal": False,
             "renderDepthImage": True,
             "renderObjectImage": True,
             "snapToGrid": False,
             "stringProperty": "test_property",
-            "consistentColors": False
+            "consistentColors": True,
+            "recordTopDown": False,
+            "topDownImagePath": "path"
         }
         self.assertEqual(actual, expected)
 
-    def test_wrap_step_metadata_level1(self):
-        config = ConfigManager(config_file_or_dict={'metadata': 'level1'})
+    def test_wrap_step_metadata_level2_enable_parameters(self):
+        config = ConfigManager(
+            config_file_or_dict={
+                'metadata': 'level2',
+                'only_return_goal_object': False,
+                'disable_position': False,
+                'disable_depth_maps': False,
+                'disable_object_masks': False})
         parameter_converter = Parameter(config)
         actual = parameter_converter.wrap_step(
+            output_folder="path",
             action="TestAction",
             numberProperty=1234,
+            goal_object_ids=[],
             stringProperty="test_property")
-        # Changed depth and object because oracle should result in both being
-        # true.
         expected = {
             "action": "TestAction",
             "continuous": True,
+            "disablePosition": True,
+            "goalObjectIds": [],
             "gridSize": 0.1,
             "logs": True,
+            "numberProperty": 1234,
+            "onlyReturnObjectGoal": False,
+            "renderDepthImage": True,
+            "renderObjectImage": True,
+            "snapToGrid": False,
+            "stringProperty": "test_property",
+            "consistentColors": False,
+            "recordTopDown": False,
+            "topDownImagePath": "path"
+        }
+        self.assertEqual(actual, expected)
+
+    def test_wrap_step_metadata_level2_disable_parameters(self):
+        config = ConfigManager(
+            config_file_or_dict={
+                'metadata': 'level2',
+                'only_return_goal_object': True,
+                'disable_position': True,
+                'disable_depth_maps': True,
+                'disable_object_masks': True})
+        parameter_converter = Parameter(config)
+        actual = parameter_converter.wrap_step(
+            output_folder="path",
+            action="TestAction",
+            numberProperty=1234,
+            goal_object_ids=[],
+            stringProperty="test_property")
+        expected = {
+            "action": "TestAction",
+            "continuous": True,
+            "disablePosition": True,
+            "goalObjectIds": [],
+            "gridSize": 0.1,
+            "logs": True,
+            "numberProperty": 1234,
+            "onlyReturnObjectGoal": False,
+            "renderDepthImage": False,
+            "renderObjectImage": False,
+            "snapToGrid": False,
+            "stringProperty": "test_property",
+            "consistentColors": False,
+            "recordTopDown": False,
+            "topDownImagePath": "path"
+        }
+        self.assertEqual(actual, expected)
+
+    def test_wrap_step_metadata_level1_enable_parameters(self):
+        config = ConfigManager(
+            config_file_or_dict={
+                'metadata': 'level1',
+                'only_return_goal_object': False,
+                'disable_position': False,
+                'disable_depth_maps': False,
+                'disable_object_masks': False})
+        parameter_converter = Parameter(config)
+        actual = parameter_converter.wrap_step(
+            output_folder="path",
+            action="TestAction",
+            numberProperty=1234,
+            goal_object_ids=[],
+            stringProperty="test_property")
+        expected = {
+            "action": "TestAction",
+            "continuous": True,
+            "disablePosition": True,
+            "goalObjectIds": [],
+            "gridSize": 0.1,
+            "logs": True,
+            "onlyReturnObjectGoal": False,
             "numberProperty": 1234,
             "renderDepthImage": True,
             "renderObjectImage": False,
             "snapToGrid": False,
             "stringProperty": "test_property",
-            "consistentColors": False
+            "consistentColors": False,
+            "recordTopDown": False,
+            "topDownImagePath": "path"
+        }
+        self.assertEqual(actual, expected)
+
+    def test_wrap_step_metadata_level1_disable_parameters(self):
+        config = ConfigManager(
+            config_file_or_dict={
+                'metadata': 'level1',
+                'only_return_goal_object': True,
+                'disable_position': True,
+                'disable_depth_maps': True,
+                'disable_object_masks': True})
+        parameter_converter = Parameter(config)
+        actual = parameter_converter.wrap_step(
+            output_folder="path",
+            action="TestAction",
+            numberProperty=1234,
+            goal_object_ids=[],
+            stringProperty="test_property")
+        expected = {
+            "action": "TestAction",
+            "continuous": True,
+            "disablePosition": True,
+            "goalObjectIds": [],
+            "gridSize": 0.1,
+            "logs": True,
+            "numberProperty": 1234,
+            "onlyReturnObjectGoal": False,
+            "renderDepthImage": False,
+            "renderObjectImage": False,
+            "snapToGrid": False,
+            "stringProperty": "test_property",
+            "consistentColors": False,
+            "recordTopDown": False,
+            "topDownImagePath": "path"
+        }
+        self.assertEqual(actual, expected)
+
+    def test_wrap_step_metadata_none_enable_parameters(self):
+        config = ConfigManager(
+            config_file_or_dict={
+                'metadata': 'none',
+                'only_return_goal_object': False,
+                'disable_position': False,
+                'disable_depth_maps': False,
+                'disable_object_masks': False})
+        parameter_converter = Parameter(config)
+        actual = parameter_converter.wrap_step(
+            output_folder="path",
+            action="TestAction",
+            numberProperty=1234,
+            goal_object_ids=[],
+            stringProperty="test_property")
+        expected = {
+            "action": "TestAction",
+            "continuous": True,
+            "disablePosition": True,
+            "goalObjectIds": [],
+            "gridSize": 0.1,
+            "logs": True,
+            "numberProperty": 1234,
+            "onlyReturnObjectGoal": False,
+            "renderDepthImage": False,
+            "renderObjectImage": False,
+            "snapToGrid": False,
+            "stringProperty": "test_property",
+            "consistentColors": False,
+            "recordTopDown": False,
+            "topDownImagePath": "path"
+        }
+        self.assertEqual(actual, expected)
+
+    def test_wrap_step_metadata_none_disable_parameters(self):
+        config = ConfigManager(
+            config_file_or_dict={
+                'metadata': 'none',
+                'only_return_goal_object': True,
+                'disable_position': True,
+                'disable_depth_maps': True,
+                'disable_object_masks': True})
+        parameter_converter = Parameter(config)
+        actual = parameter_converter.wrap_step(
+            output_folder="path",
+            action="TestAction",
+            numberProperty=1234,
+            goal_object_ids=[],
+            stringProperty="test_property")
+        expected = {
+            "action": "TestAction",
+            "continuous": True,
+            "disablePosition": True,
+            "goalObjectIds": [],
+            "gridSize": 0.1,
+            "logs": True,
+            "numberProperty": 1234,
+            "onlyReturnObjectGoal": False,
+            "renderDepthImage": False,
+            "renderObjectImage": False,
+            "snapToGrid": False,
+            "stringProperty": "test_property",
+            "consistentColors": False,
+            "recordTopDown": False,
+            "topDownImagePath": "path"
         }
         self.assertEqual(actual, expected)
 

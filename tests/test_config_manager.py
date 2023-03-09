@@ -8,7 +8,7 @@ from machine_common_sense.config_manager import (ActionConfig,
                                                  AgentSettings,
                                                  ChangeMaterialConfig,
                                                  ConfigManager, ForceConfig,
-                                                 Goal, MetadataTier,
+                                                 Goal, LidConfig, MetadataTier,
                                                  MoveConfig, OpenCloseConfig,
                                                  PhysicsConfig,
                                                  SceneConfiguration,
@@ -17,6 +17,7 @@ from machine_common_sense.config_manager import (ActionConfig,
                                                  SizeConfig,
                                                  StepBeginEndConfig,
                                                  TeleportConfig,
+                                                 TerminalOutputMode,
                                                  TransformConfig, Vector3d)
 
 
@@ -213,6 +214,80 @@ class TestConfigManager(unittest.TestCase):
             self.config_mngr.get_team(),
             'team-name')
 
+    def test_terminal_output_mode(self):
+        all_modes = [
+            TerminalOutputMode.ACTIONS, TerminalOutputMode.MINIMAL,
+            TerminalOutputMode.OBJECTS, TerminalOutputMode.PERFORMER,
+            TerminalOutputMode.SCENE
+        ]
+        self.assertEqual(
+            self.config_mngr.get_terminal_output_mode(),
+            all_modes
+        )
+        default_section = self.config_mngr._config[
+            self.config_mngr.CONFIG_DEFAULT_SECTION
+        ]
+
+        default_section['terminal_output'] = 'true'
+        self.assertEqual(
+            self.config_mngr.get_terminal_output_mode(),
+            all_modes
+        )
+
+        default_section['terminal_output'] = 'all'
+        self.assertEqual(
+            self.config_mngr.get_terminal_output_mode(),
+            all_modes
+        )
+
+        default_section['terminal_output'] = 'false'
+        self.assertEqual(self.config_mngr.get_terminal_output_mode(), [])
+
+        default_section['terminal_output'] = 'none'
+        self.assertEqual(self.config_mngr.get_terminal_output_mode(), [])
+
+        default_section['terminal_output'] = 'MINIMAL'
+        self.assertEqual(
+            self.config_mngr.get_terminal_output_mode(),
+            [TerminalOutputMode.MINIMAL]
+        )
+
+        default_section['terminal_output'] = 'minimal'
+        self.assertEqual(
+            self.config_mngr.get_terminal_output_mode(),
+            [TerminalOutputMode.MINIMAL]
+        )
+
+        default_section['terminal_output'] = 'actions'
+        self.assertEqual(
+            self.config_mngr.get_terminal_output_mode(),
+            [TerminalOutputMode.ACTIONS]
+        )
+
+        default_section['terminal_output'] = 'objects'
+        self.assertEqual(
+            self.config_mngr.get_terminal_output_mode(),
+            [TerminalOutputMode.OBJECTS]
+        )
+
+        default_section['terminal_output'] = 'performer'
+        self.assertEqual(
+            self.config_mngr.get_terminal_output_mode(),
+            [TerminalOutputMode.PERFORMER]
+        )
+
+        default_section['terminal_output'] = 'scene'
+        self.assertEqual(
+            self.config_mngr.get_terminal_output_mode(),
+            [TerminalOutputMode.SCENE]
+        )
+
+        default_section['terminal_output'] = 'objects,scene'
+        self.assertEqual(
+            self.config_mngr.get_terminal_output_mode(),
+            [TerminalOutputMode.OBJECTS, TerminalOutputMode.SCENE]
+        )
+
     def test_is_history_enabled(self):
         self.assertTrue(self.config_mngr.is_history_enabled())
 
@@ -267,6 +342,18 @@ class TestConfigManager(unittest.TestCase):
         ] = 'false'
 
         self.assertFalse(self.config_mngr.is_noise_enabled())
+
+    def test_timeout(self):
+        self.assertEqual(self.config_mngr.get_timeout(),
+                         self.config_mngr.TIMEOUT_DEFAULT)
+
+        self.config_mngr._config[
+            self.config_mngr.CONFIG_DEFAULT_SECTION
+        ][
+            self.config_mngr.CONFIG_TIMEOUT
+        ] = '50'
+
+        self.assertEqual(self.config_mngr.get_timeout(), 50)
 
 
 class TestSceneConfig(unittest.TestCase):
@@ -375,6 +462,10 @@ class TestSceneConfig(unittest.TestCase):
                 'stepBegin': 15
             }],
             'kinematic': True,
+            'lidAttachment': {
+                'stepBegin': 16,
+                'lidAttachmentObjId': 'test_container'
+            },
             'locationParent': 'parent_id',
             'mass': 12.34,
             'materials': ['material_1', 'material_2'],
@@ -387,7 +478,8 @@ class TestSceneConfig(unittest.TestCase):
                     'x': 0.07,
                     'y': 0.08,
                     'z': 0.09
-                }
+                },
+                'globalSpace': True
             }],
             'nullParent': {
                 'position': {
@@ -424,6 +516,7 @@ class TestSceneConfig(unittest.TestCase):
             'pickupable': True,
             'receptacle': True,
             'resetCenterOfMass': True,
+            'resetCenterOfMassAtY': 0.321,
             'resizes': [{
                 'stepBegin': 19,
                 'stepEnd': 20,
@@ -475,6 +568,7 @@ class TestSceneConfig(unittest.TestCase):
                     'z': 0.43
                 }
             }],
+            "triggeredBy": True,
             'togglePhysics': [{
                 'stepBegin': 27
             }],
@@ -492,8 +586,22 @@ class TestSceneConfig(unittest.TestCase):
             SceneObject(**object_config)
             for object_config in object_config_list
         ]
-        scene_config = SceneConfiguration(objects=object_list)
+
+        toggle_lights_list = [StepBeginEndConfig(
+            step_begin=4,
+            step_end=5
+        )]
+
+        scene_config = SceneConfiguration(
+            toggle_lights=toggle_lights_list,
+            objects=object_list)
         self.assertEqual(len(scene_config.objects), 2)
+
+        self.assertEqual(scene_config.toggle_lights, [StepBeginEndConfig(
+            step_begin=4,
+            step_end=5
+        )])
+
         object_1 = scene_config.objects[0]
         object_2 = scene_config.objects[1]
 
@@ -509,6 +617,7 @@ class TestSceneConfig(unittest.TestCase):
         self.assertIsNone(object_1.ghosts)
         self.assertIsNone(object_1.hides)
         self.assertIsNone(object_1.kinematic)
+        self.assertIsNone(object_1.lid_attachment)
         self.assertIsNone(object_1.location_parent)
         self.assertIsNone(object_1.mass)
         self.assertIsNone(object_1.materials)
@@ -524,6 +633,7 @@ class TestSceneConfig(unittest.TestCase):
         self.assertIsNone(object_1.pickupable)
         self.assertIsNone(object_1.receptacle)
         self.assertIsNone(object_1.reset_center_of_mass)
+        self.assertIsNone(object_1.reset_center_of_mass_at_y)
         self.assertIsNone(object_1.resizes)
         self.assertIsNone(object_1.rotates)
         self.assertIsNone(object_1.salient_materials)
@@ -531,6 +641,7 @@ class TestSceneConfig(unittest.TestCase):
         self.assertIsNone(object_1.shrouds)
         self.assertIsNone(object_1.states)
         self.assertIsNone(object_1.structure)
+        self.assertIsNone(object_1.triggered_by)
         self.assertIsNone(object_1.teleports)
         self.assertIsNone(object_1.toggle_physics)
         self.assertIsNone(object_1.torques)
@@ -612,6 +723,10 @@ class TestSceneConfig(unittest.TestCase):
         )])
         self.assertEqual(object_2.hides, [SingleStepConfig(step_begin=15)])
         self.assertTrue(object_2.kinematic)
+        self.assertEqual(object_2.lid_attachment, LidConfig(
+            step_begin=16,
+            lid_attachment_obj_id='test_container'
+        ))
         self.assertEqual(object_2.location_parent, 'parent_id')
         self.assertEqual(object_2.mass, 12.34)
         self.assertListEqual(object_2.materials, ['material_1', 'material_2'])
@@ -620,7 +735,8 @@ class TestSceneConfig(unittest.TestCase):
         self.assertEqual(object_2.moves, [MoveConfig(
             step_begin=16,
             step_end=17,
-            vector=Vector3d(x=0.07, y=0.08, z=0.09)
+            vector=Vector3d(x=0.07, y=0.08, z=0.09),
+            global_space=True
         )])
         self.assertEqual(object_2.null_parent, TransformConfig(
             position=Vector3d(x=0.11, y=0.12, z=0.13),
@@ -645,6 +761,7 @@ class TestSceneConfig(unittest.TestCase):
         self.assertTrue(object_2.pickupable)
         self.assertTrue(object_2.receptacle)
         self.assertTrue(object_2.reset_center_of_mass)
+        self.assertEqual(object_2.reset_center_of_mass_at_y, 0.321)
         self.assertEqual(object_2.resizes, [SizeConfig(
             step_begin=19,
             step_end=20,
@@ -677,6 +794,8 @@ class TestSceneConfig(unittest.TestCase):
             position=Vector3d(x=0.41, y=0.42, z=0.43)
         )])
         self.assertEqual(
+            object_2.triggered_by, True)
+        self.assertEqual(
             object_2.toggle_physics, [
                 SingleStepConfig(
                     step_begin=27)])
@@ -686,13 +805,41 @@ class TestSceneConfig(unittest.TestCase):
             vector=Vector3d(x=0.44, y=0.45, z=0.46)
         )])
 
+    def test_is_passive_scene(self):
+        goal_1 = Goal(category='retrieval')
+        goal_2 = Goal(category='imitation')
+        goal_3 = Goal(category='passive')
+        goal_4 = Goal(category='intuitive physics')
+        goal_5 = Goal(category='agents')
+
+        config_1 = SceneConfiguration(goal=goal_1)
+        config_2 = SceneConfiguration(goal=goal_2)
+        config_3 = SceneConfiguration(goal=goal_3)
+        config_4 = SceneConfiguration(goal=goal_4)
+        config_5 = SceneConfiguration(goal=goal_5)
+
+        assert not config_1.is_passive_scene()
+        assert not config_2.is_passive_scene()
+        assert config_3.is_passive_scene()
+        assert config_4.is_passive_scene()
+        assert config_5.is_passive_scene()
+
+        config_6 = SceneConfiguration()
+        config_7 = SceneConfiguration(intuitive_physics=True)
+        config_8 = SceneConfiguration(isometric=True)
+
+        assert not config_6.is_passive_scene()
+        assert config_7.is_passive_scene()
+        assert config_8.is_passive_scene()
+
     def test_retrieve_goal_with_config_metadata(self):
         # self.controller.set_metadata_tier('oracle')
         goal = {
             'metadata': {
                 'target': {'image': [0]},
                 'target_1': {'image': [1]},
-                'target_2': {'image': [2]}
+                'target_2': {'image': [2]},
+                'targets': [{'image': [3]}]
             }
         }
 
@@ -702,7 +849,8 @@ class TestSceneConfig(unittest.TestCase):
         self.assertEqual(actual.metadata, {
             'target': {'image': [0]},
             'target_1': {'image': [1]},
-            'target_2': {'image': [2]}
+            'target_2': {'image': [2]},
+            'targets': [{'image': [3]}]
         })
 
     def test_retrieve_goal(self):
@@ -771,7 +919,8 @@ class TestSceneConfig(unittest.TestCase):
         goal = {'metadata': {
             'target': {'image': [0]},
             'target_1': {'image': [1]},
-            'target_2': {'image': [2]}
+            'target_2': {'image': [2]},
+            'targets': [{'image': [3]}]
         }}
         goal = Goal(**goal)
         scene_config = SceneConfiguration(name="test", version=1, goal=goal)
@@ -779,30 +928,33 @@ class TestSceneConfig(unittest.TestCase):
         self.assertEqual(actual.metadata, {
             'target': {'image': [0]},
             'target_1': {'image': [1]},
-            'target_2': {'image': [2]}
+            'target_2': {'image': [2]},
+            'targets': [{'image': [3]}]
         })
 
     def test_update_goal_target_image_img_as_str(self):
         goal = {'metadata': {
             'target': {'image': "[0]"},
             'target_1': {'image': "[1]"},
-            'target_2': {'image': "[2]"}
-        }
-        }
+            'target_2': {'image': "[2]"},
+            'targets': [{'image': "[3]"}]
+        }}
         goal = Goal(**goal)
         scene_config = SceneConfiguration(name="test", version=1, goal=goal)
         actual = scene_config.update_goal_target_image(scene_config.goal)
         self.assertEqual(actual.metadata, {
             'target': {'image': [0]},
             'target_1': {'image': [1]},
-            'target_2': {'image': [2]}
+            'target_2': {'image': [2]},
+            'targets': [{'image': [3]}]
         })
 
     def test_update_goal_target_image_oracle(self):
         goal = {'metadata': {
             'target': {'image': [0]},
             'target_1': {'image': [1]},
-            'target_2': {'image': [2]}
+            'target_2': {'image': [2]},
+            'targets': [{'image': [3]}]
         }}
         goal = Goal(**goal)
         scene_config = SceneConfiguration(name="test", version=1, goal=goal)
@@ -810,14 +962,16 @@ class TestSceneConfig(unittest.TestCase):
         self.assertEqual(actual.metadata, {
             'target': {'image': [0]},
             'target_1': {'image': [1]},
-            'target_2': {'image': [2]}
+            'target_2': {'image': [2]},
+            'targets': [{'image': [3]}]
         })
 
     def test_update_goal_target_image_oracle_img_as_str(self):
         goal = {'metadata': {
             'target': {'image': "[0]"},
             'target_1': {'image': "[1]"},
-            'target_2': {'image': "[2]"}
+            'target_2': {'image': "[2]"},
+            'targets': [{'image': "[3]"}]
         }}
         goal = Goal(**goal)
         scene_config = SceneConfiguration(name="test", version=1, goal=goal)
@@ -825,7 +979,8 @@ class TestSceneConfig(unittest.TestCase):
         self.assertEqual(actual.metadata, {
             'target': {'image': [0]},
             'target_1': {'image': [1]},
-            'target_2': {'image': [2]}
+            'target_2': {'image': [2]},
+            'targets': [{'image': [3]}]
         })
 
 

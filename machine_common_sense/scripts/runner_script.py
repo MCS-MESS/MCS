@@ -3,6 +3,7 @@ import glob
 import logging
 import os.path
 import subprocess
+import time
 from typing import Callable, Dict, List, Tuple
 
 import machine_common_sense as mcs
@@ -13,7 +14,6 @@ mcs.LoggingConfig.init_logging(mcs.LoggingConfig.get_dev_logging_config())
 
 
 SCRIPT_FOLDER = os.path.dirname(os.path.abspath(__file__))
-BLACK_IMAGE_PATH = SCRIPT_FOLDER + '/black_image.png'
 
 
 class AbstractRunnerScript():
@@ -29,7 +29,7 @@ class AbstractRunnerScript():
         self._name = name
         args, filenames = self._read_args()
         if not len(filenames):
-            print('No matching files found... Exiting')
+            logger.debug('No matching files found... Exiting')
             exit()
         self.args = args
 
@@ -47,7 +47,7 @@ class AbstractRunnerScript():
             SCRIPT_FOLDER + '/config_' + config_suffix + '.ini'
         )
 
-        print('========================================')
+        logger.debug('+' * 79)
         controller = mcs.create_controller(
             unity_app_file_path=args.mcs_unity_build_file,
             unity_cache_version=args.mcs_unity_version,
@@ -66,14 +66,6 @@ class AbstractRunnerScript():
                 args.prefix,
                 args.rename
             )
-            if args.save_videos or args.save_gifs:
-                # Copy the black image into the debug folder as the last frame.
-                frame_image_list = glob.glob(scene_name + '/frame_image_*')
-                frame_count = len(frame_image_list)
-                black_frame = (
-                    scene_name + '/frame_image_' + str(frame_count) + '.png'
-                )
-                subprocess.call(['cp', BLACK_IMAGE_PATH, black_frame])
             if args.save_videos:
                 subprocess.call([
                     'ffmpeg', '-y', '-r', '20', '-i',
@@ -222,11 +214,21 @@ class AbstractRunnerScript():
         step_metadata = controller.start_scene(scene_data)
         action, params = action_callback(scene_data, step_metadata, self)
 
+        logger.debug(f'[SCENE TIMER] {scene_data["name"]} STARTING')
+        begin_time = time.perf_counter()
+
         while action is not None:
             step_metadata = controller.step(action, **params)
             if step_metadata is None:
                 break
             action, params = action_callback(scene_data, step_metadata, self)
+
+        end_time = time.perf_counter()
+        time_diff = end_time - begin_time
+        logger.debug(
+            f'[SCENE TIMER] {scene_data["name"]} ENDING: '
+            f'{time_diff:0.4f} seconds'
+        )
 
         controller.end_scene()
 
@@ -298,14 +300,14 @@ class MultipleFileRunnerScript(AbstractRunnerScript):
     ) -> Tuple[argparse.Namespace, List[str]]:
         args = parser.parse_args()
         filenames = glob.glob(args.mcs_scene_prefix + '*_debug.json')
-        print(
+        logger.debug(
             f'Found {len(filenames)} files matching '
             f'{args.mcs_scene_prefix + "*_debug.json"}'
         )
         if not len(filenames):
-            print('No matching files found... trying non-debug files')
+            logger.debug('No matching files found... trying non-debug files')
             filenames = glob.glob(args.mcs_scene_prefix + '*.json')
-            print(
+            logger.debug(
                 f'Found {len(filenames)} files matching '
                 f'{args.mcs_scene_prefix + "*.json"}'
             )

@@ -61,9 +61,11 @@ def create_step_test_case_list(expected, actual):
             round(actual.rotation) % 360 if actual.rotation is not None
             else None
         ),
+        ('room_dimensions', actual.room_dimensions),
         ('step_number', actual.step_number),
         ('physics_frames_per_second', actual.physics_frames_per_second),
-        ('structural_objects_count', len(actual.structural_object_list))
+        ('structural_objects_count', len(actual.structural_object_list)),
+        ('triggered_by_sequence_incorrect', actual.triggered_by_sequence_incorrect)  # noqa
     ]
     return [
         create_test_case([case_name], expected[case_name], actual_data)
@@ -297,8 +299,10 @@ def start_handmade_tests(
     only_test_name,
     dev,
     autofix,
+    ignore,
     unity_version=None
 ):
+    ignore_prefix_list = ignore.split(',') if ignore else []
 
     # Find all of the test scene JSON files.
     scene_filename_list = sorted(glob.glob(f"{TEST_FOLDER}*{SCENE_SUFFIX}"))
@@ -330,6 +334,12 @@ def start_handmade_tests(
                 os.path.basename(scene_filename).startswith(only_test_name)
             ):
                 continue
+            if ignore_prefix_list and any([
+                os.path.basename(scene_filename).startswith(ignore_prefix)
+                for ignore_prefix in ignore_prefix_list
+            ]):
+                print(f'IGNORED SCENE: {os.path.basename(scene_filename)}')
+                continue
 
             # Check to see if any configuration should be overriden
             config_override_filename = scene_filename.replace(
@@ -339,10 +349,6 @@ def start_handmade_tests(
                 reset_config = True
                 mcs.change_config(
                     controller, config_file_or_dict=config_override_filename)
-            elif reset_config is True:
-                reset_config = False
-                mcs.change_config(
-                    controller, config_file_or_dict=config_filename)
 
             print(f'RUNNING SCENE: {os.path.basename(scene_filename)}')
             try:
@@ -365,6 +371,11 @@ def start_handmade_tests(
                 successful_test_list.append((test_name, metadata_tier))
             else:
                 failed_test_list.append((test_name, metadata_tier, status))
+
+            if reset_config is True:
+                reset_config = False
+                mcs.change_config(
+                    controller, config_file_or_dict=config_filename)
 
         # Run each additional test at this metadata tier.
         for runner_function in (
@@ -409,5 +420,6 @@ if __name__ == "__main__":
         args.test,
         args.dev,
         args.autofix,
+        args.ignore,
         unity_version=args.mcs_unity_version
     )

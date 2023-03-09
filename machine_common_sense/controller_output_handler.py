@@ -100,6 +100,10 @@ class SceneEvent():
         return self._raw_output.metadata.get('stepsOnLava')
 
     @property
+    def triggered_by_sequence_incorrect(self):
+        return self._raw_output.metadata.get('triggeredBySequenceIncorrect')
+
+    @property
     def performer_radius(self):
         return self._raw_output.metadata.get('performerRadius')
 
@@ -110,6 +114,10 @@ class SceneEvent():
     @property
     def physics_frames_per_second(self) -> float:
         return self._raw_output.metadata.get('physicsFramesPerSecond')
+
+    @property
+    def room_dimensions(self) -> float:
+        return self._raw_output.metadata.get('roomDimensions')
 
     @property
     def events(self):
@@ -174,6 +182,15 @@ class SceneEvent():
         event = self._raw_output.events[len(
             self._raw_output.events) - 1]
         return event.object_id_to_color
+
+    @property
+    def segmentation_colors(self):
+        return [{
+            'objectId': item['name'],
+            'r': item['color'][0],
+            'g': item['color'][1],
+            'b': item['color'][2]
+        } for item in (self._raw_output.metadata.get('colors') or [])]
 
     def retrieve_object_output(
             self, object_metadata, object_id_to_color):
@@ -275,7 +292,11 @@ class ControllerOutputHandler():
             self.get_restrictions(restricted, self._config.get_metadata_tier())
         step_output = StepMetadata(
             action_list=goal.retrieve_action_list_at_step(
-                self._step_number, self._scene_event.steps_on_lava),
+                self._step_number,
+                self._scene_event.steps_on_lava,
+                self._scene_event.triggered_by_sequence_incorrect,
+                self._scene_config.is_passive_scene()
+            ),
             camera_aspect_ratio=self._config.get_screen_size(),
             camera_clipping_planes=self._scene_event.clipping_plane,
             camera_field_of_view=self._scene_event.camera_field_of_view,
@@ -302,8 +323,9 @@ class ControllerOutputHandler():
                 [] if restrict_non_oracle else self._scene_event.object_list),
             object_mask_list=([] if restrict_object_mask_list else
                               self._scene_event.object_mask_list),
-            position=(
-                None if restrict_non_oracle else self._scene_event.position),
+            position=(None if (
+                restrict_non_oracle or self._config.is_position_disabled()
+            ) else self._scene_event.position),
             performer_radius=self._scene_event.performer_radius,
             performer_reach=self._scene_event.performer_reach,
             return_status=self._scene_event.return_status,
@@ -320,10 +342,19 @@ class ControllerOutputHandler():
             resolved_receptacle=(
                 None if restrict_non_oracle
                 else self._scene_event.resolved_receptacle),
+            room_dimensions=(
+                None if restrict_non_oracle
+                else self._scene_event.room_dimensions),
             rotation=(
                 None if restrict_non_oracle else self._scene_event.rotation),
+            segmentation_colors=(
+                None if restrict_non_oracle
+                else self._scene_event.segmentation_colors
+            ),
             step_number=self._step_number,
             steps_on_lava=self._scene_event.steps_on_lava,
+            triggered_by_sequence_incorrect=(
+                self._scene_event.triggered_by_sequence_incorrect),
             physics_frames_per_second=(
                 self._scene_event.physics_frames_per_second),
             structural_object_list=([] if restrict_non_oracle else
@@ -332,6 +363,8 @@ class ControllerOutputHandler():
 
         if (restrict_non_oracle):
             self.filter_step_output(step_output)
+        elif self._config.is_position_disabled():
+            step_output.position = None
 
         return step_output
 
@@ -361,16 +394,27 @@ class ControllerOutputHandler():
         step_output.position = None
         step_output.holes = None
         step_output.lava = None
+        step_output.room_dimensions = None
 
-        target_name_list = ['target', 'target_1', 'target_2']
-        for target_name in target_name_list:
-            if (target_name in step_output.goal.metadata):
-                step_output.goal = copy.deepcopy(
-                    step_output.goal)
-                if 'image' in step_output.goal.metadata[target_name]:
-                    step_output.goal.metadata[target_name]['image'] = None
-                if 'id' in step_output.goal.metadata[target_name]:
-                    step_output.goal.metadata[target_name]['id'] = None
-                if 'image_name' in step_output.goal.metadata[target_name]:
-                    step_output.goal.metadata[
-                        target_name]['image_name'] = None
+        # Copy the goal object to avoid deleting data from the original object
+        step_output.goal = copy.deepcopy(step_output.goal)
+
+        step_output.goal.triggered_by_target_sequence = None
+        metadata = step_output.goal.metadata or {}
+        # Different goal categories may use different property names
+        target_names = ['target', 'targets', 'target_1', 'target_2']
+        for target_name in target_names:
+            target = metadata.get(target_name)
+            # Some properties may be dicts, and some may be lists of dicts
+            if isinstance(target, list):
+                # Clear the whole array, to avoid revealing the total count
+                metadata[target_name] = []
+            elif target:
+                # Pretty sure the target always has an id, but just in case...
+                if 'id' in target:
+                    del target['id']
+                # Backwards compatibility: target used to have image data
+                if 'image' in target:
+                    del target['image']
+                if 'image_name' in target:
+                    del target['image_name']

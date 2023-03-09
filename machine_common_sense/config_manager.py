@@ -9,7 +9,7 @@ import numpy as np
 from pydantic import BaseModel as PydanticBaseModel
 
 from .action import Action
-from .goal_metadata import GoalMetadata
+from .goal_metadata import GoalCategory, GoalMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +75,7 @@ class Goal(BaseModel):
     skip_preview_phase: Optional[bool]
     task_list: List[str] = None
     type_list: List[str] = None
+    triggered_by_target_sequence: Optional[List[str]]
 
 
 class ActionConfig(BaseModel):
@@ -141,6 +142,7 @@ class MoveConfig(BaseModel):
     vector: Vector3d = Vector3d(x=0, y=0, z=0)
     repeat: bool = False
     step_wait: int = 0
+    global_space: bool = False
 
 
 class OpenCloseConfig(BaseModel):
@@ -242,6 +244,11 @@ class PerformerStart(BaseModel):
     rotation: Vector3d
 
 
+class LidConfig(BaseModel):
+    step_begin: int
+    lid_attachment_obj_id: str
+
+
 class SceneObject(BaseModel):
     id: str
     type: str  # should this be an enum?
@@ -256,6 +263,7 @@ class SceneObject(BaseModel):
     ghosts: List[StepBeginEndConfig] = None
     hides: List[SingleStepConfig] = None
     kinematic: Optional[bool]
+    lid_attachment: Optional[LidConfig]
     location_parent: Optional[str]
     locked: bool = False
     mass: Optional[float]
@@ -277,6 +285,7 @@ class SceneObject(BaseModel):
     pickupable: Optional[bool]
     receptacle: Optional[bool]
     reset_center_of_mass: Optional[bool]
+    reset_center_of_mass_at_y: Optional[float]
     resizes: List[SizeConfig] = None
     rotates: List[MoveConfig] = None
     salient_materials: List[str] = None
@@ -286,6 +295,7 @@ class SceneObject(BaseModel):
     states: List[List[str]] = None
     structure: Optional[bool]
     teleports: List[TeleportConfig] = None
+    triggered_by: Optional[bool]
     toggle_physics: List[SingleStepConfig] = None
     torques: List[ForceConfig] = None
 
@@ -297,24 +307,40 @@ class SceneObject(BaseModel):
     stack_target: Optional[bool]
 
 
+class TerminalOutputMode(Enum):
+    ACTIONS = 'actions'
+    MINIMAL = 'minimal'
+    OBJECTS = 'objects'
+    PERFORMER = 'performer'
+    SCENE = 'scene'
+
+
 class ConfigManager:
 
     DEFAULT_ROOM_DIMENSIONS = Vector3d(x=10, y=3, z=10)
     CONFIG_FILE_ENV_VAR = 'MCS_CONFIG_FILE_PATH'
     CONFIG_DEFAULT_SECTION = 'MCS'
+    CONFIG_DISABLE_DEPTH_MAPS = 'disable_depth_maps'
+    CONFIG_DISABLE_OBJECT_MASKS = 'disable_object_masks'
+    CONFIG_DISABLE_POSITION = 'disable_position'
     CONFIG_EVALUATION_NAME = 'evaluation_name'
+    CONFIG_GOAL_REWARD = 'goal_reward'
     CONFIG_HISTORY_ENABLED = 'history_enabled'
+    CONFIG_LAVA_PENALTY = 'lava_penalty'
     CONFIG_METADATA_TIER = 'metadata'
     CONFIG_NOISE_ENABLED = 'noise_enabled'
+    CONFIG_ONLY_RETURN_GOAL_OBJECT = 'only_return_goal_object'
     CONFIG_SAVE_DEBUG_IMAGES = 'save_debug_images'
     CONFIG_SAVE_DEBUG_JSON = 'save_debug_json'
     CONFIG_SIZE = 'size'
-    CONFIG_TEAM = 'team'
-    CONFIG_VIDEO_ENABLED = 'video_enabled'
-    CONFIG_LAVA_PENALTY = 'lava_penalty'
-    CONFIG_STEPS_ALLOWED_IN_LAVA = 'steps_allowed_in_lava'
     CONFIG_STEP_PENALTY = 'step_penalty'
-    CONFIG_GOAL_REWARD = 'goal_reward'
+    CONFIG_STEPS_ALLOWED_IN_LAVA = 'steps_allowed_in_lava'
+    CONFIG_TEAM = 'team'
+    CONFIG_TERMINAL_OUTPUT = 'terminal_output'
+    CONFIG_TIMEOUT = 'timeout'
+    CONFIG_TOP_DOWN_PLOTTER = 'top_down_plotter'
+    CONFIG_TOP_DOWN_CAMERA = 'top_down_camera'
+    CONFIG_VIDEO_ENABLED = 'video_enabled'
 
     # Please keep the aspect ratio as 3:2 because the IntPhys scenes are built
     # on this assumption.
@@ -323,6 +349,10 @@ class ConfigManager:
 
     # Default steps allowed in lava before calling end scene
     STEPS_ALLOWED_IN_LAVA_DEFAULT = 0
+
+    # Default time to allow on a single step before timing out
+    # is 1 hour (represented in seconds)
+    TIMEOUT_DEFAULT = 3600
 
     def __init__(self, config_file_or_dict=None):
         '''
@@ -337,7 +367,7 @@ class ConfigManager:
                 self._read_in_config_file(os.getenv(self.CONFIG_FILE_ENV_VAR))
             elif (isinstance(config_file_or_dict, dict)):
                 self._read_in_config_dict(config_file_or_dict)
-            elif(isinstance(config_file_or_dict, str)):
+            elif (isinstance(config_file_or_dict, str)):
                 self._read_in_config_file(config_file_or_dict)
             else:
                 raise FileNotFoundError("No config options given")
@@ -361,7 +391,7 @@ class ConfigManager:
             raise FileNotFoundError()
 
     def _validate_screen_size(self):
-        if(self.get_size() < self.SCREEN_WIDTH_MIN):
+        if (self.get_size() < self.SCREEN_WIDTH_MIN):
             self._config.set(
                 self.CONFIG_DEFAULT_SECTION,
                 self.CONFIG_SIZE,
@@ -412,6 +442,34 @@ class ConfigManager:
             fallback=''
         )
 
+    def get_terminal_output_mode(self) -> List[TerminalOutputMode]:
+        try:
+            # If mode is boolean, return all or nothing.
+            terminal_output_mode = self._config.getboolean(
+                self.CONFIG_DEFAULT_SECTION,
+                self.CONFIG_TERMINAL_OUTPUT,
+                fallback=True
+            )
+            if terminal_output_mode:
+                return [mode for mode in TerminalOutputMode]
+            return []
+        except ValueError:
+            # If mode is string, assume comma separated list.
+            terminal_output_mode = self._config.get(
+                self.CONFIG_DEFAULT_SECTION,
+                self.CONFIG_TERMINAL_OUTPUT,
+                fallback=True
+            )
+            if not terminal_output_mode:
+                return []
+            inputs = terminal_output_mode.split(',')
+            if 'all' in inputs or 'ALL' in inputs:
+                return [mode for mode in TerminalOutputMode]
+            return [
+                mode for mode in TerminalOutputMode
+                if mode.value in inputs or mode.value.upper() in inputs
+            ]
+
     def is_history_enabled(self):
         return self._config.getboolean(
             self.CONFIG_DEFAULT_SECTION,
@@ -449,22 +507,70 @@ class ConfigManager:
 
     def is_depth_maps_enabled(self) -> bool:
         metadata_tier = self.get_metadata_tier()
-        return metadata_tier in [
+
+        allowed_by_config = not self._config.getboolean(
+            self.CONFIG_DEFAULT_SECTION,
+            self.CONFIG_DISABLE_DEPTH_MAPS,
+            fallback=False
+        )
+        allowed_by_metadata_tier = metadata_tier in [
             MetadataTier.LEVEL_1,
             MetadataTier.LEVEL_2,
             MetadataTier.ORACLE,
         ]
+        if allowed_by_metadata_tier and allowed_by_config:
+            return True
+        else:
+            return False
+
+    def is_only_return_object_goal(self) -> bool:
+        metadata_tier = self.get_metadata_tier()
+        allowed_by_config = self._config.getboolean(
+            self.CONFIG_DEFAULT_SECTION,
+            self.CONFIG_ONLY_RETURN_GOAL_OBJECT,
+            fallback=False
+        )
+        allowed_by_metadata_tier = metadata_tier in [
+            MetadataTier.ORACLE
+        ]
+        if allowed_by_metadata_tier and allowed_by_config:
+            return True
+        else:
+            return False
+
+    def is_position_disabled(self) -> bool:
+        metadata_tier = self.get_metadata_tier()
+        allowed_by_config = not self._config.getboolean(
+            self.CONFIG_DEFAULT_SECTION,
+            self.CONFIG_DISABLE_POSITION,
+            fallback=False
+        )
+        allowed_by_metadata_tier = metadata_tier in [
+            MetadataTier.ORACLE
+        ]
+
+        if allowed_by_metadata_tier and allowed_by_config:
+            return False
+        else:
+            return True
 
     def is_object_masks_enabled(self) -> bool:
         metadata_tier = self.get_metadata_tier()
-        return (
-            metadata_tier != MetadataTier.LEVEL_1 and
-            metadata_tier in
-            [
-                MetadataTier.LEVEL_2,
-                MetadataTier.ORACLE,
-            ]
+        allowed_by_config = not self._config.getboolean(
+            self.CONFIG_DEFAULT_SECTION,
+            self.CONFIG_DISABLE_OBJECT_MASKS,
+            fallback=False
         )
+        allowed_by_metadata_tier = (metadata_tier != MetadataTier.LEVEL_1 and
+                                    metadata_tier in
+                                    [
+                                        MetadataTier.LEVEL_2,
+                                        MetadataTier.ORACLE,
+                                    ])
+        if allowed_by_metadata_tier and allowed_by_config:
+            return True
+        else:
+            return False
 
     def get_screen_size(self) -> Tuple[int, int]:
         return (self.get_screen_width(), self.get_screen_height())
@@ -504,6 +610,33 @@ class ConfigManager:
             fallback=self.STEPS_ALLOWED_IN_LAVA_DEFAULT
         )
 
+    def get_timeout(self):
+        """ Time (in seconds) to allow a run to be idle
+        before attempting to end scene"""
+        return self._config.getint(
+            self.CONFIG_DEFAULT_SECTION,
+            self.CONFIG_TIMEOUT,
+            fallback=self.TIMEOUT_DEFAULT
+        )
+
+    def is_top_down_plotter(self) -> bool:
+        """Toggles whether old plotter should be used to create top down
+        videos if videos are enabled."""
+        return self._config.getboolean(
+            self.CONFIG_DEFAULT_SECTION,
+            self.CONFIG_TOP_DOWN_PLOTTER,
+            fallback=False
+        )
+
+    def is_top_down_camera(self) -> bool:
+        """Toggles whether the new top down camera is used to create top down
+        videos if videos are enabled."""
+        return self._config.getboolean(
+            self.CONFIG_DEFAULT_SECTION,
+            self.CONFIG_TOP_DOWN_CAMERA,
+            fallback=True
+        )
+
 
 class SceneConfiguration(BaseModel):
     '''Class for keeping track of scene configuration'''
@@ -523,12 +656,14 @@ class SceneConfiguration(BaseModel):
     partition_floor: Optional[FloorPartitionConfig]
     performer_start: Optional[PerformerStart]
     restrict_open_doors: Optional[bool]
+    restrict_open_objects: Optional[bool]
     room_dimensions: Vector3d = ConfigManager.DEFAULT_ROOM_DIMENSIONS
     room_materials: Optional[RoomMaterials]
     screenshot: bool = False  # developer use only; for the image generator
     version: Optional[int]
     wall_material: Optional[str]
     wall_properties: Optional[PhysicsConfig]
+    toggle_lights: List[StepBeginEndConfig] = []
 
     # These are deprecated, but needed for Eval 3 backwards compatibility
     evaluation: Optional[str]
@@ -538,6 +673,19 @@ class SceneConfiguration(BaseModel):
     scene_number: Optional[int]
     sequence_number: Optional[int]
     training: Optional[bool]
+
+    def is_passive_scene(self) -> bool:
+        """Return whether this scene is a passive scene."""
+        goal = self.goal or Goal()
+        # Passive physics scenes will have the intuitive_physics property and
+        # the INTUITIVE_PHYSICS goal category; passive agent (NYU) scenes will
+        # have the isometric property and the AGENTS goal category; other
+        # passive scenes will have the PASSIVE goal category.
+        return self.intuitive_physics or self.isometric or goal.category in [
+            GoalCategory.AGENTS.value,
+            GoalCategory.INTUITIVE_PHYSICS.value,
+            GoalCategory.PASSIVE.value
+        ]
 
     """
     @post_dump
@@ -608,7 +756,8 @@ class SceneConfiguration(BaseModel):
                 last_preview_phase_step=(goal.last_preview_phase_step or 0),
                 last_step=goal.last_step or None,
                 metadata=goal.metadata or {},
-                steps_allowed_in_lava=steps_allowed_in_lava
+                steps_allowed_in_lava=steps_allowed_in_lava,
+                triggered_by_target_sequence=goal.triggered_by_target_sequence or None  # noqa
             )
         )
 
@@ -632,17 +781,18 @@ class SceneConfiguration(BaseModel):
         return lava
 
     def update_goal_target_image(self, goal_output):
-        target_name_list = ['target', 'target_1', 'target_2']
-
-        for target_name in target_name_list:
-            # need to convert goal image data from string to array
-            if (
-                target_name in goal_output.metadata and
-                'image' in goal_output.metadata[target_name] and
-                isinstance(goal_output.metadata[target_name]['image'], str)
-            ):
-                image_list_string = goal_output.metadata[target_name]['image']
-                goal_output.metadata[target_name]['image'] = np.array(
-                    ast.literal_eval(image_list_string)).tolist()
-
+        metadata = goal_output.metadata or {}
+        # Different goal categories may use different property names
+        target_names = ['target', 'targets', 'target_1', 'target_2']
+        for target_name in target_names:
+            # Some properties may be dicts, and some may be lists of dicts
+            targets = metadata.get(target_name) or []
+            targets = targets if isinstance(targets, list) else [targets]
+            for target in targets:
+                # Backwards compatibility: target used to have image data
+                image = target.get('image')
+                # Convert the image data from a string to an array
+                if isinstance(image, str):
+                    image_array = np.array(ast.literal_eval(image)).tolist()
+                    target['image'] = image_array
         return goal_output

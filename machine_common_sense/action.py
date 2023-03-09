@@ -67,8 +67,8 @@ class Action(Enum):
     "NOT_RECEPTACLE"
         If the object corresponding to the "objectImageCoords" vector is not a
         receptacle object.
-    "OBSTRUCTED"
-        If you cannot close the object because your path is obstructed.
+    "NOT_VISIBLE"
+        If the object corresponding to the "objectId" is not in the viewport.
     "OUT_OF_REACH"
         If you cannot close the object because you are out of reach.
     "FAILED"
@@ -219,8 +219,11 @@ class Action(Enum):
     "NOT_RECEPTACLE"
         If the object corresponding to the "objectImageCoords" vector is not a
         receptacle object.
+    "NOT_VISIBLE"
+        If the object corresponding to the "objectId" is not in the viewport.
     "OBSTRUCTED"
-        If you cannot open the object because your path is obstructed.
+        If you cannot open the object because you will be in the way of the
+        object when its opened.
     "OUT_OF_REACH"
         If you cannot open the object because you are out of reach.
     "FAILED"
@@ -236,7 +239,7 @@ class Action(Enum):
     """
     Pick up a nearby object and hold it in your hand. This action incorporates
     reaching out your hand in front of you, opening your fingers, and grabbing
-    the object.
+    the object. You may hold multiple objects simultaneously.
 
     Parameters
     ----------
@@ -256,8 +259,6 @@ class Action(Enum):
     -------
     "SUCCESSFUL"
         Action successful.
-    "HAND_IS_FULL"
-        If you cannot pick up the object because your hand is full.
     "NOT_INTERACTABLE"
         If the object corresponding to the "objectImageCoords" vector is not an
         interactable object.
@@ -266,8 +267,8 @@ class Action(Enum):
         to the "objectImageCoords" vector) is not an object.
     "NOT_PICKUPABLE"
         If the object itself cannot be picked up.
-    "OBSTRUCTED"
-        If you cannot pick up the object because your path is obstructed.
+    "NOT_VISIBLE"
+        If the object corresponding to the "objectId" is not in the viewport.
     "OUT_OF_REACH"
         If you cannot pick up the object because you are out of reach.
     "FAILED"
@@ -282,7 +283,9 @@ class Action(Enum):
     )
     """
     Pull a nearby object by applying a physical force directly toward you on
-    the X/Z axis to the center point of the object.
+    the X/Z axis to the center point of the object (note that this means it
+    does not matter where you Pull on the object, since the force is always
+    applied to the center point).
 
     Parameters
     ----------
@@ -313,8 +316,8 @@ class Action(Enum):
         to the "objectImageCoords" vector) is not an object.
     "NOT_MOVEABLE"
         If the object itself cannot be moved by a baby.
-    "OBSTRUCTED"
-        If you cannot move the object because your path is obstructed.
+    "NOT_VISIBLE"
+        If the object corresponding to the "objectId" is not in the viewport.
     "OUT_OF_REACH"
         If you cannot move the object because you are out of reach.
     "FAILED"
@@ -329,7 +332,9 @@ class Action(Enum):
     )
     """
     Push a nearby object by applying a physical force directly away from you on
-    the X/Z axis to the center point of the object.
+    the X/Z axis to the center point of the object (note that this means it
+    does not matter where you Push on the object, since the force is always
+    applied to the center point).
 
     Parameters
     ----------
@@ -360,8 +365,8 @@ class Action(Enum):
         to the "objectImageCoords" vector) is not an object.
     "NOT_MOVEABLE"
         If the object itself cannot be moved by a baby.
-    "OBSTRUCTED"
-        If you cannot move the object because your path is obstructed.
+    "NOT_VISIBLE"
+        If the object corresponding to the "objectId" is not in the viewport.
     "OUT_OF_REACH"
         If you cannot move the object because you are out of reach.
     "FAILED"
@@ -418,6 +423,8 @@ class Action(Enum):
         If the object corresponding to the "receptacleObjectId" (or object
         corresponding to the "receptacleObjectImageCoords" vector) is not a
         receptacle.
+    "NOT_VISIBLE"
+        If the object corresponding to the "objectId" is not in the viewport.
     "OBSTRUCTED"
         If you cannot put down the object because your path is obstructed.
     "OUT_OF_REACH"
@@ -465,8 +472,8 @@ class Action(Enum):
         to the "objectImageCoords" vector) is not an object.
     "NOT_MOVEABLE"
         If the object itself cannot be moved by a baby.
-    "OBSTRUCTED"
-        If you cannot move the object because your path is obstructed.
+    "NOT_VISIBLE"
+        If the object corresponding to the "objectId" is not in the viewport.
     "OUT_OF_REACH"
         If you cannot move the object because you are out of reach.
     "FAILED"
@@ -482,7 +489,9 @@ class Action(Enum):
         "objectImageCoordsY=float)"
     )
     """
-    Apply a rotation of 5 degrees to a nearby object.
+    Apply a rotation of 5 degrees to a nearby object. Will fail if rotating
+    the object would cause it to collide with another object or the performer
+    agent, returning OBSTRUCTED.
 
     Parameters
     ----------
@@ -513,8 +522,11 @@ class Action(Enum):
         to the "objectImageCoords" vector) is not an object.
     "NOT_MOVEABLE"
         If the object itself cannot be moved by a baby.
+    "NOT_VISIBLE"
+        If the object corresponding to the "objectId" is not in the viewport.
     "OBSTRUCTED"
-        If you cannot move the object because your path is obstructed.
+        If you cannot rotate the object because the path of rotation
+        is obstructed.
     "OUT_OF_REACH"
         If you cannot move the object because you are out of reach.
     "FAILED"
@@ -523,7 +535,7 @@ class Action(Enum):
 
     MOVE_OBJECT = (
         "MoveObject",
-        "0",
+        "m",
         "Apply a movement of 0.1 meters to a nearby object. "
         "(objectId=string, "
         "lateral=int(default:0), "
@@ -532,7 +544,14 @@ class Action(Enum):
         "objectImageCoordsY=float)"
     )
     """
-    Apply a movement of 0.1 meters units to a nearby object.
+    Apply a movement of 0.1 meters units to a nearby object. If the object
+    would come into contact with another object, and the other object is small
+    and moveable, the other object will also move 0.1 meters in the same
+    direction. This movement does not attempt to simulate realistic physics
+    in regard to collisions with other object(s). If you wish to simulate
+    realistic physical movement, please use the PullObject and PushObject
+    actions instead, which apply a force using the environment's physics
+    simulation engine.
 
     Parameters
     ----------
@@ -570,8 +589,11 @@ class Action(Enum):
         to the "objectImageCoords" vector) is not an object.
     "NOT_MOVEABLE"
         If the object itself cannot be moved by a baby.
+    "NOT_VISIBLE"
+        If the object corresponding to the "objectId" is not in the viewport.
     "OBSTRUCTED"
-        If you cannot move the object because your path is obstructed.
+        If you cannot rotate the object because the path of movement
+        is obstructed.
     "OUT_OF_REACH"
         If you cannot move the object because you are out of reach.
     "FAILED"
@@ -580,7 +602,7 @@ class Action(Enum):
 
     INTERACT_WITH_AGENT = (
         "InteractWithAgent",
-        "T",
+        "t",
         "Interact with an agent. If that agent has an object, "
         "it will hold out the object for you to pickup; "
         "otherwise, the agent will look sad."
@@ -591,6 +613,8 @@ class Action(Enum):
     """
     Interact with an agent. If that agent has an object, it will hold
     out the object for you to pickup; otherwise, the agent will look sad.
+    If the agent was pointing at an object, the agent will resume pointing
+    afterward.
 
     Parameters
     ----------
@@ -620,9 +644,12 @@ class Action(Enum):
         If the object being interacted with is not a simulation agent
     "AGENT_CURRENTLY_INTERACTING_WTIH_PERFORMER"
         If the object being interacted with is a simulation agent already
-        interacting with the performer
-    "OBSTRUCTED"
-        If you cannot move the object because your path is obstructed.
+        interacting with the performer.
+    "AGENT_IS_BUSY"
+        If the object being interacted with is a simulation agent that is
+        currently rotating to face an object or beginning its point animation.
+    "NOT_VISIBLE"
+        If the object corresponding to the "objectId" is not in the viewport.
     "OUT_OF_REACH"
         If you cannot move the object because you are out of reach.
     "FAILED"
