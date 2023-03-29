@@ -287,6 +287,7 @@ class Controller():
         self._publish_event(
             EventType.ON_START_SCENE, start_scene_payload)
 
+        output.class_masks = step_output.class_masks
         self._check_step_for_timeout()
 
         return output
@@ -411,7 +412,8 @@ class Controller():
         self._publish_event(
             EventType.ON_AFTER_STEP,
             AfterStepPayload(**payload))
-
+        
+        output.class_masks = step_output.class_masks
         return output
 
     @typeguard.typechecked
