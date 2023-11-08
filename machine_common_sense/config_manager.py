@@ -340,6 +340,7 @@ class ConfigManager:
     CONFIG_TIMEOUT = 'timeout'
     CONFIG_TOP_DOWN_PLOTTER = 'top_down_plotter'
     CONFIG_TOP_DOWN_CAMERA = 'top_down_camera'
+    CONFIG_CONTROLLER_TIMEOUT = 'controller_timeout'
     CONFIG_VIDEO_ENABLED = 'video_enabled'
 
     # Please keep the aspect ratio as 3:2 because the IntPhys scenes are built
@@ -353,6 +354,9 @@ class ConfigManager:
     # Default time to allow on a single step before timing out
     # is 1 hour (represented in seconds)
     TIMEOUT_DEFAULT = 3600
+
+    # Default time for initalizing a controller.
+    CONTROLLER_TIMEOUT_DEFAULT = 600
 
     def __init__(self, config_file_or_dict=None):
         '''
@@ -506,71 +510,32 @@ class ConfigManager:
         )
 
     def is_depth_maps_enabled(self) -> bool:
-        metadata_tier = self.get_metadata_tier()
-
-        allowed_by_config = not self._config.getboolean(
+        return not self._config.getboolean(
             self.CONFIG_DEFAULT_SECTION,
             self.CONFIG_DISABLE_DEPTH_MAPS,
             fallback=False
         )
-        allowed_by_metadata_tier = metadata_tier in [
-            MetadataTier.LEVEL_1,
-            MetadataTier.LEVEL_2,
-            MetadataTier.ORACLE,
-        ]
-        if allowed_by_metadata_tier and allowed_by_config:
-            return True
-        else:
-            return False
 
     def is_only_return_object_goal(self) -> bool:
-        metadata_tier = self.get_metadata_tier()
-        allowed_by_config = self._config.getboolean(
+        return self._config.getboolean(
             self.CONFIG_DEFAULT_SECTION,
             self.CONFIG_ONLY_RETURN_GOAL_OBJECT,
             fallback=False
         )
-        allowed_by_metadata_tier = metadata_tier in [
-            MetadataTier.ORACLE
-        ]
-        if allowed_by_metadata_tier and allowed_by_config:
-            return True
-        else:
-            return False
 
     def is_position_disabled(self) -> bool:
-        metadata_tier = self.get_metadata_tier()
-        allowed_by_config = not self._config.getboolean(
+        return self._config.getboolean(
             self.CONFIG_DEFAULT_SECTION,
             self.CONFIG_DISABLE_POSITION,
             fallback=False
         )
-        allowed_by_metadata_tier = metadata_tier in [
-            MetadataTier.ORACLE
-        ]
-
-        if allowed_by_metadata_tier and allowed_by_config:
-            return False
-        else:
-            return True
 
     def is_object_masks_enabled(self) -> bool:
-        metadata_tier = self.get_metadata_tier()
-        allowed_by_config = not self._config.getboolean(
+        return not self._config.getboolean(
             self.CONFIG_DEFAULT_SECTION,
             self.CONFIG_DISABLE_OBJECT_MASKS,
             fallback=False
         )
-        allowed_by_metadata_tier = (metadata_tier != MetadataTier.LEVEL_1 and
-                                    metadata_tier in
-                                    [
-                                        MetadataTier.LEVEL_2,
-                                        MetadataTier.ORACLE,
-                                    ])
-        if allowed_by_metadata_tier and allowed_by_config:
-            return True
-        else:
-            return False
 
     def get_screen_size(self) -> Tuple[int, int]:
         return (self.get_screen_width(), self.get_screen_height())
@@ -610,6 +575,24 @@ class ConfigManager:
             fallback=self.STEPS_ALLOWED_IN_LAVA_DEFAULT
         )
 
+    def get_controller_timeout(self):
+        """ Time (in seconds) to allow a run to be idle
+        before attempting to end scene"""
+        return self._config.getint(
+            self.CONFIG_DEFAULT_SECTION,
+            self.CONFIG_CONTROLLER_TIMEOUT,
+            fallback=self.CONTROLLER_TIMEOUT_DEFAULT
+        )
+
+    def set_controller_timeout(self, seconds):
+        """ Time (in seconds) to allow a controller to initialization
+        before attempting to end scene"""
+        return self._config.set(
+            self.CONFIG_DEFAULT_SECTION,
+            self.CONFIG_CONTROLLER_TIMEOUT,
+            seconds
+        )
+
     def get_timeout(self):
         """ Time (in seconds) to allow a run to be idle
         before attempting to end scene"""
@@ -617,6 +600,15 @@ class ConfigManager:
             self.CONFIG_DEFAULT_SECTION,
             self.CONFIG_TIMEOUT,
             fallback=self.TIMEOUT_DEFAULT
+        )
+
+    def set_timeout(self, seconds):
+        """ Setting the time (in seconds) to allow a run to be idle
+        before attempting to end scene"""
+        return self._config.set(
+            self.CONFIG_DEFAULT_SECTION,
+            self.CONFIG_TIMEOUT,
+            seconds
         )
 
     def is_top_down_plotter(self) -> bool:
@@ -649,6 +641,7 @@ class SceneConfiguration(BaseModel):
     holes: List[Vector2dInt] = []
     intuitive_physics: bool = False
     isometric: bool = False
+    isometric_front_right: bool = False
     lava: List[Vector2dInt] = []
     name: Optional[str]
     objects: List[SceneObject] = []
@@ -733,6 +726,7 @@ class SceneConfiguration(BaseModel):
             ))
 
         goal = self.goal
+        goal.metadata = goal.metadata or {}
 
         # Transform action list data from strings to tuples.
         action_list = goal.action_list or []

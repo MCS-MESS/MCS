@@ -7,12 +7,15 @@ import io
 import json
 import logging
 import os
+import platform
 import threading
 import time
 from typing import Dict, List, Optional, Union
 
 import ai2thor.controller
+import ai2thor.fifo_server
 import ai2thor.server
+import ai2thor.wsgi_server
 import numpy as np
 import typeguard  # can we replace with pydantic function validator?
 
@@ -47,6 +50,16 @@ def __reset_override(self, scene):
 
 
 ai2thor.controller.Controller.reset = __reset_override
+
+
+def __stop_unity_override(self):
+    if self.server and self.server.unity_proc:
+        self.killing_unity = True
+        # Cannot use os.kill on Windows due to permissions, so use Popen.kill.
+        self.server.unity_proc.kill()
+
+
+ai2thor.controller.Controller.stop_unity = __stop_unity_override
 
 
 def __image_depth_override(self, image_depth_data, **kwargs):
@@ -93,6 +106,10 @@ class Controller():
     @typeguard.typechecked
     def __init__(self, unity_app_file_path: str, config: ConfigManager):
 
+        server_class = ai2thor.fifo_server.FifoServer
+        if platform.system() == 'Windows':
+            # Cannot use os.mkfifo on Windows, so use ai2thor's WSGI server.
+            server_class = ai2thor.wsgi_server.WsgiServer
         # Suppress print statements from the AI2-THOR Controller's constructor.
         with contextlib.redirect_stdout(io.StringIO()) as _:
             self._controller = ai2thor.controller.Controller(
@@ -103,6 +120,7 @@ class Controller():
                 width=config.get_screen_width(),
                 height=config.get_screen_height(),
                 scene='MCS',  # Unity scene name
+                server_class=server_class,
                 logs=True,
                 # This constructor always initializes a scene, so add a scene
                 # config to ensure it doesn't error
@@ -151,9 +169,9 @@ class Controller():
         self._timer_in_progress = False
         timeout_seconds = self._config.get_timeout()
 
-        if(self._last_step_check < self.__step_number):
+        if (self._last_step_check < self.__step_number):
             # skip step check for Initialize step
-            if(self.__step_number != 0):
+            if (self.__step_number != 0):
                 self._last_step_check = self.__step_number
 
             timer_seconds = timeout_seconds - \
@@ -165,9 +183,10 @@ class Controller():
             self._timer_in_progress = True
         else:
             time_str = str(datetime.timedelta(seconds=timeout_seconds))
-            logger.debug(
+            logger.warning(
                 f"Attempting to end scene due to inactivity (user not taking"
-                f" any steps) for {time_str} (hh:mm:ss)")
+                f" any steps). Currently this polls for step progress "
+                f"every {time_str} (hh:mm:ss)")
             self.end_scene(rating=None, score=-1)
 
             _thread.interrupt_main()
@@ -237,10 +256,11 @@ class Controller():
 
         ai2thor_step = self.parameter_converter.wrap_step(
             output_folder=self.__output_folder,
-            action='Initialize',
             sceneConfig=sc,
             goal_object_ids=self.__goal_object_ids)
-        step_output = self._controller.step(ai2thor_step)
+        # Must call reset first, which automatically initializes the new scene.
+        self._controller.initialization_parameters = ai2thor_step
+        step_output = self._controller.reset(scene='MCS')
 
         self._output_handler.set_scene_config(scene_config)
         (pre_restrict_output, output) = self._output_handler.handle_output(
@@ -275,7 +295,7 @@ class Controller():
 
             # TODO Should this be in the if block?  Now that we are using
             # subscribers, we may want to always register
-            if(self._failure_handler_registered is False and
+            if (self._failure_handler_registered is False and
                     self._config.is_history_enabled()):
                 # make sure history file is written when program exits
                 atexit.register(self.end_scene, rating=None, score=-1)
@@ -297,8 +317,7 @@ class Controller():
             return config_data
         return SceneConfiguration(**config_data)
 
-    @typeguard.typechecked
-    def step(self, action: str, **kwargs) -> Optional[StepMetadata]:
+    def step(self, action: str, **kwargs: str) -> Optional[StepMetadata]:
         """
         Runs the given action within the current scene.
 
@@ -504,7 +523,7 @@ class Controller():
             }
 
         """
-        if(not self._end_scene_called):
+        if (not self._end_scene_called):
             payload = self._create_event_payload_kwargs()
             payload['rating'] = rating
             payload['score'] = score

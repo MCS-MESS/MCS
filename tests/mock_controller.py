@@ -38,6 +38,7 @@ class MockController():
     '''Mock of the Controller class from the AI2-THOR library.'''
 
     def __init__(self):
+        self.initialization_parameters = None
         self.__last_step_data = None
         self.__last_metadata = MOCK_VARIABLES['metadata'].copy()
         self._subscribers = []
@@ -55,6 +56,10 @@ class MockController():
         return ai2thor.server.MultiAgentEvent(
             0, [event for _ in range(MOCK_VARIABLES['event_count'])]
         )
+
+    def reset(self, scene):
+        self.initialization_parameters['action'] = 'Initialize'
+        return self.step(self.initialization_parameters)
 
     def get_last_step_data(self):
         return self.__last_step_data
@@ -75,7 +80,7 @@ class MockControllerAI2THOR(Controller):
         check_config_path = os.getenv(
             ConfigManager.CONFIG_FILE_ENV_VAR, None)
 
-        if(check_config_path is not None):
+        if (check_config_path is not None):
             os.environ.pop(ConfigManager.CONFIG_FILE_ENV_VAR)
 
         self._subscribers = []

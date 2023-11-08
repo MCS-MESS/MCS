@@ -2,8 +2,8 @@
 Installation and Setup
 =======================
 
-.. _Download and unzip the Mac ZIP: https://github.com/NextCenturyCorporation/MCS/releases/download/0.6.5/MCS-AI2-THOR-Unity-App-v0.6.5-mac.zip
-.. _Download and unzip the Linux ZIP: https://github.com/NextCenturyCorporation/MCS/releases/download/0.6.5/MCS-AI2-THOR-Unity-App-v0.6.5-linux.zip
+.. _Download and unzip the Mac ZIP: https://github.com/NextCenturyCorporation/MCS/releases/download/0.7.3/MCS-AI2-THOR-Unity-App-v0.7.3-mac.zip
+.. _Download and unzip the Linux ZIP: https://github.com/NextCenturyCorporation/MCS/releases/download/0.7.3/MCS-AI2-THOR-Unity-App-v0.7.3-linux.zip
 
 Virtual Environments
 ------------------------
@@ -227,6 +227,20 @@ step_penalty
 (float, optional)
 
 Changes the negative penalty recieved for every step. Default: 0.001
+
+timeout
+^^^^^^^
+
+(int, optional)
+
+Sets the time (in seconds) to allow on a single step before timing out. Default 3600
+
+controller_timeout
+^^^^^^^^^^^^^^^^^^
+
+(int, optional)
+
+Sets the time (in seconds) to allow on controller initialization before timing out. Default 600
 
 terminal_output
 ^^^^^^^^^^^^^^^
